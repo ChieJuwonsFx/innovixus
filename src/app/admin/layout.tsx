@@ -15,7 +15,6 @@ import ThemeToggle from "@/components/ThemeToggle";
 import { motion, AnimatePresence } from 'framer-motion';
 import clsx from 'clsx';
 
-
 function UserNav() {
   const [isOpen, setIsOpen] = useState(false);
   const user = { name: 'Admin', email: 'admin@innovixus.com', role: 'Administrator', image: 'https://i.pravatar.cc/100' };
@@ -56,10 +55,10 @@ function NavItem({ href, icon: Icon, children, onLinkClick }: NavItemProps) {
   return (
     <li className="relative px-3">
       <Link href={href} onClick={onLinkClick} className={clsx(
-        "flex items-center gap-3 rounded-lg p-3 text-sm font-semibold transition-colors duration-200", 
+        "flex items-center gap-3 rounded-lg p-3 text-sm transition-colors duration-200",
         isActive
-          ? "bg-blue-50 text-blue-600 dark:bg-blue-900/50 dark:text-slate-50"
-          : "text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
+          ? "bg-blue-50 text-blue-600 dark:bg-blue-900/50 dark:text-slate-50 font-semibold"
+          : "text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 font-medium"
       )}>
         {isActive && <motion.div layoutId="active-pill" className="absolute left-0 top-2 bottom-2 w-1 bg-blue-600 rounded-r-full" />}
         <Icon className={clsx("w-5 h-5", isActive ? "text-blue-600 dark:text-blue-400" : "text-slate-500 dark:text-slate-500")} />
@@ -100,7 +99,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   return (
     <div className="bg-slate-100 dark:bg-slate-950 min-h-screen">
       
-      <header className="fixed top-4 left-4 right-4 h-[72px] z-40 bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg rounded-2xl shadow-lg shadow-blue-600/5 dark:shadow-blue-500/10 border border-slate-200/80 dark:border-slate-800/80">
+      <header className="fixed top-4 left-4 right-4 h-[72px] z-40 bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg rounded-2xl shadow-xl shadow-blue-600/5 dark:shadow-blue-600/10 border border-slate-200/80 dark:border-slate-800/80">
           <div className="px-6 h-full flex items-center justify-between">
             <div className="flex items-center">
                 <Link href="/admin" className="flex items-center gap-3">
@@ -124,9 +123,9 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
 
       <aside className={clsx(
         "fixed top-0 left-0 h-full w-72 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 z-30 transform transition-transform duration-300 ease-in-out shadow-xl shadow-blue-600/5 dark:shadow-blue-500/10",
-        isSidebarOpen ? "translate-x-0" : "-translate-x-full" 
+        isSidebarOpen ? "translate-x-0" : "-translate-x-full"
       )}>
-        <div className="pt-28 h-full flex flex-col">
+        <div className="pt-32 h-full flex flex-col">
             <nav className="flex-1">
                 <ul className="list-none p-0 m-0 space-y-2">
                     <NavItem href="/admin" icon={LayoutDashboard} onLinkClick={closeSidebarOnMobile}>Dashboard</NavItem>
