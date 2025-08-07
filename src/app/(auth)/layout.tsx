@@ -76,7 +76,7 @@ interface AuthLayoutProps {
 
 export default function AuthLayout({ children, scrollable = true }: AuthLayoutProps) {
     return (
-        <div className={`flex h-screen bg-white dark:bg-gray-900 ${scrollable ? 'overflow-y-auto' : 'overflow-hidden'}`}>
+        <div className={`flex h-screen bg-white dark:bg-slate-800 ${scrollable ? 'overflow-y-auto' : 'overflow-hidden'}`}>
             <div className="hidden md:flex md:w-1/2 relative items-center justify-center p-12 overflow-hidden">
                 <div className="absolute inset-0 z-20">
                     <AnimatedIconsRain />
@@ -90,7 +90,7 @@ export default function AuthLayout({ children, scrollable = true }: AuthLayoutPr
                             animate={{ y: 10 }}
                             transition={{ duration: 2, ease: 'easeInOut', repeat: Infinity, repeatType: 'mirror' }}
                         >
-                            <Image src="/logo/logo-dark.png" alt="Logo" width={110} height={110} className="dark:hidden relative object-contain drop-shadow-lg mx-auto" priority />
+                            <Image src="/logo/logo.png" alt="Logo" width={110} height={110} className="dark:hidden relative object-contain drop-shadow-lg mx-auto" priority />
                             <Image src="/logo/logo-white.png" alt="Logo" width={110} height={110} className="hidden dark:block relative object-contain drop-shadow-lg mx-auto" priority />
                         </motion.div>
                         <h2 className="text-3xl font-bold text-black dark:text-white">Innovixus</h2>

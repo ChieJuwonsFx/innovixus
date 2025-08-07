@@ -1,45 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react'; 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { AuthForm } from '@/components/auth/AuthForm';
-import { Lock, Shield, CheckCircle, AlertTriangle, ChevronDown } from 'lucide-react';
+import { Shield, CheckCircle, AlertTriangle, ChevronDown } from 'lucide-react';
 
 export default function UpdatePasswordPage() {
-  const [password, setPassword] = useState('');
-  const [strength, setStrength] = useState(0);
-  const [strengthColor, setStrengthColor] = useState('bg-gray-300');
   const [isAccordionOpen, setIsAccordionOpen] = useState(false);
-
-  // Fungsi untuk menghitung kekuatan kata sandi
-  const calculateStrength = (pass: string) => {
-    let score = 0;
-    if (pass.length > 7) score += 25;
-    if (pass.match(/[A-Z]/)) score += 25;
-    if (pass.match(/[0-9]/)) score += 25;
-    if (pass.match(/[^A-Za-z0-9]/)) score += 25;
-    return score;
-  };
-
-  // useEffect untuk memantau perubahan password
-  useEffect(() => {
-    const newStrength = calculateStrength(password);
-    setStrength(newStrength);
-
-    if (newStrength < 50) {
-      setStrengthColor('bg-red-500');
-    } else if (newStrength < 75) {
-      setStrengthColor('bg-yellow-500');
-    } else {
-      setStrengthColor('bg-green-500');
-    }
-  }, [password]);
-
-  // Callback untuk menerima password dari AuthForm
-  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setPassword(e.target.value);
-  };
 
   return (
     <motion.div
@@ -57,23 +25,8 @@ export default function UpdatePasswordPage() {
         </p>
       </div>
 
-      <div className="space-y-4">
-        <AuthForm type="update-password" onPasswordChange={handlePasswordChange} />
-        <div className="space-y-2 pt-2">
-          <div className="flex items-center justify-between text-xs font-medium text-gray-500 dark:text-gray-400">
-            <span>Lemah</span>
-            <span>Kuat</span>
-          </div>
-          <div className="h-2 w-full rounded-full bg-gray-200 dark:bg-gray-700">
-            <div
-              className={`h-2 rounded-full transition-all duration-300 ${strength > 0 ? strengthColor : 'bg-transparent'}`}
-              style={{ width: `${strength}%` }}
-            />
-          </div>
-        </div>
-      </div>
+        <AuthForm type="update-password" />
       
-      {/* Accordion untuk Informasi Tambahan */}
       <div className="rounded-xl border border-gray-200 bg-slate-50 dark:border-gray-700 dark:bg-slate-800/50">
         <button
           onClick={() => setIsAccordionOpen(!isAccordionOpen)}
@@ -104,7 +57,7 @@ export default function UpdatePasswordPage() {
                 <AlertTriangle size={16} />
                 Pemberitahuan
               </h3>
-              <p className="text-sm text-yellow-800 dark:text-yellow-300">
+              <p className="text-sm text-yellow-800 dark:text-yellow-30ou0">
                 Setelah berhasil, Anda akan keluar dari perangkat lain.
               </p>
             </div>

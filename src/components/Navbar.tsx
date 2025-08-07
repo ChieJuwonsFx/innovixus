@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
@@ -229,10 +229,10 @@ export default function PublicNavbar() {
     
     return (
       <>
-        <Link href="/login" className="text-blue-600 bg-white border border-blue-600 hover:bg-blue-600 hover:text-white font-medium rounded-lg text-sm px-4 py-2 transition-all duration-300">
+        <Link href="/login" className="text-blue-500 bg-white border border-blue-600 hover:bg-blue-700 hover:text-white font-medium rounded-lg text-sm px-4 py-2 transition-all duration-300 dark:text-blue-500 dark:bg-transparent dark:border-blue-500 dark:hover:bg-blue-500 dark:hover:bg-blue-500">
           Login
         </Link>
-        <Link href="/register" className="text-white bg-blue-600 border border-blue-600 hover:bg-blue-700 font-medium rounded-lg text-sm px-4 py-2 transition-all duration-300">
+        <Link href="/register" className="text-white bg-blue-500 border border-blue-500 hover:bg-blue-700 font-medium rounded-lg text-sm px-4 py-2 transition-all duration-300 dark:bg-blue-500 dark:border-blue-500 dark:hover:bg-transparent dark:hover:text-blue-500">
           Register
         </Link>
       </>
@@ -275,10 +275,10 @@ export default function PublicNavbar() {
     
     return (
       <div className="flex gap-3">
-        <Link href="/login" onClick={closeAllMenus} className="flex-1 text-center text-blue-600 bg-white border border-blue-600 hover:bg-blue-600 hover:text-white font-medium rounded-lg text-sm px-4 py-2 transition-all duration-300">
+        <Link href="/login" onClick={closeAllMenus} className="flex-1 text-center text-blue-600 bg-white border border-blue-600 hover:bg-blue-600 hover:text-white font-medium rounded-lg text-sm px-4 py-2 transition-all duration-300 dark:text-blue-400 dark:bg-transparent dark:border-blue-400 dark:hover:bg-blue-400 dark:hover:text-slate-900">
           Login
         </Link>
-        <Link href="/register" onClick={closeAllMenus} className="flex-1 text-center text-white bg-blue-600 border border-blue-600 hover:bg-blue-700 font-medium rounded-lg text-sm px-4 py-2 transition-all duration-300">
+        <Link href="/register" onClick={closeAllMenus} className="flex-1 text-center text-white bg-blue-600 border border-blue-600 hover:bg-blue-700 font-medium rounded-lg text-sm px-4 py-2 transition-all duration-300 dark:bg-blue-500 dark:border-blue-500 dark:hover:bg-blue-600">
           Register
         </Link>
       </div>
@@ -287,13 +287,13 @@ export default function PublicNavbar() {
 
   return (
     <header className={clsx(
-      "fixed top-4 left-4 right-4 h-[72px] z-50 bg-white dark:bg-slate-900 backdrop-blur-lg rounded-2xl border border-slate-200/80 dark:border-slate-800/80 transition-shadow duration-300",
+      "fixed top-4 left-4 right-4 h-[72px] z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg rounded-2xl border border-slate-200/80 dark:border-slate-800/80 transition-shadow duration-300 mb-24",
       isScrolled && "shadow-lg dark:shadow-black/20"
     )}>
       <div className="px-6 h-full flex items-center justify-between">
         <Link href="/" className="flex items-center gap-3" onClick={closeAllMenus}>
           <div className="w-9 h-9 flex items-center justify-center">
-            <Image src="/logo/logo-dark.png" alt="Logo" width={32} height={32} className="dark:hidden" />
+            <Image src="/logo/logo.png" alt="Logo" width={32} height={32} className="dark:hidden" />
             <Image src="/logo/logo-white.png" alt="Logo" width={32} height={32} className="hidden dark:block" />
           </div>
           <span className="hidden sm:block text-xl font-bold text-slate-800 dark:text-white">InnoVixus</span>

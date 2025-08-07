@@ -29,3 +29,11 @@ body {
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  box-shadow: 0 0 0 30px #1f2937 inset !important;
+
+  -webkit-text-fill-color: white !important;
+}

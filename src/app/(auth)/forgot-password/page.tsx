@@ -13,7 +13,6 @@ export default function ForgotPasswordPage() {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
     >
-      {/* Header */}
       <div className="space-y-3 text-center">
         <div className="mt-6 space-y-2">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
@@ -25,10 +24,8 @@ export default function ForgotPasswordPage() {
         </div>
       </div>
 
-      {/* Form */}
       <AuthForm type="forgot-password" />
 
-      {/* Tautan Kembali ke Login */}
       <div className="text-center">
         <Link
           href="/login"
@@ -39,7 +36,6 @@ export default function ForgotPasswordPage() {
         </Link>
       </div>
 
-      {/* Informasi Gabungan yang Lebih Ringkas */}
       <div className="space-y-4 rounded-xl border border-gray-200 bg-slate-50 p-5 dark:border-gray-700 dark:bg-slate-800/50">
         <h3 className="flex items-center gap-2 text-sm font-semibold text-gray-800 dark:text-gray-200">
           <Shield size={16} className="text-purple-600 dark:text-purple-400" />
@@ -57,7 +53,6 @@ export default function ForgotPasswordPage() {
         </ul>
       </div>
 
-      {/* Bantuan */}
       <div className="pt-2 text-center text-sm">
         <p className="text-gray-600 dark:text-gray-400">
           Butuh bantuan lebih lanjut?{' '}

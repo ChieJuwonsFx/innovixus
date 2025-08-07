@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { FormMessage } from './FormMessage';
 import { signInWithGoogle } from '@/lib/supabase/auth';
 
-// Komponen Ikon Google (Tidak ada perubahan, ikon brand tetap sama)
 const GoogleIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
     <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
@@ -18,7 +17,6 @@ export const SocialAuth = () => {
   const [message, setMessage] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Logika handleGoogleLogin tetap sama, sudah bagus!
   const handleGoogleLogin = async () => {
     setIsLoading(true);
     setMessage(null);
@@ -42,13 +40,12 @@ export const SocialAuth = () => {
     <div className="space-y-4">
       {message && <FormMessage type={message.type} message={message.message} />}
 
-      {/* --- SEPARATOR YANG DIPERBAIKI --- */}
       <div className="relative">
         <div className="absolute inset-0 flex items-center">
           <div className="w-full border-t border-gray-200 dark:border-gray-700" />
         </div>
         <div className="relative flex justify-center text-xs">
-          <span className="bg-white px-2 text-gray-500 dark:bg-gray-900 dark:text-gray-400">
+          <span className="bg-white px-2 text-gray-500 dark:bg-slate-800 dark:text-gray-400">
             Atau lanjutkan dengan
           </span>
         </div>

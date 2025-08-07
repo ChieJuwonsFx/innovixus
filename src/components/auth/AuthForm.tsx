@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { signInWithEmail, signUpWithEmail, resetPassword, updatePassword } from '@/lib/supabase/auth';
 import { Eye, EyeOff, AlertCircle } from 'lucide-react';
 
-// --- Komponen Pesan Sukses (Ditempatkan di atas form) ---
 const SuccessMessage = ({ message }: { message: string }) => {
   if (!message) return null;
   return (
@@ -15,7 +14,6 @@ const SuccessMessage = ({ message }: { message: string }) => {
   );
 };
 
-// --- Komponen Pesan Error di Bawah Input ---
 const InputError = ({ message }: { message: string }) => {
   if (!message) return null;
   return (
@@ -26,7 +24,6 @@ const InputError = ({ message }: { message: string }) => {
   );
 };
 
-// --- Komponen Spinner ---
 const SpinnerIcon = () => (
   <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-current" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
@@ -34,7 +31,6 @@ const SpinnerIcon = () => (
   </svg>
 );
 
-// --- Tipe untuk State Error ---
 interface FormErrors {
   name?: string;
   email?: string;
@@ -43,7 +39,6 @@ interface FormErrors {
   general?: string;
 }
 
-// --- Fungsi untuk menghitung kekuatan password ---
 const calculatePasswordStrength = (password: string): { score: number; label: string } => {
   const checks = {
     length: password.length >= 8,
@@ -65,7 +60,6 @@ const calculatePasswordStrength = (password: string): { score: number; label: st
   return { score, label };
 };
 
-// --- Fungsi untuk memvalidasi apakah password sudah kuat ---
 const isPasswordStrong = (password: string): boolean => {
   const hasLength = password.length >= 8;
   const hasLowercase = /[a-z]/.test(password);
@@ -73,11 +67,9 @@ const isPasswordStrong = (password: string): boolean => {
   const hasNumbers = /\d/.test(password);
   const hasSymbols = /[^A-Za-z0-9]/.test(password);
 
-  // Password kuat jika memenuhi SEMUA kriteria
   return hasLength && hasLowercase && hasUppercase && hasNumbers && hasSymbols;
 };
 
-// --- Komponen Utama AuthForm ---
 interface AuthFormProps {
   type: 'login' | 'register' | 'forgot-password' | 'update-password';
   onSuccess?: () => void;
@@ -94,15 +86,13 @@ export const AuthForm = ({ type, onSuccess, onPasswordChange }: AuthFormProps) =
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [hasSubmitted, setHasSubmitted] = useState(false);
+
   const router = useRouter();
 
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    // Hanya tampilkan error jika sudah pernah submit
-    if (!hasSubmitted) return true;
 
     if (type !== 'update-password' && (!email.trim() || !emailRegex.test(email))) {
       newErrors.email = 'Harap masukkan alamat email yang valid.';
@@ -112,12 +102,9 @@ export const AuthForm = ({ type, onSuccess, onPasswordChange }: AuthFormProps) =
       newErrors.name = 'Nama lengkap wajib diisi.';
     }
     
-    // --- ✅ LOGIKA VALIDASI PASSWORD TERPUSAT ---
     if ((type === 'login' || type === 'register' || type === 'update-password')) {
-        // Prioritas 1: Cek apakah kosong
         if (!password.trim()) {
             newErrors.password = 'Kata sandi wajib diisi.';
-        // Prioritas 2: Jika tidak kosong, cek kekuatannya (hanya untuk register/update)
         } else if ((type === 'register' || type === 'update-password') && !isPasswordStrong(password)) {
             newErrors.password = 'Password harus mengandung: 8+ karakter, huruf besar & kecil, angka, dan simbol.';
         }
@@ -136,13 +123,9 @@ export const AuthForm = ({ type, onSuccess, onPasswordChange }: AuthFormProps) =
   };
 
   const handleAuthAction = async () => {
-    setHasSubmitted(true);
     setErrors({});
     
-    // Sekarang, 'validateForm' sudah menangani semua validasi secara berurutan
     if (!validateForm()) return;
-
-    // --- ❌ BLOK VALIDASI KEKUATAN PASSWORD YANG REDUNDAN SUDAH DIHAPUS DARI SINI ---
 
     setIsLoading(true);
     setSuccessMessage('');
@@ -159,7 +142,6 @@ export const AuthForm = ({ type, onSuccess, onPasswordChange }: AuthFormProps) =
           if (!result.error) {
             setSuccessMessage('Pendaftaran berhasil! Silakan periksa email Anda untuk verifikasi.');
             setName(''); setEmail(''); setPassword(''); setConfirmPassword('');
-            setHasSubmitted(false);
           }
           break;
         case 'forgot-password':
@@ -167,7 +149,6 @@ export const AuthForm = ({ type, onSuccess, onPasswordChange }: AuthFormProps) =
           if (!result.error) {
             setSuccessMessage('Tautan reset kata sandi telah dikirim ke email Anda.');
             setEmail('');
-            setHasSubmitted(false);
           }
           break;
         case 'update-password':
@@ -214,13 +195,12 @@ export const AuthForm = ({ type, onSuccess, onPasswordChange }: AuthFormProps) =
     'update-password': 'Perbarui Kata Sandi',
   }[type] || 'Submit');
 
-  // Password strength info
   const passwordStrength = password ? calculatePasswordStrength(password) : { score: 0, label: '' };
 
   const inputClasses = "w-full p-3 border rounded-lg transition-colors focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400";
   const passwordInputClasses = `${inputClasses} pr-12`;
   const labelClasses = "block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300";
-  const buttonClasses = "w-full flex justify-center items-center bg-blue-600 hover:bg-blue-700 text-white font-semibold p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-70 disabled:cursor-not-allowed transition-all duration-200";
+  const buttonClasses = "w-full flex justify-center items-center bg-blue-600 hover:bg-blue-700 text-white font-semibold p-3 rounded-lg focus:outline-none disabled:opacity-70 disabled:cursor-not-allowed transition-all duration-200";
 
   return (
     <form onSubmit={(e) => { e.preventDefault(); handleAuthAction(); }} className="space-y-5">
@@ -313,7 +293,6 @@ export const AuthForm = ({ type, onSuccess, onPasswordChange }: AuthFormProps) =
           </div>
           <InputError message={errors.confirmPassword || ''} />
           
-          {/* Password Strength Indicator */}
           {(type === 'register' || type === 'update-password') && password && (
             <div className="mt-3 space-y-2">
               <div className="flex justify-between text-xs">
@@ -348,7 +327,6 @@ export const AuthForm = ({ type, onSuccess, onPasswordChange }: AuthFormProps) =
         </div>
       )}
 
-      {/* General error untuk non-login types */}
       {errors.general && type !== 'login' && (
         <InputError message={errors.general} />
       )}

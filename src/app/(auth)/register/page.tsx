@@ -13,7 +13,6 @@ export default function RegisterPage() {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
     >
-      {/* Header yang Disederhanakan */}
       <div className="space-y-2 text-center">
         <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100">
           Bergabung Bersama Kami
@@ -26,7 +25,6 @@ export default function RegisterPage() {
       <AuthForm type="register" />
       <SocialAuth />
 
-      {/* Footer */}
       <div className="space-y-4 pt-2 text-center">
         <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
           Dengan mendaftar, Anda menyetujui{' '}

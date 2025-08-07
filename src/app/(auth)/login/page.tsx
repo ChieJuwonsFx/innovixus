@@ -23,16 +23,11 @@ export default function LoginPage() {
         </p>
       </div>
 
-      {/* Form */}
       <AuthForm type="login" />
 
-      {/* Social Auth */}
       <SocialAuth />
 
-      {/* --- BAGIAN YANG DIPERBAIKI --- */}
-      {/* Footer Links yang lebih ringkas */}
       <div className="pt-2 text-center space-y-3">
-        {/* Tautan Lupa Kata Sandi */}
         <Link
           href="/forgot-password"
           className="inline-flex items-center text-sm font-medium text-blue-600 transition-colors hover:underline dark:text-blue-400"
@@ -41,7 +36,6 @@ export default function LoginPage() {
           Lupa kata sandi?
         </Link>
 
-        {/* Tautan Buat Akun Baru yang baru dan lebih hemat tempat */}
         <p className="text-sm text-gray-600 dark:text-gray-400">
           Belum punya akun?{' '}
           <Link

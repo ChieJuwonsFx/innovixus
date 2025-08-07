@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { SearchX, Home, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 
 export default function NotFound() {
   const router = useRouter();
