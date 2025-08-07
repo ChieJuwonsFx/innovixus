@@ -3,42 +3,66 @@
 import { ReactNode, useState, useEffect, useCallback, ElementType } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import {
   LayoutDashboard,
   Users,
   Settings,
   LogOut,
   Menu,
+  X,
 } from 'lucide-react';
 import ThemeToggle from "@/components/ThemeToggle";
 import { motion, AnimatePresence } from 'framer-motion';
 import clsx from 'clsx';
 
-function UserNav() {
+type Profile = {
+  id: string;
+  name: string;
+  email: string;
+  avatar: string | null;
+  role: 'User' | 'Admin';
+};
+
+function UserNav({ profile, onSignOut }: { profile: Profile | null, onSignOut: () => void }) {
   const [isOpen, setIsOpen] = useState(false);
-  const user = { name: 'Admin', email: 'admin@innovixus.com', role: 'Administrator', image: 'https://i.pravatar.cc/100' };
   
+  if (!profile) {
+    return <div className="w-9 h-9 rounded-full bg-slate-200 dark:bg-slate-700 animate-pulse"></div>;
+  }
+  
+  const profilePath = profile.role === 'Admin' ? '/admin/profile' : '/profile';
+
   return (
     <div className="relative">
       <button onClick={() => setIsOpen(!isOpen)} className="flex items-center gap-3 focus:outline-none group">
-        {/* <Image 
+        {profile.avatar ? (
+          <Image 
             className="w-9 h-9 rounded-full border-2 border-slate-200 dark:border-slate-700 object-cover shadow-sm"
-            src={user.image} alt="User profile" width={36} height={36}
-        /> */}
+            src={profile.avatar} alt="User profile" width={36} height={36}
+          />
+        ) : (
+          <div className="w-9 h-9 rounded-full flex items-center justify-center bg-blue-600 text-white font-bold text-sm border-2 border-slate-200 dark:border-slate-700 shadow-sm">
+            {profile.name?.charAt(0).toUpperCase()}
+          </div>
+        )}
         <div className="hidden md:block text-left">
-          <p className="text-sm font-semibold text-slate-800 dark:text-slate-100 leading-tight">{user.name}</p>
-          <p className="text-xs text-slate-500 dark:text-slate-400 leading-tight">{user.role}</p>
+          <p className="text-sm font-semibold text-slate-800 dark:text-slate-100 leading-tight">{profile.name}</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400 leading-tight">{profile.role}</p>
         </div>
       </button>
       <AnimatePresence>
         {isOpen && (
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }} transition={{ duration: 0.2, ease: "easeOut" }}
             className="absolute right-0 mt-2 w-56 bg-white dark:bg-slate-800 rounded-lg shadow-xl z-50 border border-slate-200 dark:border-slate-700 overflow-hidden">
-            <div className="px-4 py-3 border-b border-slate-200 dark:border-slate-700"><p className="text-sm font-semibold text-slate-900 dark:text-slate-50">{user.name}</p><p className="text-xs text-slate-500 dark:text-slate-400">{user.email}</p></div>
-            <Link href="/admin/profile" className="block px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Your Profile</Link>
+            <div className="px-4 py-3 border-b border-slate-200 dark:border-slate-700">
+              <p className="text-sm font-semibold text-slate-900 dark:text-slate-50">{profile.name}</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{profile.email}</p>
+            </div>
+            <Link href={profilePath} onClick={() => setIsOpen(false)} className="block px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Your Profile</Link>
             <div className="border-t border-slate-100 dark:border-slate-700"></div>
-            <button className="block w-full text-left px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 transition-colors">Sign out</button>
+            <button onClick={onSignOut} className="block w-full text-left px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 transition-colors">Sign out</button>
           </motion.div>
         )}
       </AnimatePresence>
@@ -50,7 +74,7 @@ type NavItemProps = { href: string; icon: ElementType; children: ReactNode; onLi
 
 function NavItem({ href, icon: Icon, children, onLinkClick }: NavItemProps) {
   const pathname = usePathname();
-  const isActive = pathname === href;
+  const isActive = pathname === href || (href !== "/admin" && pathname.startsWith(href));
 
   return (
     <li className="relative px-3">
@@ -70,13 +94,41 @@ function NavItem({ href, icon: Icon, children, onLinkClick }: NavItemProps) {
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [profile, setProfile] = useState<Profile | null>(null); 
   const pathname = usePathname();
+  const router = useRouter();
+  const supabase = createClientComponentClient();
 
+  useEffect(() => {
+    const getProfileData = async () => {
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+
+      if (sessionError || !session) {
+        router.push('/login');
+        return;
+      }
+      
+      const { data: userProfile, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', session.user.id)
+        .single();
+      
+      if (error) {
+        console.error("Error fetching admin profile:", error);
+        router.push('/login');
+      } else {
+        setProfile(userProfile);
+      }
+    };
+    getProfileData();
+  }, [supabase, router]);
+  
   useEffect(() => {
     const savedState = localStorage.getItem('sidebarState');
     if (savedState) {
       setIsSidebarOpen(savedState === 'open');
-    } else {
+    } else if (typeof window !== 'undefined') {
       setIsSidebarOpen(window.innerWidth >= 1024);
     }
   }, []);
@@ -90,11 +142,16 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   }, []);
 
   const closeSidebarOnMobile = useCallback(() => {
-    if (window.innerWidth < 1024) {
+    if (typeof window !== 'undefined' && window.innerWidth < 1024) {
         setIsSidebarOpen(false);
         localStorage.setItem('sidebarState', 'closed');
     }
   }, []);
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    router.push('/login');
+  };
 
   return (
     <div className="bg-slate-100 dark:bg-slate-950 min-h-screen">
@@ -113,9 +170,19 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             <div className="flex items-center gap-4">
               <ThemeToggle />
               <div className="h-8 w-px bg-slate-200 dark:bg-slate-700/50"></div>
-              <UserNav />
+              <UserNav profile={profile} onSignOut={handleSignOut} />
               <button onClick={toggleSidebar} className="p-2 -mr-2 rounded-full text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700">
-                <Menu className="w-6 h-6" />
+                <AnimatePresence mode="wait" initial={false}>
+                  <motion.div
+                    key={isSidebarOpen ? 'x' : 'menu'}
+                    initial={{ rotate: -45, opacity: 0, scale: 0.7 }}
+                    animate={{ rotate: 0, opacity: 1, scale: 1 }}
+                    exit={{ rotate: 45, opacity: 0, scale: 0.7 }}
+                    transition={{ duration: 0.2, ease: 'easeOut' }}
+                  >
+                    {isSidebarOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+                  </motion.div>
+                </AnimatePresence>
               </button>
             </div>
           </div>
@@ -134,7 +201,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                 </ul>
             </nav>
             <div className="p-4 border-t border-slate-200 dark:border-slate-800">
-                <button className="flex items-center gap-3 w-full p-3 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                <button onClick={handleSignOut} className="flex items-center gap-3 w-full p-3 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
                     <LogOut className="w-5 h-5"/>
                     <span className="font-medium">Logout</span>
                 </button>

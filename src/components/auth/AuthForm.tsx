@@ -2,250 +2,360 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link'; 
-import { signInWithEmail, signUpWithEmail, resetPassword } from '@/lib/supabase/auth';
+import { signInWithEmail, signUpWithEmail, resetPassword, updatePassword } from '@/lib/supabase/auth';
+import { Eye, EyeOff, AlertCircle } from 'lucide-react';
 
-interface FormMessageProps {
-  type: 'success' | 'error';
-  message: string;
-}
-
-const FormMessage = ({ type, message }: FormMessageProps) => {
+// --- Komponen Pesan Sukses (Ditempatkan di atas form) ---
+const SuccessMessage = ({ message }: { message: string }) => {
   if (!message) return null;
-
-  const baseClasses = "p-3 rounded-md text-sm text-center";
-  const typeClasses = type === 'success' 
-    ? "bg-green-100 text-green-800" 
-    : "bg-red-100 text-red-800";
-  
   return (
-    <div className={`${baseClasses} ${typeClasses}`} role="alert">
+    <div className="p-3 rounded-lg text-sm text-center bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 border border-green-200 dark:border-green-800" role="alert">
       {message}
     </div>
   );
 };
 
+// --- Komponen Pesan Error di Bawah Input ---
+const InputError = ({ message }: { message: string }) => {
+  if (!message) return null;
+  return (
+    <div className="flex items-center gap-1 mt-1.5 text-xs text-red-600 dark:text-red-400" role="alert">
+      <AlertCircle size={14} />
+      <span>{message}</span>
+    </div>
+  );
+};
+
+// --- Komponen Spinner ---
 const SpinnerIcon = () => (
-  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-current" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
   </svg>
 );
 
-
-interface AuthFormProps {
-  type: 'login' | 'register' | 'forgot-password';
+// --- Tipe untuk State Error ---
+interface FormErrors {
+  name?: string;
+  email?: string;
+  password?: string;
+  confirmPassword?: string;
+  general?: string;
 }
 
-export const AuthForm = ({ type }: AuthFormProps) => {
+// --- Fungsi untuk menghitung kekuatan password ---
+const calculatePasswordStrength = (password: string): { score: number; label: string } => {
+  const checks = {
+    length: password.length >= 8,
+    lowercase: /[a-z]/.test(password),
+    uppercase: /[A-Z]/.test(password),
+    numbers: /\d/.test(password),
+    symbols: /[^A-Za-z0-9]/.test(password)
+  };
+
+  const passedChecks = Object.values(checks).filter(Boolean).length;
+  const score = (passedChecks / 5) * 100;
+
+  let label = 'Sangat Lemah';
+  if (passedChecks === 5) label = 'Kuat';
+  else if (passedChecks === 4) label = 'Sedang';
+  else if (passedChecks === 3) label = 'Lemah';
+  else if (passedChecks >= 1) label = 'Sangat Lemah';
+
+  return { score, label };
+};
+
+// --- Fungsi untuk memvalidasi apakah password sudah kuat ---
+const isPasswordStrong = (password: string): boolean => {
+  const hasLength = password.length >= 8;
+  const hasLowercase = /[a-z]/.test(password);
+  const hasUppercase = /[A-Z]/.test(password);
+  const hasNumbers = /\d/.test(password);
+  const hasSymbols = /[^A-Za-z0-9]/.test(password);
+
+  // Password kuat jika memenuhi SEMUA kriteria
+  return hasLength && hasLowercase && hasUppercase && hasNumbers && hasSymbols;
+};
+
+// --- Komponen Utama AuthForm ---
+interface AuthFormProps {
+  type: 'login' | 'register' | 'forgot-password' | 'update-password';
+  onSuccess?: () => void;
+  onPasswordChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+}
+
+export const AuthForm = ({ type, onSuccess, onPasswordChange }: AuthFormProps) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [name, setName] = useState('');
-  const [message, setMessage] = useState<FormMessageProps | null>(null);
+  const [successMessage, setSuccessMessage] = useState('');
+  const [errors, setErrors] = useState<FormErrors>({});
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [hasSubmitted, setHasSubmitted] = useState(false);
   const router = useRouter();
 
-  const formDetails = {
-    login: {
-      title: 'Masuk ke Akun Anda',
-      buttonText: 'Masuk',
-      linkText: 'Belum punya akun?',
-      linkActionText: 'Daftar di sini',
-      linkHref: '/auth/register',
-    },
-    register: {
-      title: 'Buat Akun Baru',
-      buttonText: 'Buat Akun',
-      linkText: 'Sudah punya akun?',
-      linkActionText: 'Masuk di sini',
-      linkHref: '/auth/login',
-    },
-    'forgot-password': {
-      title: 'Lupa Kata Sandi',
-      buttonText: 'Kirim Tautan Reset',
-      linkText: 'Ingat kata sandi Anda?',
-      linkActionText: 'Kembali untuk Masuk',
-      linkHref: '/auth/login',
-    }
-  };
-
-  const currentForm = formDetails[type];
-
-  /**
-   * Validasi input form sebelum dikirim ke server.
-   * @returns {boolean} - True jika valid, false jika tidak.
-   */
-  const validateForm = () => {
+  const validateForm = (): boolean => {
+    const newErrors: FormErrors = {};
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!email.trim() || !emailRegex.test(email)) {
-      setMessage({ type: 'error', message: 'Silakan masukkan alamat email yang valid.' });
-      return false;
-    }
 
-    if (type === 'register') {
-      if (!name.trim()) {
-        setMessage({ type: 'error', message: 'Nama lengkap wajib diisi.' });
-        return false;
-      }
-      if (password.length < 6) {
-        setMessage({ type: 'error', message: 'Kata sandi minimal harus 6 karakter.' });
-        return false;
-      }
-      if (password !== confirmPassword) {
-        setMessage({ type: 'error', message: 'Konfirmasi kata sandi tidak cocok.' });
-        return false;
-      }
+    // Hanya tampilkan error jika sudah pernah submit
+    if (!hasSubmitted) return true;
+
+    if (type !== 'update-password' && (!email.trim() || !emailRegex.test(email))) {
+      newErrors.email = 'Harap masukkan alamat email yang valid.';
     }
     
-    return true;
+    if (type === 'register' && !name.trim()) {
+      newErrors.name = 'Nama lengkap wajib diisi.';
+    }
+    
+    // --- ✅ LOGIKA VALIDASI PASSWORD TERPUSAT ---
+    if ((type === 'login' || type === 'register' || type === 'update-password')) {
+        // Prioritas 1: Cek apakah kosong
+        if (!password.trim()) {
+            newErrors.password = 'Kata sandi wajib diisi.';
+        // Prioritas 2: Jika tidak kosong, cek kekuatannya (hanya untuk register/update)
+        } else if ((type === 'register' || type === 'update-password') && !isPasswordStrong(password)) {
+            newErrors.password = 'Password harus mengandung: 8+ karakter, huruf besar & kecil, angka, dan simbol.';
+        }
+    }
+    
+    if ((type === 'register' || type === 'update-password') && password !== confirmPassword) {
+      newErrors.confirmPassword = 'Konfirmasi kata sandi tidak cocok.';
+    }
+    
+    if (type === 'forgot-password' && !email.trim()) {
+      newErrors.email = 'Email wajib diisi untuk reset password.';
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (isLoading || !validateForm()) return;
+  const handleAuthAction = async () => {
+    setHasSubmitted(true);
+    setErrors({});
+    
+    // Sekarang, 'validateForm' sudah menangani semua validasi secara berurutan
+    if (!validateForm()) return;
+
+    // --- ❌ BLOK VALIDASI KEKUATAN PASSWORD YANG REDUNDAN SUDAH DIHAPUS DARI SINI ---
 
     setIsLoading(true);
-    setMessage(null);
+    setSuccessMessage('');
 
     try {
       let result;
-      if (type === 'login') {
-        result = await signInWithEmail(email, password);
-        if (!result.error) {
-          router.push('/');
-          router.refresh();
-          return; 
-        }
-      } else if (type === 'register') {
-        result = await signUpWithEmail(email, password, name);
-        if (!result.error) {
-          setMessage({ type: 'success', message: 'Pendaftaran berhasil! Silakan periksa email Anda untuk konfirmasi.' });
-          setName('');
-          setEmail('');
-          setPassword('');
-          setConfirmPassword('');
-        }
-      } else if (type === 'forgot-password') {
-        result = await resetPassword(email);
-        if (!result.error) {
-          setMessage({ type: 'success', message: 'Tautan reset kata sandi telah dikirim! Silakan periksa email Anda.' });
-          setEmail('');
-        }
+      switch (type) {
+        case 'login':
+          result = await signInWithEmail(email, password);
+          if (!result.error) router.push('/');
+          break;
+        case 'register':
+          result = await signUpWithEmail(email, password, name);
+          if (!result.error) {
+            setSuccessMessage('Pendaftaran berhasil! Silakan periksa email Anda untuk verifikasi.');
+            setName(''); setEmail(''); setPassword(''); setConfirmPassword('');
+            setHasSubmitted(false);
+          }
+          break;
+        case 'forgot-password':
+          result = await resetPassword(email);
+          if (!result.error) {
+            setSuccessMessage('Tautan reset kata sandi telah dikirim ke email Anda.');
+            setEmail('');
+            setHasSubmitted(false);
+          }
+          break;
+        case 'update-password':
+          result = await updatePassword(password);
+          if (!result.error) {
+            setSuccessMessage('Kata sandi berhasil diperbarui! Mengalihkan ke halaman login...');
+            setTimeout(() => router.push('/login'), 2000);
+          }
+          break;
       }
 
       if (result?.error) {
-        const error = result.error as Error;
-        let displayMessage = 'Terjadi kesalahan. Silakan coba lagi.';
-        if (error.message.includes('Invalid login credentials')) {
-          displayMessage = 'Email atau kata sandi salah. Silakan coba lagi.';
-        } else if (error.message.includes('Email not confirmed')) {
-          displayMessage = 'Email belum dikonfirmasi. Silakan periksa kotak masuk Anda.';
-        } else if (error.message.includes('User already registered')) {
-          displayMessage = 'Akun dengan email ini sudah ada. Silakan masuk.';
-        }
-        setMessage({ type: 'error', message: displayMessage });
+        handleAuthError(result.error instanceof Error ? result.error : new Error(String(result.error || 'An unknown error occurred')));
+      } else if (onSuccess) {
+        onSuccess();
       }
+
     } catch (error) {
-      setMessage({ type: 'error', message: 'Terjadi kesalahan yang tidak terduga.' });
+      console.error('An unexpected error occurred:', error);
+      setErrors({ general: 'Terjadi kesalahan yang tidak terduga. Silakan coba lagi.' });
     } finally {
       setIsLoading(false);
     }
   };
 
+  const handleAuthError = (error: Error) => {
+    if (error.message.includes('Invalid login credentials')) {
+      setErrors({ general: 'Email atau kata sandi salah.' });
+    } else if (error.message.includes('Email not confirmed')) {
+      setErrors({ email: 'Email belum diverifikasi. Silakan periksa kotak masuk Anda.' });
+    } else if (error.message.includes('User already registered')) {
+      setErrors({ email: 'Email ini sudah terdaftar. Silakan masuk.' });
+    } else if (error.message.includes('Password should be at least')) {
+      setErrors({ password: 'Kata sandi terlalu pendek. Minimal 8 karakter.' });
+    } else {
+      setErrors({ general: 'Terjadi kesalahan. Silakan coba lagi.' });
+    }
+  };
+  
+  const getButtonText = (type: string): string => ({
+    login: 'Masuk',
+    register: 'Buat Akun',
+    'forgot-password': 'Kirim Tautan Reset',
+    'update-password': 'Perbarui Kata Sandi',
+  }[type] || 'Submit');
+
+  // Password strength info
+  const passwordStrength = password ? calculatePasswordStrength(password) : { score: 0, label: '' };
+
+  const inputClasses = "w-full p-3 border rounded-lg transition-colors focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400";
+  const passwordInputClasses = `${inputClasses} pr-12`;
+  const labelClasses = "block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300";
+  const buttonClasses = "w-full flex justify-center items-center bg-blue-600 hover:bg-blue-700 text-white font-semibold p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-70 disabled:cursor-not-allowed transition-all duration-200";
+
   return (
-    <div className="w-full max-w-md mx-auto">
-      <div className="bg-white p-8 rounded-lg shadow-lg border border-gray-200">
-        <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">{currentForm.title}</h2>
-        
-        <form onSubmit={handleSubmit} className="space-y-5">
-          {message && <FormMessage type={message.type} message={message.message} />}
-          
-          {type === 'register' && (
-            <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-                Nama Lengkap
-              </label>
-              <input
-                id="name" type="text" value={name}
-                onChange={(e) => setName(e.target.value)}
-                required disabled={isLoading}
-                className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent transition disabled:bg-gray-100"
-                placeholder="Masukkan nama lengkap Anda"
-              />
-            </div>
-          )}
-
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-              Alamat Email
-            </label>
-            <input
-              id="email" type="email" value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required disabled={isLoading}
-              className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent transition disabled:bg-gray-100"
-              placeholder="contoh@email.com"
-            />
-          </div>
-
-          {(type === 'login' || type === 'register') && (
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-                Kata Sandi
-              </label>
-              <input
-                id="password" type="password" value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required minLength={6} disabled={isLoading}
-                className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent transition disabled:bg-gray-100"
-                placeholder="••••••••"
-              />
-            </div>
-          )}
-
-          {type === 'register' && (
-            <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
-                Konfirmasi Kata Sandi
-              </label>
-              <input
-                id="confirmPassword" type="password" value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                required minLength={6} disabled={isLoading}
-                className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent transition disabled:bg-gray-100"
-                placeholder="••••••••"
-              />
-            </div>
-          )}
-
-          <button 
-            type="submit" 
-            disabled={isLoading}
-            className="w-full flex justify-center items-center bg-blue-600 text-white font-semibold p-3 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-blue-400 disabled:cursor-not-allowed transition-colors duration-200"
-          >
-            {isLoading && <SpinnerIcon />}
-            {isLoading ? 'Memproses...' : currentForm.buttonText}
-          </button>
-        </form>
-
-        {type === 'login' && (
-          <div className="mt-4 text-center">
-            <Link href="/auth/forgot-password" className="text-sm text-blue-600 hover:underline">
-              Lupa kata sandi?
-            </Link>
-          </div>
-        )}
-
-        <div className="mt-6 text-center">
-          <p className="text-sm text-gray-600">
-            {currentForm.linkText}{' '}
-            <Link href={currentForm.linkHref} className="font-semibold text-blue-600 hover:underline">
-              {currentForm.linkActionText}
-            </Link>
-          </p>
+    <form onSubmit={(e) => { e.preventDefault(); handleAuthAction(); }} className="space-y-5">
+      <SuccessMessage message={successMessage} />
+      
+      {type === 'register' && (
+        <div>
+          <label htmlFor="name" className={labelClasses}>Nama Lengkap</label>
+          <input 
+            id="name" 
+            type="text" 
+            value={name} 
+            onChange={(e) => setName(e.target.value)} 
+            disabled={isLoading} 
+            className={inputClasses} 
+            placeholder="John Doe"
+          />
+          <InputError message={errors.name || ''} />
         </div>
-      </div>
-    </div>
+      )}
+
+      {type !== 'update-password' && (
+        <div>
+          <label htmlFor="email" className={labelClasses}>Alamat Email</label>
+          <input 
+            id="email" 
+            type="email" 
+            value={email} 
+            onChange={(e) => setEmail(e.target.value)} 
+            disabled={isLoading} 
+            className={inputClasses} 
+            placeholder="anda@email.com"
+          />
+          <InputError message={errors.email || ''} />
+        </div>
+      )}
+
+      {(type === 'login' || type === 'register' || type === 'update-password') && (
+        <div className="relative">
+          <label htmlFor="password" className={labelClasses}>
+            {type === 'update-password' ? 'Kata Sandi Baru' : 'Kata Sandi'}
+          </label>
+          <div className="relative">
+            <input
+              id="password"
+              type={showPassword ? 'text' : 'password'}
+              value={password}
+              onChange={(e) => { 
+                setPassword(e.target.value); 
+                if (onPasswordChange) onPasswordChange(e); 
+              }}
+              disabled={isLoading}
+              className={passwordInputClasses}
+              placeholder="••••••••"
+            />
+            <button 
+              type="button" 
+              onClick={() => setShowPassword(!showPassword)} 
+              className="absolute right-0 top-1/2 transform -translate-y-1/2 pr-3 flex items-center text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+            >
+              {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+            </button>
+          </div>
+          
+          <InputError message={errors.password || ''} />
+          {type === 'login' && <InputError message={errors.general || ''} />}
+        </div>
+      )}
+
+      {(type === 'register' || type === 'update-password') && (
+        <div className="relative">
+          <label htmlFor="confirmPassword" className={labelClasses}>Konfirmasi Kata Sandi</label>
+          <div className="relative">
+            <input
+              id="confirmPassword"
+              type={showConfirmPassword ? 'text' : 'password'}
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              disabled={isLoading}
+              className={passwordInputClasses}
+              placeholder="••••••••"
+            />
+            <button 
+              type="button" 
+              onClick={() => setShowConfirmPassword(!showConfirmPassword)} 
+              className="absolute right-0 top-1/2 transform -translate-y-1/2 pr-3 flex items-center text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+            >
+              {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+            </button>
+          </div>
+          <InputError message={errors.confirmPassword || ''} />
+          
+          {/* Password Strength Indicator */}
+          {(type === 'register' || type === 'update-password') && password && (
+            <div className="mt-3 space-y-2">
+              <div className="flex justify-between text-xs">
+                <span className="text-gray-500 dark:text-gray-400">Kekuatan Password:</span>
+                <span className={`font-medium ${
+                  passwordStrength.score === 100 ? 'text-green-600 dark:text-green-400' :
+                  passwordStrength.score >= 80 ? 'text-blue-600 dark:text-blue-400' :
+                  passwordStrength.score >= 60 ? 'text-yellow-600 dark:text-yellow-400' :
+                  passwordStrength.score >= 40 ? 'text-orange-600 dark:text-orange-400' :
+                  'text-red-600 dark:text-red-400'
+                }`}>
+                  {passwordStrength.label}
+                </span>
+              </div>
+              <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                <div 
+                  className={`h-2 rounded-full transition-all duration-300 ${
+                    passwordStrength.score === 100 ? 'bg-green-500' :
+                    passwordStrength.score >= 80 ? 'bg-blue-500' :
+                    passwordStrength.score >= 60 ? 'bg-yellow-500' :
+                    passwordStrength.score >= 40 ? 'bg-orange-500' :
+                    'bg-red-500'
+                  }`}
+                  style={{ width: `${passwordStrength.score}%` }}
+                />
+              </div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">
+                Password kuat harus memiliki: 8+ karakter, huruf besar, huruf kecil, angka & simbol
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* General error untuk non-login types */}
+      {errors.general && type !== 'login' && (
+        <InputError message={errors.general} />
+      )}
+
+      <button type="submit" disabled={isLoading} className={buttonClasses}>
+        {isLoading ? <><SpinnerIcon /> Memproses...</> : getButtonText(type)}
+      </button>
+    </form>
   );
 };
