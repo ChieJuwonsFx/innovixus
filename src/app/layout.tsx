@@ -6,7 +6,14 @@ import Navbar from '@/components/Navbar'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'InnoVixus',
+  title: {
+    template: '%s | InnoVixus',
+    default: 'InnoVixus',
+  },
+  description: 'Platform terdepan untuk menemukan info lomba, magang, dan lowongan kerja terbaru di dunia teknologi.',
+  icons: {
+    icon: '/logo/logo.png',
+  },
 }
 
 export default function RootLayout({
@@ -46,7 +53,7 @@ export default function RootLayout({
       </head>
       <body className={inter.className}>
         <Navbar />
-        <div >
+        <div className='pt-24 sm:pt:32 bg-slate-100 dark:bg-slate-950'>
           {children}
         </div>
       </body>

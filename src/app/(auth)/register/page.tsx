@@ -8,7 +8,7 @@ import { SocialAuth } from '@/components/auth/SocialAuth';
 export default function RegisterPage() {
   return (
     <motion.div
-      className="w-full max-w-md mt-36 space-y-6"
+      className="w-full max-w-md space-y-6"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
