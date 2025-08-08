@@ -118,7 +118,7 @@ export type Database = {
       events: {
         Row: {
           caption: string
-          close_date: string
+          close_date: string | null
           created_at: string
           extend_date: string | null
           guidelink: string | null
@@ -139,7 +139,7 @@ export type Database = {
         }
         Insert: {
           caption: string
-          close_date: string
+          close_date: string | null
           created_at: string
           extend_date?: string | null
           guidelink?: string | null
@@ -160,7 +160,7 @@ export type Database = {
         }
         Update: {
           caption?: string
-          close_date?: string
+          close_date?: string | null
           created_at?: string
           extend_date?: string | null
           guidelink?: string | null

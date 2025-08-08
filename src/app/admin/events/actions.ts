@@ -1,0 +1,132 @@
+'use server';
+
+import { createServerActionClient } from '@supabase/auth-helpers-nextjs';
+import { cookies } from 'next/headers';
+import { revalidatePath } from 'next/cache';
+import { Database } from '@/types/database';
+
+export type FormState = {
+  success: boolean;
+  message: string;
+} | null;
+
+export async function createEvent(prevState: FormState, formData: FormData): Promise<FormState> {
+  const supabase = createServerActionClient<Database>({ cookies });
+  
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    return { success: false, message: 'Otentikasi gagal. Silakan login kembali.' };
+  }
+
+  const posterJsonString = formData.get('poster_json') as string;
+  
+  const eventData = {
+    title: formData.get('title') as string,
+    caption: formData.get('caption') as string,
+    guidelink: formData.get('guidelink') as string,
+    registerlink: formData.get('registerlink') as string,
+    open_date: formData.get('open_date') as string,
+    close_date: (formData.get('close_date') as string) || null,
+    kategori: formData.get('kategori') as any,
+    is_online: formData.get('is_online') as any,
+    location: formData.get('location') as string,
+    is_free: formData.get('is_free') === 'true',
+    organizer_id: formData.get('organizer_id') as string,
+    poster: JSON.parse(posterJsonString || '[]'),
+    user_id: user.id,
+    status: 'Success' as const,
+  };
+
+  if (!eventData.title || !eventData.kategori || !eventData.organizer_id) {
+    return { success: false, message: 'Judul, Kategori, dan Penyelenggara wajib diisi.' };
+  }
+
+  const { data: newEvent, error: eventError } = await supabase
+    .from('events')
+    .insert(eventData as any)
+    .select('id')
+    .single();
+
+  if (eventError || !newEvent) {
+    console.error('Error creating event:', eventError);
+    return { success: false, message: `Gagal menyimpan ke database: ${eventError?.message}` };
+  }
+  
+  const levelIds = formData.getAll('level_ids') as string[];
+  const fieldIds = formData.getAll('field_ids') as string[];
+
+  if (levelIds.length > 0) {
+    await supabase.from('event_levels').insert(levelIds.map(id => ({ event_id: newEvent.id, level_id: id })));
+  }
+  if (fieldIds.length > 0) {
+    await supabase.from('event_fields').insert(fieldIds.map(id => ({ event_id: newEvent.id, field_id: id })));
+  }
+
+  revalidatePath('/admin/events');
+  if (eventData.kategori) {
+    revalidatePath(`/${eventData.kategori.replace(/\s+/g, '-').toLowerCase()}`);
+  }
+  
+  return { success: true, message: 'Event berhasil dibuat!' };
+}
+
+export async function updateEvent(id: string, prevState: FormState, formData: FormData): Promise<FormState> {
+  const supabase = createServerActionClient<Database>({ cookies });
+
+  const posterJsonString = formData.get('poster_json') as string;
+
+  const eventData = {
+    title: formData.get('title') as string,
+    caption: formData.get('caption') as string,
+    guidelink: formData.get('guidelink') as string,
+    registerlink: formData.get('registerlink') as string,
+    open_date: formData.get('open_date') as string,
+    close_date: (formData.get('close_date') as string) || null,
+    kategori: formData.get('kategori') as any,
+    is_online: formData.get('is_online') as any,
+    location: formData.get('location') as string,
+    is_free: formData.get('is_free') === 'true',
+    organizer_id: formData.get('organizer_id') as string,
+    poster: JSON.parse(posterJsonString || '[]'),
+    status: 'Success' as const,
+  };
+
+  const { error: updateError } = await supabase.from('events').update(eventData as any).eq('id', id);
+  
+  if (updateError) {
+    console.error('Error updating event:', updateError);
+    return { success: false, message: `Gagal memperbarui data: ${updateError.message}` };
+  }
+
+  await supabase.from('event_levels').delete().eq('event_id', id);
+  await supabase.from('event_fields').delete().eq('event_id', id);
+
+  const levelIds = formData.getAll('level_ids') as string[];
+  const fieldIds = formData.getAll('field_ids') as string[];
+
+  if (levelIds.length > 0) {
+    await supabase.from('event_levels').insert(levelIds.map(levelId => ({ event_id: id, level_id: levelId })));
+  }
+  if (fieldIds.length > 0) {
+    await supabase.from('event_fields').insert(fieldIds.map(fieldId => ({ event_id: id, field_id: fieldId })));
+  }
+
+  revalidatePath('/admin/events');
+  revalidatePath(`/admin/events/${id}`);
+  if (eventData.kategori) {
+     revalidatePath(`/${eventData.kategori.replace(/\s+/g, '-').toLowerCase()}`);
+  }
+  
+  return { success: true, message: 'Event berhasil diperbarui!' };
+}
+
+export async function deleteEvent(id: string) {
+  const supabase = createServerActionClient<Database>({ cookies });
+  const { error } = await supabase.from('events').delete().eq('id', id);
+
+  if (error) {
+      console.error('Error deleting event:', error);
+      return;
+  }
+  revalidatePath('/admin/events');
+}

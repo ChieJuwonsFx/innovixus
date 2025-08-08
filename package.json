@@ -16,6 +16,7 @@
     "@supabase/auth-helpers-nextjs": "^0.10.0",
     "@supabase/supabase-js": "^2.53.0",
     "classnames": "^2.5.1",
+    "cloudinary": "^2.7.0",
     "clsx": "^2.1.1",
     "file-saver": "^2.0.5",
     "framer-motion": "^12.23.12",

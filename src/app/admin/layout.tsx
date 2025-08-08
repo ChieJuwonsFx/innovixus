@@ -10,6 +10,9 @@ import {
   Users,
   Settings,
   LogOut,
+  Megaphone,
+  Library,
+  BookUser,
   Menu,
   X,
 } from 'lucide-react';
@@ -196,8 +199,10 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             <nav className="flex-1">
                 <ul className="list-none p-0 m-0 space-y-2">
                     <NavItem href="/admin" icon={LayoutDashboard} onLinkClick={closeSidebarOnMobile}>Dashboard</NavItem>
-                    <NavItem href="/admin/users" icon={Users} onLinkClick={closeSidebarOnMobile}>User Management</NavItem>
-                    <NavItem href="/admin/settings" icon={Settings} onLinkClick={closeSidebarOnMobile}>System Settings</NavItem>
+                    <li className="px-6 pt-4 pb-2 text-xs font-semibold text-slate-400 uppercase tracking-wider">Manajemen Konten</li>
+                      <NavItem href="/admin/events" icon={Megaphone} onLinkClick={closeSidebarOnMobile}>Manajemen Event</NavItem>
+                      <NavItem href="/admin/organizers" icon={BookUser} onLinkClick={closeSidebarOnMobile}>Manajemen Organizer</NavItem>
+                      <NavItem href="/admin/levels" icon={Library} onLinkClick={closeSidebarOnMobile}>Level & Bidang</NavItem>
                 </ul>
             </nav>
             <div className="p-4 border-t border-slate-200 dark:border-slate-800">
