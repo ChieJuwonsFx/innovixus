@@ -1,5 +1,5 @@
 import { POST_TEMPLATES, POST_DIMENSIONS } from './constants';
-import { PostData, GeneratedPost } from '../types/post';
+import { PostData, GeneratedPost } from '../types/event';
 
 export async function generatePostImages(postData: PostData): Promise<GeneratedPost[]> {
   const results: GeneratedPost[] = [];

@@ -141,7 +141,7 @@ export default function PublicNavbar({ initialProfile = null }: PublicNavbarProp
   const profileMenuRef = useRef<HTMLDivElement>(null);
   const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const publicPaths = ['/', '/info-lomba', '/info-lomba', '/info-lomba', '/info-lomba', '/profile'];
+  const publicPaths = ['/', '/info-lomba', '/info-magang', '/info-loker', '/blog', '/profile'];
   const isPublicPage = publicPaths.some(path => path === '/' ? pathname === path : pathname.startsWith(path));
 
   const handleScroll = useCallback(() => {

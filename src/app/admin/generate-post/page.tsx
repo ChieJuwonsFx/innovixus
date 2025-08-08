@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { PostData, PostTemplate, PostCategory } from '@/types/post';
+import { PostData, PostTemplate, PostCategory } from '@/types/event';
 import { generatePostImages } from '@/lib/imageGenerator';
 import ImageUploader from './components/ImageUploader';
 import PostPreview from './components/PostPreview';

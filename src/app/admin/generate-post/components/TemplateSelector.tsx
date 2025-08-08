@@ -1,4 +1,4 @@
-import { PostTemplate } from '@/types/post';
+import { PostTemplate } from '@/types/event';
 
 interface TemplateSelectorProps {
   selectedTemplate: PostTemplate;
