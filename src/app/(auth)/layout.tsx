@@ -165,7 +165,7 @@ export default function AuthLayout({
         </div>
       </div>
       <div
-        className={`w-full md:w-1/2 flex items-start justify-center p-6 sm:p-8 py-12 ${
+        className={`w-full md:w-1/2 flex items-start md:items-center lg:items-center justify-center p-6 sm:p-8 py-12 ${
           scrollable ? "overflow-y-auto" : ""
         }`}
       >
