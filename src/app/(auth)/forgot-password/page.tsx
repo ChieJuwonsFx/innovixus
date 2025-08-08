@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { AuthForm } from '@/components/auth/AuthForm';
+import { AuthForm } from '@/app/components/auth/AuthForm';
 import { ArrowLeft, Shield, Mail, AlertTriangle } from 'lucide-react';
 
 export default function ForgotPasswordPage() {

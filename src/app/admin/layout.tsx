@@ -13,7 +13,7 @@ import {
   Menu,
   X,
 } from 'lucide-react';
-import ThemeToggle from "@/components/ThemeToggle";
+import ThemeToggle from "@/app/components/ThemeToggle";
 import { motion, AnimatePresence } from 'framer-motion';
 import clsx from 'clsx';
 

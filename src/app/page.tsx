@@ -1,17 +1,11 @@
 "use client";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { useRouter } from "next/navigation";
 
 export default function Home() {
   const router = useRouter();
-  const supabase = createClientComponentClient();
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    router.push("/");
-    router.refresh(); 
-  };
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center text-center">
+    <main className="pt-24 flex min-h-screen flex-col items-center justify-center text-center">
       <div className="max-w-2xl mx-auto">
         <div className="mb-8">
           <h1 className="text-4xl md:text-5xl font-bold text-blue-600 dark:text-blue-400 mb-4">

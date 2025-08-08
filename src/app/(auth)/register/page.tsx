@@ -2,8 +2,8 @@
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { AuthForm } from '@/components/auth/AuthForm';
-import { SocialAuth } from '@/components/auth/SocialAuth';
+import { AuthForm } from '@/app/components/auth/AuthForm';
+import { SocialAuth } from '@/app/components/auth/SocialAuth';
 
 export default function RegisterPage() {
   return (

@@ -1,8 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { AuthForm } from '@/components/auth/AuthForm';
-import { SocialAuth } from '../../../components/auth/SocialAuth';
+import { AuthForm } from '@/app/components/auth/AuthForm';
+import { SocialAuth } from '../../components/auth/SocialAuth';
 import { KeyRound } from 'lucide-react';
 import { motion } from 'framer-motion';
 

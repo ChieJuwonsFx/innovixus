@@ -3,7 +3,7 @@
 import { useState } from 'react'; 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { AuthForm } from '@/components/auth/AuthForm';
+import { AuthForm } from '@/app/components/auth/AuthForm';
 import { Shield, CheckCircle, AlertTriangle, ChevronDown } from 'lucide-react';
 
 export default function UpdatePasswordPage() {
