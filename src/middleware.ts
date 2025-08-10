@@ -9,7 +9,6 @@ export async function middleware(req: NextRequest) {
 
   if (req.nextUrl.pathname.startsWith('/admin')) {
     
-    // Ambil data pengguna
     const { data: { user } } = await supabase.auth.getUser()
 
     if (!user) {

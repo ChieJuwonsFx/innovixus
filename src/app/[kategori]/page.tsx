@@ -1,23 +1,21 @@
-import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
-import { Database } from '@/types/database';
-
+import { createClient } from '@/lib/supabase/server'; 
 import EventFilters from './components/Filter';
 import EventCard from './components/Card';
 import EventSlider from './components/Slider';
 import Pagination from './components/Pagination';
 import { Search, Calendar, Trophy, Briefcase } from 'lucide-react';
+import { Database } from '@/types/database';
 
 type PageProps = {
-  params: { kategori: string };
-  searchParams: {
+  params: Promise<{ kategori: string }>;
+  searchParams: Promise<{
     q?: string;
     level?: string;
     bidang?: string;
     tipe?: string;
     gratis?: string;
     page?: string;
-  };
+  }>;
 };
 
 const categoryMap: { [key: string]: string } = {
@@ -44,15 +42,30 @@ const iconMap: { [key: string]: React.ReactNode } = {
   'info-loker': <Briefcase className="h-8 w-8" />,
 };
 
-type EventForSlider = Database['public']['Tables']['events']['Row'] & {
-  organizers: Pick<Database['public']['Tables']['organizers']['Row'], 'name'> | null;
+type EventRow = Database['public']['Tables']['events']['Row'];
+type LevelRow = Database['public']['Tables']['levels']['Row'];
+type FieldRow = Database['public']['Tables']['fields']['Row'];
+type OrganizerRow = Database['public']['Tables']['organizers']['Row'];
+
+type EventForSlider = EventRow & {
+  organizers: Pick<OrganizerRow, 'name'> | null;
+};
+
+type EventWithRelations = EventRow & {
+  organizers: Pick<OrganizerRow, 'name' | 'instagram'> | null;
+  levels: Pick<LevelRow, 'id' | 'name'>[] | null;
+  fields: Pick<FieldRow, 'id' | 'name'>[] | null;
 };
 
 export default async function KategoriPage({ params, searchParams }: PageProps) {
-  const supabase = createServerComponentClient<Database>({ cookies });
-  const { kategori } = params;
+  const resolvedParams = await params;
+  const resolvedSearchParams = await searchParams;
+  
+  const supabase = await createClient();
+  
+  const { kategori } = resolvedParams;
 
-  const page = parseInt(searchParams.page || '1', 10);
+  const page = parseInt(resolvedSearchParams.page || '1', 10);
   const pageSize = 12;
   const start = (page - 1) * pageSize;
   const end = start + pageSize - 1;
@@ -73,7 +86,7 @@ export default async function KategoriPage({ params, searchParams }: PageProps) 
     );
   }
   
-  const isFiltered = !!(searchParams.q || searchParams.level || searchParams.bidang || searchParams.tipe || searchParams.gratis);
+  const isFiltered = !!(resolvedSearchParams.q || resolvedSearchParams.level || resolvedSearchParams.bidang || resolvedSearchParams.tipe || resolvedSearchParams.gratis);
 
   let query = supabase
     .from('events')
@@ -88,19 +101,19 @@ export default async function KategoriPage({ params, searchParams }: PageProps) 
     .order('created_at', { ascending: false })
     .range(start, end);
 
-  if (searchParams.q) {
-    query = query.ilike('title', `%${searchParams.q}%`);
+  if (resolvedSearchParams.q) {
+    query = query.ilike('title', `%${resolvedSearchParams.q}%`);
   }
-  if (searchParams.level) {
-    query = query.filter('levels.id', 'in', `(${searchParams.level})`);
+  if (resolvedSearchParams.level) {
+    query = query.filter('levels.id', 'in', `(${resolvedSearchParams.level})`);
   }
-  if (searchParams.bidang) {
-    query = query.filter('fields.id', 'in', `(${searchParams.bidang})`);
+  if (resolvedSearchParams.bidang) {
+    query = query.filter('fields.id', 'in', `(${resolvedSearchParams.bidang})`);
   }
-  if (searchParams.tipe) {
-    query = query.eq('is_online', searchParams.tipe);
+  if (resolvedSearchParams.tipe) {
+    query = query.eq('is_online', resolvedSearchParams.tipe);
   }
-  if (kategori === 'info-lomba' && searchParams.gratis === 'true') {
+  if (kategori === 'info-lomba' && resolvedSearchParams.gratis === 'true') {
     query = query.eq('is_free', true);
   }
   
@@ -120,8 +133,13 @@ export default async function KategoriPage({ params, searchParams }: PageProps) 
     );
   }
 
-  const { data: levels } = await supabase.from('levels').select('id, name').order('name');
-  const { data: fields } = await supabase.from('fields').select('id, name').order('name');
+  const [{ data: levelsData }, { data: fieldsData }] = await Promise.all([
+    supabase.from('levels').select('id, name').order('name'),
+    supabase.from('fields').select('id, name').order('name')
+  ]);
+
+  const levels = (levelsData || []) as { id: string; name: string; }[];
+  const fields = (fieldsData || []) as { id: string; name: string; }[];
 
   const { count: totalEvents } = await supabase
     .from('events')
@@ -131,15 +149,16 @@ export default async function KategoriPage({ params, searchParams }: PageProps) 
 
   let latestEvents: EventForSlider[] = [];
   if (!isFiltered) {
-    const { data } = await supabase
+    const { data: latestEventsData } = await supabase
       .from('events')
       .select('*, organizers(name)')
       .eq('kategori', dbCategory)
       .eq('status', 'Success')
       .order('created_at', { ascending: false })
       .limit(6);
-    if (data) {
-      latestEvents = data;
+      
+    if (latestEventsData) {
+      latestEvents = latestEventsData as EventForSlider[];
     }
   }
 
@@ -169,8 +188,8 @@ export default async function KategoriPage({ params, searchParams }: PageProps) 
         
         <div className="mb-12">
           <EventFilters 
-            levels={levels || []} 
-            fields={fields || []} 
+            levels={levels} 
+            fields={fields} 
             kategori={kategori} 
           />
         </div>
@@ -191,8 +210,8 @@ export default async function KategoriPage({ params, searchParams }: PageProps) 
                   </h2>
                   <p className="text-sm text-gray-600 dark:text-gray-400">
                     Ditemukan {count || 0} hasil
-                    {searchParams.q && (
-                      <span> untuk &ldquo;<span className="font-medium text-blue-600 dark:text-blue-400">{searchParams.q}</span>&rdquo;</span>
+                    {resolvedSearchParams.q && (
+                      <span> untuk &ldquo;<span className="font-medium text-blue-600 dark:text-blue-400">{resolvedSearchParams.q}</span>&rdquo;</span>
                     )}
                   </p>
                 </div>
@@ -202,10 +221,10 @@ export default async function KategoriPage({ params, searchParams }: PageProps) 
 
           {events && events.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-              {events.map(event => (
+              {events.map((event) => (
                 <EventCard 
                   key={event.id} 
-                  event={event} 
+                  event={event as EventWithRelations} 
                   kategori={kategori} 
                 />
               ))}
