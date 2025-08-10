@@ -1,4 +1,5 @@
-import { createClient } from '@/lib/supabase/server'; 
+import { createClient } from '@/lib/supabase/server';
+import { notFound } from 'next/navigation';
 import EventFilters from './components/Filter';
 import EventCard from './components/Card';
 import EventSlider from './components/Slider';
@@ -58,13 +59,10 @@ type EventWithRelations = EventRow & {
 };
 
 export default async function KategoriPage({ params, searchParams }: PageProps) {
-  const resolvedParams = await params;
+  const supabase = await createClient();
+  const { kategori } = await params;
   const resolvedSearchParams = await searchParams;
   
-  const supabase = await createClient();
-  
-  const { kategori } = resolvedParams;
-
   const page = parseInt(resolvedSearchParams.page || '1', 10);
   const pageSize = 12;
   const start = (page - 1) * pageSize;
@@ -72,18 +70,7 @@ export default async function KategoriPage({ params, searchParams }: PageProps) 
 
   const dbCategory = categoryMap[kategori];
   if (!dbCategory) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-            Kategori Tidak Ditemukan
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400">
-            Halaman yang Anda cari tidak tersedia.
-          </p>
-        </div>
-      </div>
-    );
+    notFound();
   }
   
   const isFiltered = !!(resolvedSearchParams.q || resolvedSearchParams.level || resolvedSearchParams.bidang || resolvedSearchParams.tipe || resolvedSearchParams.gratis);
@@ -244,12 +231,12 @@ export default async function KategoriPage({ params, searchParams }: PageProps) 
                 }
               </p>
               {isFiltered && (
-                <button
-                  onClick={() => window.location.href = `/${kategori}`}
+                <a
+                  href={`/${kategori}`}
                   className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-sm hover:shadow-md"
                 >
                   Hapus Semua Filter
-                </button>
+                </a>
               )}
             </div>
           )}
