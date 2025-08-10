@@ -1,6 +1,6 @@
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
-import PublicNavbar from './PublicNavbar';
+import PublicNavbar from './PublicNavbar'; 
 
 export type Profile = {
   id: string;
@@ -15,45 +15,39 @@ async function getServerProfile(): Promise<Profile | null> {
     const cookieStore = cookies();
     const supabase = createServerComponentClient({ cookies: () => cookieStore });
     
-    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
     
-    if (sessionError || !session) {
+    if (userError || !user) {
       return null;
     }
 
     const { data: userProfile, error: profileError } = await supabase
       .from('users')
-      .select('*')
-      .eq('id', session.user.id)
+      .select('id, name, avatar, role')
+      .eq('id', user.id)
       .single();
-
-    if (profileError && profileError.code !== 'PGRST116') { 
-      console.error('Error fetching user profile:', profileError);
-      return {
-        id: session.user.id,
-        name: session.user.email!,
-        email: session.user.email!,
-        avatar: null,
-        role: 'User'
-      };
-    }
-
+      
     if (userProfile) {
       return {
         ...userProfile,
-        email: session.user.email!
-      };
-    } else {
-      return {
-        id: session.user.id,
-        name: session.user.email!,
-        email: session.user.email!,
-        avatar: null,
-        role: 'User'
+        email: user.email!
       };
     }
+    
+    if (profileError) {
+        console.error('Error fetching user profile, using fallback. Error:', profileError.message);
+    }
+    
+    return {
+      id: user.id,
+      name: user.email!,
+      email: user.email!,
+      avatar: null,
+      role: 'User' 
+    };
+
   } catch (error) {
-    console.error('Error in getServerProfile:', error);
+    console.error('Unexpected error in getServerProfile:', error);
     return null;
   }
 }
