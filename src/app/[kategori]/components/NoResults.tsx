@@ -14,7 +14,7 @@ const categoryNounMap: { [key: string]: string } = {
 
 export default function NoResults({ isFiltered, kategori }: NoResultsProps) {
   return (
-    <div className="text-center py-16 md:py-24 bg-slate-100/50 dark:bg-slate-900 rounded-2xl">
+    <div className="text-center py-16 md:py-24 ">
       <div className="inline-flex justify-center items-center h-20 w-20 rounded-full bg-white dark:bg-slate-800/50 mb-6 shadow-sm ring-1 ring-inset ring-slate-200 dark:ring-slate-700">
         <Search className="h-10 w-10 text-blue-500" />
       </div>

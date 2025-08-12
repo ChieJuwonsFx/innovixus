@@ -377,10 +377,8 @@ export default function Header({ kategori, totalEvents }: KategoriHeaderProps) {
           </div>
         </motion.div>
 
-        {/* Gradient Overlay */}
         <div className="absolute inset-0 z-10 bg-gradient-to-t from-white/50 via-transparent to-white/30 dark:from-black/70 dark:via-transparent dark:to-black/40" />
 
-        {/* Content */}
         <div className="relative z-20 flex flex-col items-center w-full px-2">
           <motion.div
             className="mb-3 md:mb-4"
