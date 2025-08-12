@@ -29,7 +29,7 @@ interface CardProps {
   kategori: string;
 }
 
-export default function EventCard({ event, kategori }: CardProps) {
+export default function Card({ event, kategori }: CardProps) {
   const posterArray = event.poster as Poster[] | null;
   const posterUrl = posterArray?.[0]?.url || '/placeholder.png'; 
 
