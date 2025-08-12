@@ -36,29 +36,29 @@ export default function GeneratePostPage() {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setPostData(prev => ({ ...prev, [name]: value }));
+    setPostData((prev: PostData) => ({ ...prev, [name]: value }));
   };
 
   const handleTemplateChange = (template: PostTemplate) => {
-    setPostData(prev => ({ ...prev, template }));
+    setPostData((prev: PostData) => ({ ...prev, template }));
   };
 
   const handleCategoryChange = (category: PostCategory) => {
-    setPostData(prev => ({ ...prev, category }));
+    setPostData((prev: PostData) => ({ ...prev, category }));
     setCustomCategory('');
   };
 
   const handleCustomCategoryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setCustomCategory(e.target.value);
-    setPostData(prev => ({ ...prev, category: e.target.value }));
+    setPostData((prev: PostData) => ({ ...prev, category: e.target.value }));
   };
 
   const handleImagesChange = (files: File[]) => {
-    setPostData(prev => ({ ...prev, images: files }));
+    setPostData((prev: PostData) => ({ ...prev, images: files }));
   };
 
   const handleRemoveImage = (index: number) => {
-    setPostData(prev => {
+    setPostData((prev: PostData) => {
       const newImages = [...prev.images];
       newImages.splice(index, 1);
       return { ...prev, images: newImages };
@@ -66,7 +66,7 @@ export default function GeneratePostPage() {
   };
 
   const handleReorder = (oldIndex: number, newIndex: number) => {
-    setPostData(prev => {
+    setPostData((prev: PostData) => {
       const newImages = [...prev.images];
       const [movedItem] = newImages.splice(oldIndex, 1);
       newImages.splice(newIndex, 0, movedItem);
