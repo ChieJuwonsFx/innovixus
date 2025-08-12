@@ -75,7 +75,11 @@ export default function EventFilters({ levels, fields, kategori }: FilterProps) 
     router.push(pathname, { scroll: false });
   };
 
-  const hasActiveFilters = searchParams.get('q') || searchParams.get('level') || searchParams.get('bidang') || searchParams.get('tipe') || searchParams.get('gratis');
+  const hasActiveFilters = searchParams.get('q') || 
+                         searchParams.get('level') || 
+                         searchParams.get('bidang') || 
+                         searchParams.get('tipe') || 
+                         searchParams.get('gratis');
 
   const getLabelText = () => {
     switch (kategori) {
@@ -83,25 +87,29 @@ export default function EventFilters({ levels, fields, kategori }: FilterProps) 
         return {
           level: 'Jenjang',
           bidang: 'Bidang Lomba',
-          placeholder: 'Cari nama lomba...'
+          placeholder: 'Cari nama lomba...',
+          title: 'Filter Lomba'
         };
       case 'info-magang':
         return {
           level: 'Pendidikan',
           bidang: 'Bidang Pekerjaan',
-          placeholder: 'Cari program magang...'
+          placeholder: 'Cari program magang...',
+          title: 'Filter Magang'
         };
       case 'info-loker':
         return {
           level: 'Pendidikan',
           bidang: 'Bidang Pekerjaan',
-          placeholder: 'Cari lowongan kerja...'
+          placeholder: 'Cari lowongan kerja...',
+          title: 'Filter Lowongan'
         };
       default:
         return {
           level: 'Level',
           bidang: 'Bidang',
-          placeholder: 'Cari...'
+          placeholder: 'Cari...',
+          title: 'Filter'
         };
     }
   };
@@ -110,33 +118,15 @@ export default function EventFilters({ levels, fields, kategori }: FilterProps) 
 
   if (!isMounted) {
     return (
-      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden animate-pulse">
         <div className="p-6 border-b border-gray-200 dark:border-gray-700">
           <div className="flex gap-3">
             <div className="relative flex-1">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-              <input
-                type="text"
-                placeholder={labels.placeholder}
-                value=""
-                className="w-full pl-12 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-all duration-200 text-sm"
-                readOnly
-              />
+              <div className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 bg-gray-300 dark:bg-gray-600 rounded-full" />
+              <div className="w-full h-12 pl-12 bg-gray-100 dark:bg-gray-700 rounded-xl" />
             </div>
-            <button
-              className="px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors duration-200 font-medium text-sm shadow-sm hover:shadow-md flex items-center gap-2 min-w-[80px] justify-center"
-              disabled
-            >
-              Cari
-            </button>
-            <button
-              className="px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200 flex items-center gap-2"
-              disabled
-            >
-              <Filter className="h-4 w-4" />
-              <span className="hidden sm:inline text-sm">Filter</span>
-              <ChevronDown className="h-4 w-4 transition-transform duration-200" />
-            </button>
+            <div className="w-24 h-12 bg-gray-200 dark:bg-gray-700 rounded-xl" />
+            <div className="w-20 h-12 bg-gray-200 dark:bg-gray-700 rounded-xl" />
           </div>
         </div>
       </div>
@@ -145,8 +135,8 @@ export default function EventFilters({ levels, fields, kategori }: FilterProps) 
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-      <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-        <div className="flex gap-3">
+      <div className="p-5 border-b border-gray-200 dark:border-gray-700">
+        <div className="flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
             <input
@@ -161,35 +151,37 @@ export default function EventFilters({ levels, fields, kategori }: FilterProps) 
               data-form-type="other"
             />
           </div>
-          <button
-            onClick={handleSearch}
-            disabled={isLoading}
-            className="px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors duration-200 font-medium text-sm shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 min-w-[80px] justify-center"
-            type="button"
-          >
-            {isLoading ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              'Cari'
-            )}
-          </button>
-          <button
-            onClick={() => setIsFilterExpanded(!isFilterExpanded)}
-            className="px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200 flex items-center gap-2"
-            type="button"
-          >
-            <Filter className="h-4 w-4" />
-            <span className="hidden sm:inline text-sm">Filter</span>
-            <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${isFilterExpanded ? 'rotate-180' : ''}`} />
-          </button>
+          <div className="flex gap-3">
+            <button
+              onClick={handleSearch}
+              disabled={isLoading}
+              className="px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors duration-200 font-medium text-sm shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 min-w-[80px] justify-center"
+              type="button"
+            >
+              {isLoading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                'Cari'
+              )}
+            </button>
+            <button
+              onClick={() => setIsFilterExpanded(!isFilterExpanded)}
+              className="px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200 flex items-center gap-2"
+              type="button"
+            >
+              <Filter className="h-4 w-4" />
+              <span className="hidden sm:inline text-sm">Filter</span>
+              <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${isFilterExpanded ? 'rotate-180' : ''}`} />
+            </button>
+          </div>
         </div>
       </div>
 
-      <div className={`transition-all duration-300 ${isFilterExpanded ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'} overflow-hidden`}>
+      <div className={`transition-all duration-300 ${isFilterExpanded ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'} overflow-hidden`}>
         <div className="p-6 space-y-4">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-              Filter Pencarian
+              {labels.title}
             </h3>
             {hasActiveFilters && (
               <button
@@ -251,11 +243,11 @@ export default function EventFilters({ levels, fields, kategori }: FilterProps) 
                 <option value="">Semua Tipe</option>
                 <option value="Online">Online</option>
                 <option value="Offline">Offline</option>
-                <option value="Online & Offline">Hybrid</option>
+                <option value="Hybrid">Hybrid</option>
               </select>
             </div>
 
-            {kategori === 'info-lomba' ? (
+            {kategori === 'info-lomba' && (
               <div className="space-y-2">
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                   Biaya Pendaftaran
@@ -271,56 +263,8 @@ export default function EventFilters({ levels, fields, kategori }: FilterProps) 
                   <option value="false">Berbayar</option>
                 </select>
               </div>
-            ) : (
-              <div></div> 
             )}
           </div>
-
-          <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
-            <button
-              onClick={handleSearch}
-              disabled={isLoading}
-              className="w-full md:w-auto px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors duration-200 font-medium text-sm shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-              type="button"
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  Memuat...
-                </>
-              ) : (
-                'Terapkan Filter'
-              )}
-            </button>
-          </div>
-
-          {hasActiveFilters && (
-            <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
-              <div className="flex flex-wrap gap-2">
-                <span className="text-sm text-gray-600 dark:text-gray-400">Filter aktif:</span>
-                {searchParams.get('q') && (
-                  <span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full text-xs">
-                    &ldquo;{searchParams.get('q')}&rdquo;
-                  </span>
-                )}
-                {searchParams.get('level') && (
-                  <span className="inline-flex items-center gap-1 px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-full text-xs">
-                    {levels.find(l => l.id === searchParams.get('level'))?.name}
-                  </span>
-                )}
-                {searchParams.get('bidang') && (
-                  <span className="inline-flex items-center gap-1 px-3 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-full text-xs">
-                    {fields.find(f => f.id === searchParams.get('bidang'))?.name}
-                  </span>
-                )}
-                {searchParams.get('tipe') && (
-                  <span className="inline-flex items-center gap-1 px-3 py-1 bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 rounded-full text-xs">
-                    {searchParams.get('tipe')}
-                  </span>
-                )}
-              </div>
-            </div>
-          )}
         </div>
       </div>
     </div>
