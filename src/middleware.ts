@@ -40,46 +40,61 @@
 //   ],
 // }
 
+// src/middleware.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { createMiddlewareClient } from '@supabase/auth-helpers-nextjs';
-import type { User } from '@supabase/supabase-js';
 
-type UserWithRole = User & {
-  role?: string;
-};
+// Daftar path publik yang tidak perlu dicek autentikasinya
+const PUBLIC_PATHS: string[] = [
+  '/login',
+  '/register',
+  '/unauthorized',
+  '/forgot-password',
+  '/reset-password',
+  '/',
+];
 
 export async function middleware(req: NextRequest) {
   const res = NextResponse.next();
-  
-  try {
-    const supabase = createMiddlewareClient({ req, res });
+  const supabase = createMiddlewareClient({ req, res });
 
-    const { data: { session } } = await supabase.auth.getSession();
+  const pathname = req.nextUrl.pathname;
 
-    if (!req.nextUrl.pathname.startsWith('/admin')) {
-      return res;
-    }
-
-    if (!session?.user) {
-      return NextResponse.redirect(new URL('/unauthorized', req.url));
-    }
-
-    const user = session.user as UserWithRole;
-    const userRole = user.role || null;
-
-    if (userRole !== 'Admin') {
-      return NextResponse.redirect(new URL('/unauthorized', req.url));
-    }
-
+  // Lewati semua public paths agar tidak kena redirect loop
+  if (PUBLIC_PATHS.includes(pathname)) {
     return res;
-  } catch (err) {
-    console.error('Middleware error:', err);
-    return NextResponse.redirect(new URL('/error', req.url));
   }
+
+  // Hanya cek untuk route /admin
+  if (pathname.startsWith('/admin')) {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    // Kalau belum login → redirect ke unauthorized
+    if (!user) {
+      return NextResponse.redirect(new URL('/unauthorized', req.url));
+    }
+
+    // Cek role user di tabel users
+    const { data: userProfile, error } = await supabase
+      .from('users')
+      .select('role')
+      .eq('id', user.id)
+      .single();
+
+    // Kalau gagal ambil data atau bukan Admin → redirect
+    if (error || !userProfile || userProfile.role !== 'Admin') {
+      return NextResponse.redirect(new URL('/unauthorized', req.url));
+    }
+  }
+
+  return res;
 }
 
 export const config = {
   matcher: [
+    // Semua path kecuali _next, favicon, dan assets statis
     '/((?!_next/static|_next/image|favicon.ico).*)',
   ],
 };
