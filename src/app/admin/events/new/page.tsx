@@ -7,7 +7,6 @@ import { Database } from '@/types/database';
 export default async function NewEventPage() {
   const supabase = createServerComponentClient<Database>({ cookies });
 
-  // FIX: Mengambil semua kolom ('*') agar tipe data sesuai dengan yang diharapkan EventForm
   const { data: organizers } = await supabase.from('organizers').select('*');
   const { data: levels } = await supabase.from('levels').select('*');
   const { data: fields } = await supabase.from('fields').select('*');
