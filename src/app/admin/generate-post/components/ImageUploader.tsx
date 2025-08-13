@@ -63,7 +63,7 @@ function SortableImage({ file, index, onRemove, isMain }: {
             alt="Preview"
             fill
             className="object-cover"
-            unoptimized // Since we're using blob URLs
+            unoptimized
           />
         </div>
       )}

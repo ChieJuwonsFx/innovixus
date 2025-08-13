@@ -2,18 +2,18 @@ export const POST_TEMPLATES = {
   blue: {
     main: '/templates/main-blue.png',
     content: '/templates/content-blue.png',
-    textColor: '#FFFFFF', // White text on blue background
-    categoryBg: '#2563EB', // Blue background for category (same as theme)
-    categoryText: '#FFFFFF', // White text
-    borderColor: '#FFFFFF' // White border
+    textColor: '#FFFFFF', 
+    categoryBg: '#2563EB', 
+    categoryText: '#FFFFFF',
+    borderColor: '#FFFFFF'
   },
   white: {
     main: '/templates/main-white.png',
     content: '/templates/content-white.png',
-    textColor: '#100C56', // Dark blue text on white background
-    categoryBg: '#100C56', // Blue background for category (same as theme)
-    categoryText: '#FFFFFF', // White text
-    borderColor: '#100C56' // Blue border
+    textColor: '#100C56', 
+    categoryBg: '#100C56', 
+    categoryText: '#FFFFFF', 
+    borderColor: '#100C56'
   }
 };
 

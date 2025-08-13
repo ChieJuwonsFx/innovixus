@@ -3,7 +3,11 @@ import { PostData, GeneratedPost } from '../types/event';
 
 export async function generatePostImages(postData: PostData): Promise<GeneratedPost[]> {
   const results: GeneratedPost[] = [];
-  const template = POST_TEMPLATES[postData.template];
+  const template = POST_TEMPLATES[postData.template as keyof typeof POST_TEMPLATES];
+  
+  if (!template) {
+    throw new Error(`Template "${postData.template}" not found. Available templates: ${Object.keys(POST_TEMPLATES).join(', ')}`);
+  }
   
   const mainCanvas = document.createElement('canvas');
   mainCanvas.width = POST_DIMENSIONS.main.width;
