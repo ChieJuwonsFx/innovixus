@@ -10,18 +10,16 @@ export type FormState = {
   message: string;
 } | null;
 
-// Define a proper type for poster JSON data
 type PosterData = {
   id?: string;
   url: string;
   [key: string]: unknown;
 }[];
 
-// Define the exact structure for event creation based on your schema
 interface EventCreateData {
   title: string;
   caption: string;
-  poster: PosterData; // JSONB field with proper typing
+  poster: PosterData; 
   guidelink: string;
   registerlink: string;
   open_date: string;
@@ -37,7 +35,6 @@ interface EventCreateData {
   partnership_id?: string | null;
 }
 
-// For updates, we can omit user_id since it shouldn't change
 interface EventUpdateData {
   title: string;
   caption: string;
@@ -58,14 +55,14 @@ interface EventUpdateData {
 
 export async function createEvent(prevState: FormState, formData: FormData): Promise<FormState> {
   const supabase = createServerActionClient<Database>({ cookies });
-  
+
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
     return { success: false, message: 'Otentikasi gagal. Silakan login kembali.' };
   }
 
   const posterJsonString = formData.get('poster_json') as string;
-  
+
   const eventData: EventCreateData = {
     title: formData.get('title') as string,
     caption: formData.get('caption') as string,
@@ -89,7 +86,7 @@ export async function createEvent(prevState: FormState, formData: FormData): Pro
 
   const { data: newEvent, error: eventError } = await supabase
     .from('events')
-    .insert(eventData as Database['public']['Tables']['events']['Insert'])
+    .insert(eventData as unknown as Database['public']['Tables']['events']['Insert'])
     .select('id')
     .single();
 
@@ -97,7 +94,7 @@ export async function createEvent(prevState: FormState, formData: FormData): Pro
     console.error('Error creating event:', eventError);
     return { success: false, message: `Gagal menyimpan ke database: ${eventError?.message}` };
   }
-  
+
   const levelIds = formData.getAll('level_ids') as string[];
   const fieldIds = formData.getAll('field_ids') as string[];
 
@@ -112,7 +109,7 @@ export async function createEvent(prevState: FormState, formData: FormData): Pro
   if (eventData.kategori) {
     revalidatePath(`/${eventData.kategori.replace(/\s+/g, '-').toLowerCase()}`);
   }
-  
+
   return { success: true, message: 'Event berhasil dibuat!' };
 }
 
@@ -137,8 +134,11 @@ export async function updateEvent(id: string, prevState: FormState, formData: Fo
     status: 'Success' as const,
   };
 
-  const { error: updateError } = await supabase.from('events').update(eventData as Database['public']['Tables']['events']['Update']).eq('id', id);
-  
+  const { error: updateError } = await supabase
+    .from('events')
+    .update(eventData as unknown as Database['public']['Tables']['events']['Update'])
+    .eq('id', id);
+
   if (updateError) {
     console.error('Error updating event:', updateError);
     return { success: false, message: `Gagal memperbarui data: ${updateError.message}` };
@@ -160,9 +160,9 @@ export async function updateEvent(id: string, prevState: FormState, formData: Fo
   revalidatePath('/admin/events');
   revalidatePath(`/admin/events/${id}`);
   if (eventData.kategori) {
-     revalidatePath(`/${eventData.kategori.replace(/\s+/g, '-').toLowerCase()}`);
+    revalidatePath(`/${eventData.kategori.replace(/\s+/g, '-').toLowerCase()}`);
   }
-  
+
   return { success: true, message: 'Event berhasil diperbarui!' };
 }
 
@@ -171,8 +171,8 @@ export async function deleteEvent(id: string) {
   const { error } = await supabase.from('events').delete().eq('id', id);
 
   if (error) {
-      console.error('Error deleting event:', error);
-      return;
+    console.error('Error deleting event:', error);
+    return;
   }
   revalidatePath('/admin/events');
 }

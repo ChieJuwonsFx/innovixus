@@ -1,4 +1,4 @@
-export type PostTemplate = 'blue' | 'red' | 'green' | 'purple' | 'orange' | 'teal';
+export type PostTemplate = 'blue' | 'red' | 'green' | 'purple' | 'orange' | 'teal' | 'white';
 
 export type PostCategory = 
   | 'Info Lomba'
