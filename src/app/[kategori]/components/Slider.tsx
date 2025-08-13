@@ -192,7 +192,7 @@ export default function EventSlider({ events, kategori }: SliderProps) {
       document.removeEventListener('touchmove', onTouchMove);
       document.removeEventListener('touchend', handleDragEnd);
     };
-  }, []);
+  }, [handleDragEnd, handleDragMove, originalEventsWidth, setTransform, startAnimation, stopAnimation]);
 
   if (!events || events.length === 0) return null;
 

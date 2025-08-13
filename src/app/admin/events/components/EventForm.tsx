@@ -1,6 +1,6 @@
 'use client';
 
-import { useActionState, useEffect } from 'react';
+import { useActionState, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { Database } from '@/types/database';
@@ -18,6 +18,24 @@ type EventWithRelations = Database['public']['Tables']['events']['Row'] & {
   event_fields?: { field_id: string }[];
 };
 
+// Define proper type for poster images
+interface PosterImage {
+  id?: string;
+  url: string;
+  file?: File;
+}
+
+// Type guard to check if the poster data is valid
+function isPosterImageArray(poster: unknown): poster is PosterImage[] {
+  if (!Array.isArray(poster)) return false;
+  return poster.every(item => 
+    typeof item === 'object' && 
+    item !== null && 
+    'url' in item && 
+    typeof item.url === 'string'
+  );
+}
+
 interface EventFormProps {
   event?: EventWithRelations;
   organizers: Pick<Organizer, 'id' | 'name'>[];
@@ -27,6 +45,15 @@ interface EventFormProps {
 
 export default function EventForm({ event, organizers, levels, fields }: EventFormProps) {
   const router = useRouter();
+  
+  // Safely handle poster data conversion
+  const getInitialPosterImages = (): PosterImage[] => {
+    if (!event?.poster) return [];
+    if (isPosterImageArray(event.poster)) return event.poster;
+    return [];
+  };
+  
+  const [posterImages, setPosterImages] = useState<PosterImage[]>(getInitialPosterImages());
   
   const action = event ? updateEvent.bind(null, event.id) : createEvent;
   
@@ -42,6 +69,10 @@ export default function EventForm({ event, organizers, levels, fields }: EventFo
   const defaultLevelIds = new Set(event?.event_levels?.map(l => l.level_id));
   const defaultFieldIds = new Set(event?.event_fields?.map(f => f.field_id));
 
+  const handleUploadSuccess = (images: PosterImage[]) => {
+    setPosterImages(images);
+  };
+
   return (
     <form action={formAction} className="space-y-8 bg-white dark:bg-slate-800 p-8 rounded-lg shadow-md">
       
@@ -50,6 +81,9 @@ export default function EventForm({ event, organizers, levels, fields }: EventFo
       )}
       
       {event && <input type="hidden" name="id" value={event.id} />}
+      
+      {/* Hidden input for poster JSON */}
+      <input type="hidden" name="poster_json" value={JSON.stringify(posterImages)} />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
@@ -131,9 +165,11 @@ export default function EventForm({ event, organizers, levels, fields }: EventFo
            <option value="Canceled">Batalkan (Canceled)</option>
         </select>
       </div>
-      {/* --- AKHIR BAGIAN --- */}
       
-      <ImageUploader existingImages={event?.poster as any} />
+      <ImageUploader 
+        existingImages={posterImages} 
+        onUploadSuccess={handleUploadSuccess}
+      />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
         <div>

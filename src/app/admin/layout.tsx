@@ -7,8 +7,6 @@ import { usePathname, useRouter } from 'next/navigation';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import {
   LayoutDashboard,
-  Users,
-  Settings,
   LogOut,
   Megaphone,
   Library,

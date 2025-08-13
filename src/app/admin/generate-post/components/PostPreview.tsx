@@ -1,3 +1,5 @@
+import Image from 'next/image';
+
 interface PostPreviewProps {
   imageUrl: string;
   pageNumber: number;
@@ -19,11 +21,15 @@ export default function PostPreview({ imageUrl, pageNumber, onDownload }: PostPr
         </button>
       </div>
       <div className="p-2 bg-white dark:bg-gray-800">
-        <img
-          src={imageUrl}
-          alt={`Generated post page ${pageNumber}`}
-          className="w-full h-auto rounded border border-gray-200 dark:border-gray-700"
-        />
+        <div className="relative w-full aspect-square">
+          <Image
+            src={imageUrl}
+            alt={`Generated post page ${pageNumber}`}
+            fill
+            className="rounded border border-gray-200 dark:border-gray-700 object-contain"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          />
+        </div>
       </div>
     </div>
   );

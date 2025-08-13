@@ -10,6 +10,52 @@ export type FormState = {
   message: string;
 } | null;
 
+// Define a proper type for poster JSON data
+type PosterData = {
+  id?: string;
+  url: string;
+  [key: string]: unknown;
+}[];
+
+// Define the exact structure for event creation based on your schema
+interface EventCreateData {
+  title: string;
+  caption: string;
+  poster: PosterData; // JSONB field with proper typing
+  guidelink: string;
+  registerlink: string;
+  open_date: string;
+  close_date: string | null;
+  extend_date?: string | null;
+  kategori: 'Info Lomba' | 'Info Magang' | 'Info Loker';
+  is_online: 'Online' | 'Offline' | 'Online & Offline';
+  location: string;
+  is_free: boolean;
+  status?: 'Pending' | 'Success' | 'Canceled';
+  organizer_id: string;
+  user_id: string;
+  partnership_id?: string | null;
+}
+
+// For updates, we can omit user_id since it shouldn't change
+interface EventUpdateData {
+  title: string;
+  caption: string;
+  poster: PosterData;
+  guidelink: string;
+  registerlink: string;
+  open_date: string;
+  close_date: string | null;
+  extend_date?: string | null;
+  kategori: 'Info Lomba' | 'Info Magang' | 'Info Loker';
+  is_online: 'Online' | 'Offline' | 'Online & Offline';
+  location: string;
+  is_free: boolean;
+  status?: 'Pending' | 'Success' | 'Canceled';
+  organizer_id: string;
+  partnership_id?: string | null;
+}
+
 export async function createEvent(prevState: FormState, formData: FormData): Promise<FormState> {
   const supabase = createServerActionClient<Database>({ cookies });
   
@@ -20,19 +66,19 @@ export async function createEvent(prevState: FormState, formData: FormData): Pro
 
   const posterJsonString = formData.get('poster_json') as string;
   
-  const eventData = {
+  const eventData: EventCreateData = {
     title: formData.get('title') as string,
     caption: formData.get('caption') as string,
     guidelink: formData.get('guidelink') as string,
     registerlink: formData.get('registerlink') as string,
     open_date: formData.get('open_date') as string,
     close_date: (formData.get('close_date') as string) || null,
-    kategori: formData.get('kategori') as any,
-    is_online: formData.get('is_online') as any,
+    kategori: formData.get('kategori') as 'Info Lomba' | 'Info Magang' | 'Info Loker',
+    is_online: formData.get('is_online') as 'Online' | 'Offline' | 'Online & Offline',
     location: formData.get('location') as string,
     is_free: formData.get('is_free') === 'true',
     organizer_id: formData.get('organizer_id') as string,
-    poster: JSON.parse(posterJsonString || '[]'),
+    poster: JSON.parse(posterJsonString || '[]') as PosterData,
     user_id: user.id,
     status: 'Success' as const,
   };
@@ -43,7 +89,7 @@ export async function createEvent(prevState: FormState, formData: FormData): Pro
 
   const { data: newEvent, error: eventError } = await supabase
     .from('events')
-    .insert(eventData as any)
+    .insert(eventData as Database['public']['Tables']['events']['Insert'])
     .select('id')
     .single();
 
@@ -75,23 +121,23 @@ export async function updateEvent(id: string, prevState: FormState, formData: Fo
 
   const posterJsonString = formData.get('poster_json') as string;
 
-  const eventData = {
+  const eventData: EventUpdateData = {
     title: formData.get('title') as string,
     caption: formData.get('caption') as string,
     guidelink: formData.get('guidelink') as string,
     registerlink: formData.get('registerlink') as string,
     open_date: formData.get('open_date') as string,
     close_date: (formData.get('close_date') as string) || null,
-    kategori: formData.get('kategori') as any,
-    is_online: formData.get('is_online') as any,
+    kategori: formData.get('kategori') as 'Info Lomba' | 'Info Magang' | 'Info Loker',
+    is_online: formData.get('is_online') as 'Online' | 'Offline' | 'Online & Offline',
     location: formData.get('location') as string,
     is_free: formData.get('is_free') === 'true',
     organizer_id: formData.get('organizer_id') as string,
-    poster: JSON.parse(posterJsonString || '[]'),
+    poster: JSON.parse(posterJsonString || '[]') as PosterData,
     status: 'Success' as const,
   };
 
-  const { error: updateError } = await supabase.from('events').update(eventData as any).eq('id', id);
+  const { error: updateError } = await supabase.from('events').update(eventData as Database['public']['Tables']['events']['Update']).eq('id', id);
   
   if (updateError) {
     console.error('Error updating event:', updateError);
