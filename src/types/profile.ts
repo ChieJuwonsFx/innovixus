@@ -1,4 +1,3 @@
-// types/profile.ts
 export type Profile = {
   id: string;
   name: string;

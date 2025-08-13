@@ -5,7 +5,7 @@ export type PostCategory =
   | 'Info Magang' 
   | 'Info Workshop'
   | 'Info Seminar'
-  | string; // Allow custom categories
+  | string; 
 
 export interface PostData {
   title: string;
