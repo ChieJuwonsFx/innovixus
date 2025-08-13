@@ -4,9 +4,10 @@ import { useRouter } from 'next/navigation';
 import { SearchX, Home, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 
+export const dynamic = 'force-dynamic';
+
 export default function NotFound() {
   const router = useRouter();
-
 
   return (
     <>
