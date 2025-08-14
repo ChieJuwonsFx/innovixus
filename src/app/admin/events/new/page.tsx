@@ -3,6 +3,7 @@ import { cookies } from 'next/headers';
 import AdminPageHeader from '../../components/AdminPageHeader';
 import EventForm from '../components/EventForm';
 import { Database } from '@/types/database';
+import { CircleArrowLeft } from "lucide-react";
 
 export default async function NewEventPage() {
   const supabase = createServerComponentClient<Database>({ cookies });
@@ -13,7 +14,7 @@ export default async function NewEventPage() {
 
   return (
     <div>
-      <AdminPageHeader title="Tambah Event Baru" buttonLabel="Kembali ke Daftar" buttonHref="/admin/events" />
+      <AdminPageHeader title="Tambah Event Baru" buttonLabel="Kembali ke Daftar" buttonHref="/admin/events" description='Silahkan Tambahkan Data Event Baru' icon={CircleArrowLeft}/>
       <EventForm 
         organizers={organizers || []} 
         levels={levels || []} 

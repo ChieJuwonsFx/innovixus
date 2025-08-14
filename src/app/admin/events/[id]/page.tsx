@@ -10,7 +10,7 @@ type EditEventPageProps = {
 };
 
 export default async function EditEventPage({ params }: EditEventPageProps) {
-  const { id } = await params; // karena params adalah Promise
+  const { id } = await params; 
 
   const supabase = createServerComponentClient<Database>({ cookies });
 
@@ -34,6 +34,7 @@ export default async function EditEventPage({ params }: EditEventPageProps) {
         title="Edit Event"
         buttonLabel="Kembali ke Daftar"
         buttonHref="/admin/events"
+        deskripsi="Silahkan Edit Data Event Ini"
       />
       <EventForm
         event={event}
