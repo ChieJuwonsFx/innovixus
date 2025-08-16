@@ -4,6 +4,7 @@ import AdminPageHeader from '../../components/AdminPageHeader';
 import EventForm from '../components/EventForm';
 import { Database } from '@/types/database';
 import { notFound } from 'next/navigation';
+import { CircleArrowLeft } from "lucide-react";
 
 type EditEventPageProps = {
   params: Promise<{ id: string }>
@@ -34,7 +35,8 @@ export default async function EditEventPage({ params }: EditEventPageProps) {
         title="Edit Event"
         buttonLabel="Kembali ke Daftar"
         buttonHref="/admin/events"
-        deskripsi="Silahkan Edit Data Event Ini"
+        description="Silahkan Edit Data Event Ini"
+        icon={ CircleArrowLeft }
       />
       <EventForm
         event={event}

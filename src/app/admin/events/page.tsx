@@ -3,6 +3,7 @@ import { cookies } from 'next/headers';
 import AdminPageHeader from '../components/AdminPageHeader';
 import AdminEventCard from './components/AdminEventCard';
 import { Database } from '@/types/database';
+import{CirclePlus} from "lucide-react"
 
 export default async function EventsPage() {
   const supabase = createServerComponentClient<Database>({ cookies });
@@ -22,6 +23,8 @@ export default async function EventsPage() {
         title="Manajemen Event"
         buttonLabel="Tambah Event Baru"
         buttonHref="/admin/events/new"
+        description='Halaman Event Admin'
+        icon={CirclePlus}
       />
       
       {events && events.length > 0 ? (
