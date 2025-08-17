@@ -3,7 +3,6 @@
 import { useEffect, useRef, useCallback } from 'react';
 import EventCard from './Card';
 import { Database } from '@/types/database';
-import { ChevronLeft, ChevronRight, TrendingUp } from 'lucide-react';
 
 type EventWithOrganizer = Database['public']['Tables']['events']['Row'] & {
   organizers: Pick<Database['public']['Tables']['organizers']['Row'], 'name'> | null;
@@ -25,6 +24,7 @@ export default function EventSlider({ events, kategori }: SliderProps) {
   const translateXRef = useRef(0);
   const animationRef = useRef<number | null>(null);
   const isAnimatingRef = useRef(false);
+  const isPausedRef = useRef(false);
 
   const dragInfoRef = useRef({
     isDown: false,
@@ -33,27 +33,9 @@ export default function EventSlider({ events, kategori }: SliderProps) {
     startTranslateX: 0,
   });
 
-  const cardWidth = 320;
-  const gap = 24;
+  const cardWidth = 280; 
+  const gap = 20;
   const cardWithGap = cardWidth + gap;
-
-  const getSectionTitle = () => {
-    switch (kategori) {
-      case 'info-lomba': return 'Lomba Terbaru';
-      case 'info-magang': return 'Program Magang Terbaru';
-      case 'info-loker': return 'Lowongan Kerja Terbaru';
-      default: return 'Terbaru Untukmu';
-    }
-  };
-
-  const getSectionDescription = () => {
-    switch (kategori) {
-      case 'info-lomba': return 'Jangan lewatkan kesempatan untuk berkompetisi dan menunjukkan kemampuanmu';
-      case 'info-magang': return 'Dapatkan pengalaman berharga dan kembangkan skill profesionalmu';
-      case 'info-loker': return 'Temukan peluang karir yang sesuai dengan passion dan keahlianmu';
-      default: return 'Peluang terbaik menanti untukmu';
-    }
-  };
 
   const convertToCardEvent = (event: EventWithOrganizer): EventForCard => {
     return {
@@ -64,12 +46,25 @@ export default function EventSlider({ events, kategori }: SliderProps) {
     };
   };
 
-  const infiniteEvents = events.length > 0 ? [...events, ...events, ...events] : [];
-  const originalEventsWidth = events.length * cardWithGap;
+  const createInfiniteEvents = (): EventWithOrganizer[] => {
+    if (events.length === 0) return [];
+    
+    const multiplier = Math.max(4, Math.ceil(8 / events.length));
+    let result: EventWithOrganizer[] = [];
+    
+    for (let i = 0; i < multiplier; i++) {
+      result = [...result, ...events];
+    }
+    
+    return result;
+  };
+
+  const infiniteEvents = createInfiniteEvents();
+  const originalSetWidth = events.length * cardWithGap;
 
   const setTransform = useCallback((x: number, smooth = false) => {
     if (containerRef.current) {
-      containerRef.current.style.transition = smooth ? 'transform 0.5s ease-in-out' : 'none';
+      containerRef.current.style.transition = smooth ? 'transform 0.6s cubic-bezier(0.4, 0.0, 0.2, 1)' : 'none';
       containerRef.current.style.transform = `translateX(${x}px)`;
       translateXRef.current = x;
     }
@@ -77,23 +72,24 @@ export default function EventSlider({ events, kategori }: SliderProps) {
 
   const handleLooping = useCallback(() => {
     const currentTranslateX = translateXRef.current;
-    if (currentTranslateX <= -originalEventsWidth * 2) {
-      setTransform(currentTranslateX + originalEventsWidth);
-    } else if (currentTranslateX > -originalEventsWidth) {
-      setTransform(currentTranslateX - originalEventsWidth);
+    
+    if (currentTranslateX <= -originalSetWidth * 2) {
+      setTransform(currentTranslateX + originalSetWidth);
+    } else if (currentTranslateX > 0) {
+      setTransform(currentTranslateX - originalSetWidth);
     }
-  }, [originalEventsWidth, setTransform]);
+  }, [originalSetWidth, setTransform]);
 
   const animate = useCallback(() => {
-    if (isAnimatingRef.current) {
-      setTransform(translateXRef.current - 0.8);
+    if (isAnimatingRef.current && !isPausedRef.current) {
+      setTransform(translateXRef.current - 0.5);
       handleLooping();
       animationRef.current = requestAnimationFrame(animate);
     }
   }, [setTransform, handleLooping]);
   
   const startAnimation = useCallback(() => {
-    if (isAnimatingRef.current || events.length === 0 || dragInfoRef.current.isDown) return;
+    if (isAnimatingRef.current || events.length === 0) return;
     isAnimatingRef.current = true;
     animate();
   }, [animate, events.length]);
@@ -102,8 +98,20 @@ export default function EventSlider({ events, kategori }: SliderProps) {
     isAnimatingRef.current = false;
     if (animationRef.current) {
       cancelAnimationFrame(animationRef.current);
+      animationRef.current = null;
     }
   }, []);
+
+  const pauseAnimation = useCallback(() => {
+    isPausedRef.current = true;
+  }, []);
+
+  const resumeAnimation = useCallback(() => {
+    isPausedRef.current = false;
+    if (!isAnimatingRef.current) {
+      startAnimation();
+    }
+  }, [startAnimation]);
 
   const handleDragEnd = useCallback(() => {
     if (!dragInfoRef.current.isDown) return;
@@ -119,8 +127,9 @@ export default function EventSlider({ events, kategori }: SliderProps) {
     
     dragInfoRef.current.isDown = false;
     dragInfoRef.current.isDragging = false;
-    startAnimation();
-  }, [handleLooping, startAnimation]);
+    
+    setTimeout(resumeAnimation, 1000);
+  }, [handleLooping, resumeAnimation]);
 
   const handleDragStart = useCallback((clientX: number) => {
     stopAnimation();
@@ -159,30 +168,18 @@ export default function EventSlider({ events, kategori }: SliderProps) {
     }
   }, [setTransform, handleDragEnd]);
   
-  const scrollToNext = useCallback(() => {
-    stopAnimation();
-    const nextSnapPoint = Math.ceil(translateXRef.current / cardWithGap) * cardWithGap - cardWithGap;
-    setTransform(nextSnapPoint, true);
-    setTimeout(() => { handleLooping(); startAnimation(); }, 500);
-  }, [stopAnimation, cardWithGap, setTransform, handleLooping, startAnimation]);
-
-  const scrollToPrev = useCallback(() => {
-    stopAnimation();
-    const prevSnapPoint = Math.floor(translateXRef.current / cardWithGap) * cardWithGap + cardWithGap;
-    setTransform(Math.min(prevSnapPoint, -originalEventsWidth), true);
-    setTimeout(() => { handleLooping(); startAnimation(); }, 500);
-  }, [stopAnimation, cardWithGap, setTransform, handleLooping, startAnimation, originalEventsWidth]);
-
   useEffect(() => {
-    setTransform(-originalEventsWidth);
-    startAnimation();
+    if (events.length > 0) {
+      setTransform(-originalSetWidth);
+      startAnimation();
+    }
 
     const onMouseMove = (e: MouseEvent) => handleDragMove(e);
     const onTouchMove = (e: TouchEvent) => handleDragMove(e);
     
     document.addEventListener('mousemove', onMouseMove);
     document.addEventListener('mouseup', handleDragEnd);
-    document.addEventListener('touchmove', onTouchMove);
+    document.addEventListener('touchmove', onTouchMove, { passive: false });
     document.addEventListener('touchend', handleDragEnd);
 
     return () => {
@@ -192,77 +189,46 @@ export default function EventSlider({ events, kategori }: SliderProps) {
       document.removeEventListener('touchmove', onTouchMove);
       document.removeEventListener('touchend', handleDragEnd);
     };
-  }, [handleDragEnd, handleDragMove, originalEventsWidth, setTransform, startAnimation, stopAnimation]);
+  }, [handleDragEnd, handleDragMove, originalSetWidth, setTransform, startAnimation, stopAnimation, events.length]);
 
   if (!events || events.length === 0) return null;
 
   return (
     <section className="relative mb-12">
-      <div className="bg-white dark:bg-slate-900 rounded-3xl p-8 shadow-xl border border-slate-200 dark:border-slate-700">
-        <div className="flex items-center justify-between mb-8">
-          <div className="space-y-3">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-blue-600 rounded-2xl shadow-lg">
-                <TrendingUp className="h-6 w-6 text-white" />
-              </div>
-              <h2 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white tracking-tight">
-                {getSectionTitle()}
-              </h2>
-            </div>
-            <p className="text-slate-600 dark:text-slate-400 max-w-2xl text-lg leading-relaxed">
-              {getSectionDescription()}
-            </p>
-          </div>
-          
-          <div className="flex items-center gap-3">
-            <button
-              onClick={scrollToPrev}
-              className="p-4 bg-slate-100 dark:bg-slate-800 rounded-2xl hover:bg-slate-200 dark:hover:bg-slate-700 transition-all duration-300 border border-slate-200 dark:border-slate-600 hover:scale-105 hover:shadow-lg group"
-              aria-label="Previous events"
-            >
-              <ChevronLeft className="h-5 w-5 text-slate-700 dark:text-slate-300 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors" />
-            </button>
-            <button
-              onClick={scrollToNext}
-              className="p-4 bg-slate-100 dark:bg-slate-800 rounded-2xl hover:bg-slate-200 dark:hover:bg-slate-700 transition-all duration-300 border border-slate-200 dark:border-slate-600 hover:scale-105 hover:shadow-lg group"
-              aria-label="Next events"
-            >
-              <ChevronRight className="h-5 w-5 text-slate-700 dark:text-slate-300 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors" />
-            </button>
-          </div>
-        </div>
+      <div className="py-6">
 
         <div 
-          className="relative overflow-hidden rounded-2xl bg-white dark:bg-slate-900 p-4"
-          onMouseEnter={stopAnimation}
-          onMouseLeave={() => { if (!dragInfoRef.current.isDown) startAnimation()}}
-          onMouseDown={(e) => handleDragStart(e.clientX)}
-          onTouchStart={(e) => handleDragStart(e.touches[0].clientX)}
+          className="relative overflow-hidden"
         >
           <div
             ref={containerRef}
-            className="flex gap-6 will-change-transform"
+            className="flex gap-5 will-change-transform"
             style={{
               width: `${infiniteEvents.length * cardWithGap}px`,
               cursor: 'grab',
             }}
+            onMouseEnter={pauseAnimation}
+            onMouseLeave={resumeAnimation}
+            onMouseDown={(e) => handleDragStart(e.clientX)}
+            onTouchStart={(e) => handleDragStart(e.touches[0].clientX)}
             onClick={(e) => {
-                if (dragInfoRef.current.isDragging) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                }
+              if (dragInfoRef.current.isDragging) {
+                e.preventDefault();
+                e.stopPropagation();
+              }
             }}
           >
             {infiniteEvents.map((event, index) => (
               <div 
                 key={`${event.id}-${index}`}
-                className="flex-shrink-0 w-80"
+                className="flex-shrink-0 w-70 py-1"
+                style={{ width: `${cardWidth}px` }}
               >
-              <EventCard 
-                event={convertToCardEvent(event)} 
-                kategori={kategori} 
-                variant="slider"
-              />
+                <EventCard 
+                  event={convertToCardEvent(event)} 
+                  kategori={kategori} 
+                  variant="slider"
+                />
               </div>
             ))}
           </div>

@@ -105,25 +105,26 @@ export default async function KategoriPage({ params, searchParams }: PageProps) 
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200 transition-colors duration-300">
-      <div className="container mx-auto px-4 py-8 pt-28 md:pt-32">
-        
+      <div className="container mx-auto py-8 pt-28 md:pt-32">
+        <div className='px-4'>
         <Header
           kategori={kategori}
           totalEvents={totalEvents || 0}
         />
+        </div>
+
         
-        <div className="my-12">
+        <div className="my-12 px-4">
           <EventFilters levels={levels} fields={fields} kategori={kategori} />
         </div>
         
         {!isFiltered && latestEvents.length > 0 && (
           <div className="mb-16">
-            <h2 className="text-3xl font-bold tracking-tight mb-6 text-slate-900 dark:text-white">Terbaru Untukmu ✨</h2>
-            <Slider events={latestEvents} kategori={kategori} />
+            <Slider events={latestEvents} kategori={kategori}  />
           </div>
         )}
 
-        <main>
+        <main className='px-4'>
           <Grid
             events={events as EventWithRelations[]}
             count={count}

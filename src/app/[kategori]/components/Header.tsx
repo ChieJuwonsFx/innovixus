@@ -265,7 +265,7 @@ export default function Header({ kategori, totalEvents }: KategoriHeaderProps) {
   const rotateY = useTransform(trailX, [0, 1000], [-1, 1]);
 
   return (
-    <div className="relative">
+    <div className="relative px-4">
       {isInHeader && (
         <motion.div
           className="pointer-events-none fixed left-0 top-0 z-50"

@@ -85,8 +85,7 @@ export default function Card({ event, kategori, variant = 'grid' }: CardProps) {
   };
 
   const formatTitle = (title: string) => {
-    const words = title.split(' ');
-    const maxCharsPerLine = 24; 
+    const maxCharsPerLine = variant === 'slider' ? 20 : 24; 
     const maxLines = 2;
     
     const totalChars = title.length;
@@ -96,6 +95,7 @@ export default function Card({ event, kategori, variant = 'grid' }: CardProps) {
       return lastSpace > 0 ? truncated.slice(0, lastSpace) + '...' : truncated + '...';
     }
     
+    const words = title.split(' ');
     if (words.length >= 2 && words.length <= 4) {
       const firstLine = words.slice(0, -1).join(' ');
       const lastWord = words[words.length - 1];
@@ -105,7 +105,108 @@ export default function Card({ event, kategori, variant = 'grid' }: CardProps) {
     return `${title}<br />&nbsp;`;
   };
 
-  const CardContent = (
+  // Komponen yang lebih compact untuk slider
+  const SliderCardContent = (
+    <div className="group relative bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm rounded-2xl shadow-sm hover:shadow-xl hover:shadow-slate-200/50 dark:hover:shadow-slate-800/50 transition-all duration-300 overflow-hidden border border-slate-200/60 dark:border-slate-700/60 h-full hover:-translate-y-1">
+      <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-slate-900/5 dark:from-white/2 dark:to-slate-900/10 pointer-events-none" />
+      
+      {/* Image lebih kecil untuk slider */}
+      <div className="relative w-full h-40 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent z-10" />
+        <Image
+          src={posterUrl}
+          alt={event.title}
+          fill
+          className="object-cover transition-all duration-500 group-hover:scale-105 pointer-events-none"
+          sizes="(max-width: 768px) 100vw, 280px"
+        />
+        
+        <div className="absolute top-3 left-3 z-20">
+          <span className={getCategoryBadge()}>
+            {getCategoryIcon()}
+            <span className="hidden sm:inline">
+              {kategori === 'info-lomba' ? 'Lomba' : kategori === 'info-magang' ? 'Magang' : 'Loker'}
+            </span>
+          </span>
+        </div>
+
+        <div className="absolute top-3 right-3 z-20">
+          <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-white/95 dark:bg-slate-800/95 backdrop-blur-md border border-white/50 dark:border-slate-700/50 shadow-sm ${getStatusColor()}`}>
+            <Clock className="w-3 h-3" />
+            <span>{formatDateWithTime(event.close_date).split(' ')[0]}</span>
+          </span>
+        </div>
+        
+        {kategori === 'info-lomba' && event.is_free && (
+          <div className="absolute bottom-3 left-3 z-20">
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-gradient-to-r from-emerald-500 to-green-500 text-white rounded-full text-xs font-semibold shadow-lg backdrop-blur-sm">
+              <Sparkles className="w-3 h-3" />
+              <span>Gratis</span>
+            </span>
+          </div>
+        )}
+      </div>
+      
+      {/* Content lebih compact */}
+      <div className="p-4 space-y-3">
+        <div className="space-y-2">
+          <h3
+            className="font-bold text-base text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors leading-tight min-h-[3rem] max-h-[3rem] overflow-hidden"
+            dangerouslySetInnerHTML={{ __html: formatTitle(event.title) }}
+          />
+          <div className="flex items-center gap-2">
+            <div className="p-1 bg-slate-100 dark:bg-slate-800 rounded-lg">
+              <Users className="w-3 h-3 text-slate-600 dark:text-slate-400" />
+            </div>
+            <p className="text-xs text-slate-600 dark:text-slate-400 truncate font-medium">
+              {event.organizers?.name || 'Penyelenggara'}
+            </p>
+          </div>
+        </div>
+        
+        {/* Info lebih ringkas */}
+        <div className="space-y-2">
+          <div className="flex items-center gap-2 text-sm">
+            <div className="p-1 bg-blue-50 dark:bg-blue-900/30 rounded-lg">
+              <Calendar className="w-3 h-3 text-blue-600 dark:text-blue-400" />
+            </div>
+            <span className="text-slate-900 dark:text-white font-semibold text-xs truncate">
+              {formatDate(event.close_date)}
+            </span>
+          </div>
+          
+          <div className="flex items-center gap-2 text-sm">
+            <div className="p-1 bg-emerald-50 dark:bg-emerald-900/30 rounded-lg">
+              <MapPin className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
+            </div>
+            <span className="text-slate-600 dark:text-slate-400 text-xs truncate">
+              {event.location} 
+            </span>
+          </div>
+        </div>
+        
+        {/* Footer compact */}
+        <div className="pt-3 border-t border-slate-200/60 dark:border-slate-700/60 flex items-center justify-between">
+          <span className="text-xs text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800 px-2 py-1 rounded-md">
+            {new Date(event.created_at).toLocaleDateString('id-ID', { 
+              day: 'numeric', 
+              month: 'short' 
+            })}
+          </span>
+          <Link 
+            href={`/${kategori}/${event.id}`} 
+            className="inline-flex items-center gap-1 text-blue-600 dark:text-blue-400 text-xs font-semibold hover:text-blue-700 dark:hover:text-blue-300 transition-colors bg-blue-50 dark:bg-blue-900/30 px-2.5 py-1 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/50"
+          >
+            <span>Detail</span>
+            <ExternalLink className="w-3 h-3" />
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+
+  // Grid card content (original size)
+  const GridCardContent = (
     <div className="group relative bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm rounded-2xl shadow-sm hover:shadow-xl hover:shadow-slate-200/50 dark:hover:shadow-slate-800/50 transition-all duration-300 overflow-hidden border border-slate-200/60 dark:border-slate-700/60 h-full hover:-translate-y-1">
       <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-slate-900/5 dark:from-white/2 dark:to-slate-900/10 pointer-events-none" />
       
@@ -208,24 +309,16 @@ export default function Card({ event, kategori, variant = 'grid' }: CardProps) {
           <span className="text-xs text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800 px-2 py-1 rounded-md">
             {new Date(event.created_at).toLocaleDateString('id-ID')}
           </span>
-          {variant === 'slider' ? (
-            <Link 
-              href={`/${kategori}/${event.id}`} 
-              className="inline-flex items-center gap-1.5 text-blue-600 dark:text-blue-400 text-sm font-semibold hover:text-blue-700 dark:hover:text-blue-300 transition-colors bg-blue-50 dark:bg-blue-900/30 px-3 py-1.5 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/50"
-            >
-              <span>Detail</span>
-              <ExternalLink className="w-3.5 h-3.5" />
-            </Link>
-          ) : (
-            <div className="inline-flex items-center gap-1.5 text-blue-600 dark:text-blue-400 text-sm font-semibold group-hover:text-blue-700 dark:group-hover:text-blue-300 transition-colors bg-blue-50 dark:bg-blue-900/30 px-3 py-1.5 rounded-lg group-hover:bg-blue-100 dark:group-hover:bg-blue-900/50">
-              <span>Detail</span>
-              <ExternalLink className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
-            </div>
-          )}
+          <div className="inline-flex items-center gap-1.5 text-blue-600 dark:text-blue-400 text-sm font-semibold group-hover:text-blue-700 dark:group-hover:text-blue-300 transition-colors bg-blue-50 dark:bg-blue-900/30 px-3 py-1.5 rounded-lg group-hover:bg-blue-100 dark:group-hover:bg-blue-900/50">
+            <span>Detail</span>
+            <ExternalLink className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+          </div>
         </div>
       </div>
     </div>
   );
+
+  const CardContent = variant === 'slider' ? SliderCardContent : GridCardContent;
 
   return variant === 'grid' ? (
     <Link href={`/${kategori}/${event.id}`} className="block h-full">
