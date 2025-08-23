@@ -2,6 +2,8 @@ import { createClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
 import { Database } from '@/types/database';
 
+import {Sparkles, LayoutGrid, Search} from 'lucide-react';
+
 import Header from './components/Header';
 import EventFilters from './components/Filter';
 import Slider from './components/Slider';
@@ -60,21 +62,67 @@ export default async function KategoriPage({ params, searchParams }: PageProps) 
 
   const isFiltered = !!(resolvedSearchParams.q || resolvedSearchParams.level || resolvedSearchParams.bidang || resolvedSearchParams.tipe || resolvedSearchParams.gratis);
   
-let query = supabase
+  let query = supabase
     .from('events')
     .select('*, organizers(name, instagram), levels(id, name), fields(id, name)', { count: 'exact' })
     .eq('kategori', dbCategory)
     .eq('status', 'Success')
     .filter('open_date', 'lte', 'now()')
     .filter('close_date', 'gte', 'now()')
-    .order('created_at', { ascending: false })
-    .range(start, end);
+    .order('created_at', { ascending: false });
 
-  if (resolvedSearchParams.q) query = query.ilike('title', `%${resolvedSearchParams.q}%`);
-  if (resolvedSearchParams.level) query = query.filter('levels.id', 'in', `(${resolvedSearchParams.level})`);
-  if (resolvedSearchParams.bidang) query = query.filter('fields.id', 'in', `(${resolvedSearchParams.bidang})`);
-  if (resolvedSearchParams.tipe) query = query.eq('is_online', resolvedSearchParams.tipe); 
-  if (kategori === 'info-lomba' && resolvedSearchParams.gratis === 'true') query = query.eq('is_free', true);
+  if (resolvedSearchParams.q) {
+    query = query.ilike('title', `%${resolvedSearchParams.q}%`);
+  }
+
+  if (resolvedSearchParams.level) {
+    const { data: eventIdsWithLevel } = await supabase
+      .from('event_levels')
+      .select('event_id')
+      .eq('level_id', resolvedSearchParams.level);
+    
+    if (eventIdsWithLevel && eventIdsWithLevel.length > 0) {
+      const eventIds = eventIdsWithLevel.map(item => item.event_id);
+      query = query.in('id', eventIds);
+    } else {
+      query = query.eq('id', '-1');
+    }
+  }
+
+  if (resolvedSearchParams.bidang) {
+    const { data: eventIdsWithField } = await supabase
+      .from('event_fields')
+      .select('event_id')
+      .eq('field_id', resolvedSearchParams.bidang);
+    
+    if (eventIdsWithField && eventIdsWithField.length > 0) {
+      const eventIds = eventIdsWithField.map(item => item.event_id);
+      query = query.in('id', eventIds);
+    } else {
+      query = query.eq('id', '-1'); 
+    }
+  }
+
+  if (resolvedSearchParams.tipe) {
+    switch (resolvedSearchParams.tipe) {
+      case 'Online':
+        query = query.eq('is_online', 'true');
+        break;
+      case 'Offline':
+        query = query.eq('is_online', 'false');
+        break;
+      case 'Hybrid':
+        query = query.eq('tipe_pelaksanaan', 'Hybrid');
+        break;
+    }
+  }
+
+  if (kategori === 'info-lomba' && resolvedSearchParams.gratis) {
+    const isGratis = resolvedSearchParams.gratis === 'true';
+    query = query.eq('is_free', isGratis);
+  }
+
+  query = query.range(start, end);
   
   const { data: events, error, count } = await query;
   
@@ -114,11 +162,10 @@ let query = supabase
       <div className="mx-auto py-8 pt-28">
         <section className='px-4'>
           <Header
-          kategori={kategori}
-          totalEvents={totalEvents || 0}
+            kategori={kategori}
+            totalEvents={totalEvents || 0}
           />
         </section>
-
 
         <section className="my-12 px-4">
           <EventFilters levels={levels} fields={fields} kategori={kategori} />
@@ -126,13 +173,21 @@ let query = supabase
         
         {!isFiltered && latestEvents.length > 0 && (
           <section className="mb-12">
-            <h2 className="text-2xl font-bold px-6">Event Terbaru</h2>
+            <h2 className="flex items-center gap-3 text-2xl font-bold px-6">
+              <Sparkles className="h-6 w-6" />
+              Event Terbaru
+            </h2>
             <Slider events={latestEvents} kategori={kategori} />
           </section>
         )}
 
         <main className='px-4'>
-           <h2 className="text-2xl font-bold mb-6 px-2">
+          <h2 className="flex items-center gap-3 text-2xl font-bold mb-2">
+            {isFiltered ? (
+              <Search className="h-6 w-6" />
+            ) : (
+              <LayoutGrid className="h-6 w-6" />
+            )}
             {isFiltered ? 'Hasil Pencarian' : 'Semua Event Aktif'}
           </h2>
           <Grid

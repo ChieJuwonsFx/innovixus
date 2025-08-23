@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { Search, Filter, X, ChevronDown, Loader2 } from 'lucide-react';
 import { Database } from '@/types/database';
@@ -37,71 +37,117 @@ export default function EventFilters({ levels, fields, kategori }: FilterProps) 
     setSelectedGratis(searchParams.get('gratis') || '');
   }, [searchParams]);
 
-  const handleSearch = async () => {
+  const handleSearch = useCallback(async (immediate = false) => {
+    if (isLoading) return;
+    
     setIsLoading(true);
     
-    const params = new URLSearchParams();
-    
-    if (searchTerm.trim()) params.set('q', searchTerm.trim());
-    if (selectedLevel) params.set('level', selectedLevel);
-    if (selectedBidang) params.set('bidang', selectedBidang);
-    if (selectedTipe) params.set('tipe', selectedTipe);
-    if (selectedGratis) params.set('gratis', selectedGratis);
-    
-    params.set('page', '1');
-    
-    const url = `${pathname}?${params.toString()}`;
-    
     try {
-      router.push(url, { scroll: false });
-      await new Promise(resolve => setTimeout(resolve, 300));
+      if (!immediate) {
+        await new Promise(resolve => setTimeout(resolve, 300));
+      }
+      
+      const params = new URLSearchParams();
+      
+      if (searchTerm.trim()) params.set('q', searchTerm.trim());
+      if (selectedLevel) params.set('level', selectedLevel);
+      if (selectedBidang) params.set('bidang', selectedBidang);
+      if (selectedTipe) params.set('tipe', selectedTipe);
+      if (selectedGratis) params.set('gratis', selectedGratis);
+      
+      params.set('page', '1');
+      
+      const url = `${pathname}?${params.toString()}`;
+      
+      router.replace(url, { scroll: false });
+      
+    } catch (error) {
+      console.error('Search error:', error);
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [searchTerm, selectedLevel, selectedBidang, selectedTipe, selectedGratis, pathname, router, isLoading]);
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !isLoading) {
-      handleSearch();
+      e.preventDefault();
+      handleSearch(true);
     }
   };
 
-  const clearAllFilters = () => {
-    setIsMounted(false);
+  const handleFilterChange = useCallback((filterType: string, value: string) => {
+    switch (filterType) {
+      case 'level':
+        setSelectedLevel(value);
+        break;
+      case 'bidang':
+        setSelectedBidang(value);
+        break;
+      case 'tipe':
+        setSelectedTipe(value);
+        break;
+      case 'gratis':
+        setSelectedGratis(value);
+        break;
+    }
+    
+    setTimeout(() => handleSearch(true), 100);
+  }, [handleSearch]);
+
+  const clearAllFilters = useCallback(() => {
     setSearchTerm('');
     setSelectedLevel('');
     setSelectedBidang('');
     setSelectedTipe('');
     setSelectedGratis('');
-    router.push(pathname, { scroll: false });
-    setTimeout(() => setIsMounted(true), 50);
-  };
+    
+    router.replace(pathname, { scroll: false });
+  }, [pathname, router]);
 
   const hasActiveFilters = !!(
-      searchParams.get('q') || 
-      searchParams.get('level') || 
-      searchParams.get('bidang') || 
-      searchParams.get('tipe') || 
-      searchParams.get('gratis')
+    searchParams.get('q') || 
+    searchParams.get('level') || 
+    searchParams.get('bidang') || 
+    searchParams.get('tipe') || 
+    searchParams.get('gratis')
   );
 
   const getLabelText = () => {
     switch (kategori) {
       case 'info-lomba':
-        return { level: 'Jenjang', bidang: 'Bidang Lomba', placeholder: 'Cari nama lomba...', title: 'Filter Lomba' };
+        return { 
+          level: 'Jenjang', 
+          bidang: 'Bidang Lomba', 
+          placeholder: 'Cari nama lomba...', 
+          title: 'Filter Lomba' 
+        };
       case 'info-magang':
-        return { level: 'Pendidikan', bidang: 'Bidang Pekerjaan', placeholder: 'Cari program magang...', title: 'Filter Magang' };
+        return { 
+          level: 'Pendidikan', 
+          bidang: 'Bidang Pekerjaan', 
+          placeholder: 'Cari program magang...', 
+          title: 'Filter Magang' 
+        };
       case 'info-loker':
-        return { level: 'Pendidikan', bidang: 'Bidang Pekerjaan', placeholder: 'Cari lowongan kerja...', title: 'Filter Lowongan' };
+        return { 
+          level: 'Pendidikan', 
+          bidang: 'Bidang Pekerjaan', 
+          placeholder: 'Cari lowongan kerja...', 
+          title: 'Filter Lowongan' 
+        };
       default:
-        return { level: 'Level', bidang: 'Bidang', placeholder: 'Cari...', title: 'Filter' };
+        return { 
+          level: 'Level', 
+          bidang: 'Bidang', 
+          placeholder: 'Cari...', 
+          title: 'Filter' 
+        };
     }
   };
 
   const labels = getLabelText();
 
   const selectClasses = `w-full p-3 pr-10 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-sm appearance-none bg-no-repeat bg-[url('data:image/svg+xml,%3csvg%20xmlns%3d%22http%3a//www.w3.org/2000/svg%22%20viewBox%3d%220%200%2020%2020%22%20fill%3d%22currentColor%22%3e%3cpath%20fill-rule%3d%22evenodd%22%20d%3d%22M5.293%207.293a1%201%200%20011.414%200L10%2010.586l3.293-3.293a1%201%200%20111.414%201.414l-4%204a1%201%200%2001-1.414%200l-4-4a1%201%200%20010-1.414z%22%20clip-rule%3d%22evenodd%22%20/%3e%3c/svg%3e')] bg-[position:right_0.75rem_center] bg-[size:1.25em]`;
-  
 
   if (!isMounted) {
     return (
@@ -139,12 +185,12 @@ export default function EventFilters({ levels, fields, kategori }: FilterProps) 
           </div>
           <div className="flex gap-3">
             <button
-              onClick={handleSearch}
+              onClick={() => handleSearch(true)}
               disabled={isLoading}
               className="px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors duration-200 font-medium text-sm shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 min-w-[80px] justify-center"
               type="button"
             >
-              {isLoading ? ( <Loader2 className="h-4 w-4 animate-spin" /> ) : ( 'Cari' )}
+              {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Cari'}
             </button>
             <button
               onClick={() => setIsFilterExpanded(!isFilterExpanded)}
@@ -153,13 +199,19 @@ export default function EventFilters({ levels, fields, kategori }: FilterProps) 
             >
               <Filter className="h-4 w-4 text-gray-500 dark:text-gray-300" />
               <span className="hidden sm:inline text-sm">Filter</span>
-              <ChevronDown className={`h-4 w-4 text-gray-500 dark:text-gray-300 transition-transform duration-200 ${isFilterExpanded ? 'rotate-180' : ''}`} />
+              <ChevronDown 
+                className={`h-4 w-4 text-gray-500 dark:text-gray-300 transition-transform duration-200 ${
+                  isFilterExpanded ? 'rotate-180' : ''
+                }`} 
+              />
             </button>
           </div>
         </div>
       </div>
 
-      <div className={`transition-all duration-300 ease-in-out ${isFilterExpanded ? 'max-h-[500px] opacity-100 visible' : 'max-h-0 opacity-0 invisible'} overflow-hidden`}>
+      <div className={`transition-all duration-300 ease-in-out ${
+        isFilterExpanded ? 'max-h-[500px] opacity-100 visible' : 'max-h-0 opacity-0 invisible'
+      } overflow-hidden`}>
         <div className="p-6">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
@@ -182,10 +234,17 @@ export default function EventFilters({ levels, fields, kategori }: FilterProps) 
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 {labels.level}
               </label>
-              <select value={selectedLevel} onChange={(e) => setSelectedLevel(e.target.value)} className={selectClasses} autoComplete="off">
+              <select 
+                value={selectedLevel} 
+                onChange={(e) => handleFilterChange('level', e.target.value)}
+                className={selectClasses} 
+                autoComplete="off"
+              >
                 <option value="">Semua {labels.level}</option>
                 {levels.map(level => (
-                  <option key={level.id} value={level.id}>{level.name}</option>
+                  <option key={level.id} value={level.id}>
+                    {level.name}
+                  </option>
                 ))}
               </select>
             </div>
@@ -194,10 +253,17 @@ export default function EventFilters({ levels, fields, kategori }: FilterProps) 
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 {labels.bidang}
               </label>
-              <select value={selectedBidang} onChange={(e) => setSelectedBidang(e.target.value)} className={selectClasses} autoComplete="off">
+              <select 
+                value={selectedBidang} 
+                onChange={(e) => handleFilterChange('bidang', e.target.value)}
+                className={selectClasses} 
+                autoComplete="off"
+              >
                 <option value="">Semua {labels.bidang}</option>
                 {fields.map(field => (
-                  <option key={field.id} value={field.id}>{field.name}</option>
+                  <option key={field.id} value={field.id}>
+                    {field.name}
+                  </option>
                 ))}
               </select>
             </div>
@@ -206,7 +272,12 @@ export default function EventFilters({ levels, fields, kategori }: FilterProps) 
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Tipe Pelaksanaan
               </label>
-              <select value={selectedTipe} onChange={(e) => setSelectedTipe(e.target.value)} className={selectClasses} autoComplete="off">
+              <select 
+                value={selectedTipe} 
+                onChange={(e) => handleFilterChange('tipe', e.target.value)}
+                className={selectClasses} 
+                autoComplete="off"
+              >
                 <option value="">Semua Tipe</option>
                 <option value="Online">Online</option>
                 <option value="Offline">Offline</option>
@@ -219,7 +290,12 @@ export default function EventFilters({ levels, fields, kategori }: FilterProps) 
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                   Biaya Pendaftaran
                 </label>
-                <select value={selectedGratis} onChange={(e) => setSelectedGratis(e.target.value)} className={selectClasses} autoComplete="off">
+                <select 
+                  value={selectedGratis} 
+                  onChange={(e) => handleFilterChange('gratis', e.target.value)}
+                  className={selectClasses} 
+                  autoComplete="off"
+                >
                   <option value="">Semua</option>
                   <option value="true">Gratis</option>
                   <option value="false">Berbayar</option>
@@ -227,6 +303,79 @@ export default function EventFilters({ levels, fields, kategori }: FilterProps) 
               </div>
             )}
           </div>
+
+          {hasActiveFilters && (
+            <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-600">
+              <div className="flex flex-wrap gap-2">
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300 mr-2">
+                  Filter aktif:
+                </span>
+                
+                {searchParams.get('q') && (
+                  <span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full text-sm">
+                    Pencarian: {searchParams.get('q')}
+                    <button
+                      onClick={() => {
+                        setSearchTerm('');
+                        setTimeout(() => handleSearch(true), 100);
+                      }}
+                      className="ml-1 hover:text-blue-600 dark:hover:text-blue-300"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </span>
+                )}
+                
+                {searchParams.get('level') && (
+                  <span className="inline-flex items-center gap-1 px-3 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 rounded-full text-sm">
+                    {labels.level}: {levels.find(l => l.id.toString() === searchParams.get('level'))?.name}
+                    <button
+                      onClick={() => handleFilterChange('level', '')}
+                      className="ml-1 hover:text-green-600 dark:hover:text-green-300"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </span>
+                )}
+                
+                {searchParams.get('bidang') && (
+                  <span className="inline-flex items-center gap-1 px-3 py-1 bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 rounded-full text-sm">
+                    {labels.bidang}: {fields.find(f => f.id.toString() === searchParams.get('bidang'))?.name}
+                    <button
+                      onClick={() => handleFilterChange('bidang', '')}
+                      className="ml-1 hover:text-purple-600 dark:hover:text-purple-300"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </span>
+                )}
+                
+                {searchParams.get('tipe') && (
+                  <span className="inline-flex items-center gap-1 px-3 py-1 bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200 rounded-full text-sm">
+                    Tipe: {searchParams.get('tipe')}
+                    <button
+                      onClick={() => handleFilterChange('tipe', '')}
+                      className="ml-1 hover:text-orange-600 dark:hover:text-orange-300"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </span>
+                )}
+                
+                {searchParams.get('gratis') && kategori === 'info-lomba' && (
+                  <span className="inline-flex items-center gap-1 px-3 py-1 bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 rounded-full text-sm">
+                    {searchParams.get('gratis') === 'true' ? 'Gratis' : 'Berbayar'}
+                    <button
+                      onClick={() => handleFilterChange('gratis', '')}
+                      className="ml-1 hover:text-yellow-600 dark:hover:text-yellow-300"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
