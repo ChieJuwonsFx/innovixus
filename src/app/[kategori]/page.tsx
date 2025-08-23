@@ -50,6 +50,8 @@ export default async function KategoriPage({ params, searchParams }: PageProps) 
   if (!dbCategory) {
     notFound();
   }
+  
+  const now = new Date().toISOString();
 
   const page = parseInt(resolvedSearchParams.page || '1', 10);
   const pageSize = 12;
@@ -58,11 +60,13 @@ export default async function KategoriPage({ params, searchParams }: PageProps) 
 
   const isFiltered = !!(resolvedSearchParams.q || resolvedSearchParams.level || resolvedSearchParams.bidang || resolvedSearchParams.tipe || resolvedSearchParams.gratis);
   
-  let query = supabase
+let query = supabase
     .from('events')
     .select('*, organizers(name, instagram), levels(id, name), fields(id, name)', { count: 'exact' })
     .eq('kategori', dbCategory)
     .eq('status', 'Success')
+    .filter('open_date', 'lte', 'now()')
+    .filter('close_date', 'gte', 'now()')
     .order('created_at', { ascending: false })
     .range(start, end);
 
@@ -82,8 +86,10 @@ export default async function KategoriPage({ params, searchParams }: PageProps) 
   ] = await Promise.all([
     supabase.from('levels').select('id, name').order('name'),
     supabase.from('fields').select('id, name').order('name'),
-    supabase.from('events').select('*', { count: 'exact', head: true }).eq('kategori', dbCategory).eq('status', 'Success'),
-    isFiltered ? Promise.resolve({ data: [] }) : supabase.from('events').select('*, organizers(name)').eq('kategori', dbCategory).eq('status', 'Success').order('created_at', { ascending: false }).limit(6)
+    supabase.from('events').select('*', { count: 'exact', head: true }).eq('kategori', dbCategory).eq('status', 'Success').lte('open_date', now).gte('close_date', now),
+    isFiltered 
+      ? Promise.resolve({ data: [] }) 
+      : supabase.from('events').select('*, organizers(name)').eq('kategori', dbCategory).eq('status', 'Success').lte('open_date', now).gte('close_date', now).order('created_at', { ascending: false }).limit(6)
   ]);
   
   if (error) {
@@ -105,26 +111,30 @@ export default async function KategoriPage({ params, searchParams }: PageProps) 
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200 transition-colors duration-300">
-      <div className="container mx-auto py-8 pt-28 md:pt-32">
-        <div className='px-4'>
-        <Header
+      <div className="mx-auto py-8 pt-28">
+        <section className='px-4'>
+          <Header
           kategori={kategori}
           totalEvents={totalEvents || 0}
-        />
-        </div>
+          />
+        </section>
 
-        
-        <div className="my-12 px-4">
+
+        <section className="my-12 px-4">
           <EventFilters levels={levels} fields={fields} kategori={kategori} />
-        </div>
+        </section>
         
         {!isFiltered && latestEvents.length > 0 && (
-          <div className="mb-16">
-            <Slider events={latestEvents} kategori={kategori}  />
-          </div>
+          <section className="mb-12">
+            <h2 className="text-2xl font-bold px-6">Event Terbaru</h2>
+            <Slider events={latestEvents} kategori={kategori} />
+          </section>
         )}
 
         <main className='px-4'>
+           <h2 className="text-2xl font-bold mb-6 px-2">
+            {isFiltered ? 'Hasil Pencarian' : 'Semua Event Aktif'}
+          </h2>
           <Grid
             events={events as EventWithRelations[]}
             count={count}

@@ -1,4 +1,3 @@
-// types/event.ts
 export type PostTemplate = 'blue' | 'red' | 'green' | 'purple' | 'orange' | 'teal' | 'white';
 
 export type PostCategory = 
