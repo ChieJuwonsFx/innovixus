@@ -12,6 +12,7 @@ interface EventDetailPageProps {
     kategori: string;
     id: string;
   };
+  searchParams?: { [key: string]: string | string[] | undefined };
 }
 
 export default async function EventDetailPage({ params }: EventDetailPageProps) {
