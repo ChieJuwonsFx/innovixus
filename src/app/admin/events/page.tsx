@@ -1,7 +1,7 @@
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import AdminPageHeader from '../components/AdminPageHeader';
-import AdminEventCard from './components/AdminEventCard';
+import AdminEventCard from '../components/events/AdminEventCard';
 import { Database } from '@/types/database';
 import{CirclePlus} from "lucide-react"
 

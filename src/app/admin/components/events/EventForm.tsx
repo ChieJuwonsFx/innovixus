@@ -7,7 +7,7 @@ import { Loader2 } from 'lucide-react';
 import React from 'react';
 
 import { Database } from '@/types/database';
-import { createEvent, updateEvent } from '../actions';
+import { createEvent, updateEvent } from '../../events/actions';
 import ImageUploader from './ImageUploader';
 import { FormMessage } from '@/app/components/auth/FormMessage';
 

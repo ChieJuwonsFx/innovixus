@@ -1,7 +1,7 @@
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import AdminPageHeader from '../../components/AdminPageHeader';
-import EventForm from '../components/EventForm';
+import EventForm from '../../components/events/EventForm';
 import { Database } from '@/types/database';
 import { CircleArrowLeft } from "lucide-react";
 

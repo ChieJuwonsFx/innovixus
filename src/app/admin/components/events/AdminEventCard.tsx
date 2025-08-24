@@ -3,11 +3,11 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { MoreVertical, Eye, Edit } from 'lucide-react';
+import { MoreVertical, Eye, Edit, FileImage } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Database } from '@/types/database';
-import DeleteButton from '../../components/DeleteButton';
-import { deleteEvent } from '../actions';
+import DeleteButton from '../DeleteButton';
+import { deleteEvent } from '../../events/actions';
 
 type EventWithOrganizer = Database['public']['Tables']['events']['Row'] & {
   organizers: { name: string } | null;
@@ -24,6 +24,14 @@ export default function AdminEventCard({ event }: { event: EventWithOrganizer })
   const posterUrl = posterArray?.[0]?.url || '/placeholder.png'; 
   
   const publicUrl = `/${(event.kategori ?? 'info-lomba').replace(/\s+/g, '-').toLowerCase()}/${event.id}`;
+  
+  const generatePostData = {
+    title: event.title,
+    category: event.kategori || 'Info Lomba',
+    images: posterArray || []
+  };
+  
+  const generatePostUrl = `/admin/generate-post?data=${encodeURIComponent(JSON.stringify(generatePostData))}`;
 
   const handleDelete = async () => {
     await deleteEvent(event.id);
@@ -66,13 +74,16 @@ export default function AdminEventCard({ event }: { event: EventWithOrganizer })
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
-            className="absolute top-12 right-2 w-40 bg-white dark:bg-slate-800 rounded-lg shadow-xl z-10 border border-slate-200 dark:border-slate-700"
+            className="absolute top-12 right-2 w-44 bg-white dark:bg-slate-800 rounded-lg shadow-xl z-10 border border-slate-200 dark:border-slate-700"
           >
-            <Link href={publicUrl} target="_blank" className="flex items-center gap-2 w-full px-3 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700">
+            <Link href={publicUrl} target="_blank" className="flex items-center gap-2 w-full px-3 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-t-lg">
               <Eye className="w-4 h-4" /> Lihat
             </Link>
             <Link href={`/admin/events/${event.id}`} className="flex items-center gap-2 w-full px-3 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700">
               <Edit className="w-4 h-4" /> Edit
+            </Link>
+            <Link href={generatePostUrl} className="flex items-center gap-2 w-full px-3 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700">
+              <FileImage className="w-4 h-4" /> Generate Post
             </Link>
             <DeleteButton action={handleDelete} itemLabel={event.title} />
           </motion.div>

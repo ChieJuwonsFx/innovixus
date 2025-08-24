@@ -1,11 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { PostData, PostTemplate, PostCategory } from '@/types/event';
 import { generatePostImages } from '@/lib/imageGenerator';
-import ImageUploader from './components/ImageUploader';
-import PostPreview from './components/PostPreview';
-import TemplateSelector from './components/TemplateSelector';
+import ImageUploader from '../components/generate-post/ImageUploader';
+import PostPreview from '../components/generate-post/PostPreview';
+import TemplateSelector from '../components/generate-post/TemplateSelector';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiDownload, FiLoader, FiAlertTriangle } from 'react-icons/fi';
 
@@ -16,7 +17,13 @@ const DEFAULT_CATEGORIES: PostCategory[] = [
   'Info Seminar'
 ];
 
+type PosterData = {
+  url: string;
+};
+
 export default function GeneratePostPage() {
+  const searchParams = useSearchParams();
+  
   const [postData, setPostData] = useState<PostData>({
     title: '',
     category: '',
@@ -27,6 +34,58 @@ export default function GeneratePostPage() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [customCategory, setCustomCategory] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [isLoadingImages, setIsLoadingImages] = useState(false);
+
+  const urlToFile = async (url: string, filename: string): Promise<File> => {
+    const response = await fetch(url);
+    const blob = await response.blob();
+    return new File([blob], filename, { type: blob.type });
+  };
+  
+  useEffect(() => {
+    const loadDataFromParams = async () => {
+      const dataParam = searchParams.get('data');
+      if (dataParam) {
+        try {
+          const eventData = JSON.parse(decodeURIComponent(dataParam));
+          console.log('Loaded event data:', eventData);
+          
+          setPostData(prev => ({
+            ...prev,
+            title: eventData.title || '',
+            category: eventData.category || ''
+          }));
+
+          if (eventData.images && Array.isArray(eventData.images) && eventData.images.length > 0) {
+            setIsLoadingImages(true);
+            try {
+              const imageFiles = await Promise.all(
+                eventData.images.map(async (poster: PosterData, index: number) => {
+                  const filename = `poster-${index + 1}.jpg`;
+                  return await urlToFile(poster.url, filename);
+                })
+              );
+              
+              setPostData(prev => ({
+                ...prev,
+                images: imageFiles
+              }));
+            } catch (imageError) {
+              console.error('Error loading images:', imageError);
+              setError('Failed to load some images from the event.');
+            } finally {
+              setIsLoadingImages(false);
+            }
+          }
+        } catch (parseError) {
+          console.error('Error parsing URL data:', parseError);
+          setError('Invalid data in URL parameters.');
+        }
+      }
+    };
+
+    loadDataFromParams();
+  }, [searchParams]);
 
   useEffect(() => {
     if (postData.title && postData.category && postData.images.length > 0) {
@@ -146,9 +205,22 @@ export default function GeneratePostPage() {
                 <input type="text" value={customCategory} onChange={handleCustomCategoryChange} className="w-full px-3 py-2 border text-gray-900 dark:text-white border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 placeholder:text-gray-400 dark:placeholder:text-gray-500" placeholder="Or enter a custom category" />
               </motion.div>
               <TemplateSelector selectedTemplate={postData.template} onTemplateChange={handleTemplateChange} />
+              
+              {isLoadingImages && (
+                <motion.div 
+                  initial={{ opacity: 0 }} 
+                  animate={{ opacity: 1 }}
+                  className="flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400 p-2 bg-blue-100 dark:bg-blue-900/20 rounded-lg"
+                >
+                  <FiLoader className="animate-spin" />
+                  <span>Loading images from event...</span>
+                </motion.div>
+              )}
+              
               <ImageUploader images={postData.images} onImagesChange={handleImagesChange} onRemoveImage={handleRemoveImage} onReorder={handleReorder} />
+              
               <AnimatePresence>{error && (<motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="flex items-center gap-2 text-sm text-red-600 dark:text-red-400 p-2 bg-red-100 dark:bg-red-900/20 rounded-lg"><FiAlertTriangle /><span>{error}</span></motion.div>)}</AnimatePresence>
-              <motion.button onClick={handleGenerate} disabled={isGenerating} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 px-4 rounded-lg shadow-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-base" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+              <motion.button onClick={handleGenerate} disabled={isGenerating || isLoadingImages} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 px-4 rounded-lg shadow-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-base" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                 {isGenerating ? (<><FiLoader className="animate-spin" /> Generating...</>) : (<><FiDownload /> Generate Post</>)}
               </motion.button>
             </div>
