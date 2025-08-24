@@ -14,9 +14,6 @@ export const metadata: Metadata = {
     default: 'InnoVixus',
   },
   description: 'Platform terdepan untuk menemukan info lomba, magang, dan lowongan kerja terbaru di dunia teknologi.',
-  icons: {
-    icon: '/logo/favicon.ico',
-  },
 }
 
 export default function RootLayout({

@@ -76,7 +76,6 @@ export default function EventForm({ event, organizers, levels, fields }: EventFo
   const [showExtendDate, setShowExtendDate] = useState(false);
   const [extendDate, setExtendDate] = useState('');
 
-  // Set locale for date inputs to Indonesian format (dd/mm/yyyy)
   React.useEffect(() => {
     const dateInputs = document.querySelectorAll('input[type="date"]');
     dateInputs.forEach(input => {
@@ -301,7 +300,6 @@ export default function EventForm({ event, organizers, levels, fields }: EventFo
                 </div>
               </div>
 
-              {/* Extend Date Section */}
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300">
