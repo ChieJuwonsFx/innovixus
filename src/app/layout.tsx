@@ -15,7 +15,7 @@ export const metadata: Metadata = {
   },
   description: 'Platform terdepan untuk menemukan info lomba, magang, dan lowongan kerja terbaru di dunia teknologi.',
   icons: {
-    icon: '/logo/logo.png',
+    icon: '/logo/favicon.ico',
   },
 }
 
