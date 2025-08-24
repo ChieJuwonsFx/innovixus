@@ -394,7 +394,7 @@ export default function PublicNavbar({ initialProfile = null }: PublicNavbarProp
   return (
     <header 
       className={clsx(
-        "fixed top-4 left-4 right-4 h-[72px] z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg rounded-2xl border border-slate-200/80 dark:border-slate-800/80 transition-shadow duration-300",
+        "fixed top-4 left-4 right-4 h-[72px] z-50 bg-white dark:bg-slate-900 backdrop-blur-lg rounded-2xl border border-slate-200/80 dark:border-slate-800/80 transition-shadow duration-300",
         isScrolled && "shadow-lg dark:shadow-black/20"
       )}
       style={{ willChange: 'transform' }}

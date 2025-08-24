@@ -1,6 +1,6 @@
 import Card from './Card';
 import NoResults from './NoResults';
-import { EventWithRelations } from '../page';
+import { EventWithRelations } from '../../[kategori]/page';
 
 type EventGridProps = {
   events: EventWithRelations[];
@@ -28,7 +28,7 @@ export default function Grid({ events, count, isFiltered, kategori, searchQuery 
         </div>
       )}
     
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8 mt-8">
         {events.map((event) => (
           <Card key={event.id} event={event} kategori={kategori} />
         ))}

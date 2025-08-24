@@ -4,11 +4,11 @@ import { Database } from '@/types/database';
 
 import {Sparkles, LayoutGrid, Search} from 'lucide-react';
 
-import Header from './components/Header';
-import EventFilters from './components/Filter';
-import Slider from './components/Slider';
-import Grid from './components/Grid';
-import Pagination from './components/Pagination';
+import Header from '../components/event/Header';
+import EventFilters from '../components/event/Filter';
+import Slider from '../components/event/Slider';
+import Grid from '../components/event/Grid';
+import Pagination from '../components/event/Pagination';
 
 type EventRow = Database['public']['Tables']['events']['Row'];
 type LevelRow = Database['public']['Tables']['levels']['Row'];
