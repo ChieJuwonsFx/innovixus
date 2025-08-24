@@ -8,16 +8,16 @@ type Poster = {
 };
 
 interface EventDetailPageProps {
-  params: {
+  params: Promise<{
     kategori: string;
     id: string;
-  };
-  searchParams?: { [key: string]: string | string[] | undefined };
+  }>;
+  searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
 export default async function EventDetailPage({ params }: EventDetailPageProps) {
-  const { kategori } = params;
-  const event = await getEventWithRelations(params.id);
+  const { kategori, id } = await params;
+  const event = await getEventWithRelations(id);
 
   if (!event) {
     notFound();
