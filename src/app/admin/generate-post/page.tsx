@@ -48,7 +48,6 @@ export default function GeneratePostPage() {
       if (dataParam) {
         try {
           const eventData = JSON.parse(decodeURIComponent(dataParam));
-          console.log('Loaded event data:', eventData);
           
           setPostData(prev => ({
             ...prev,

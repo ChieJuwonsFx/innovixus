@@ -2,6 +2,7 @@ import './globals.css'
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import Navbar from './components/navbar/Navbar'
+import Footer from './components/footer/Footer'
 
 export const dynamic = 'force-dynamic';
 
@@ -37,14 +38,12 @@ export default function RootLayout({
                       document.documentElement.classList.remove('dark');
                     }
                   } else {
-                    // Fallback to system preference only if no saved theme
                     var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
                     if (prefersDark) {
                       document.documentElement.classList.add('dark');
                     }
                   }
                 } catch (e) {
-                  // Silent fail for SSR
                 }
               })();
             `,
@@ -56,6 +55,7 @@ export default function RootLayout({
         <div className='bg-slate-100 dark:bg-slate-950'>
           {children}
         </div>
+        <Footer/>
       </body>
     </html>
   )

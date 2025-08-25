@@ -78,7 +78,7 @@ export default function Content({
             {event.title}
           </h1>
           <div className="prose prose-slate dark:prose-invert max-w-none">
-            <p className="text-slate-600 dark:text-slate-400 leading-relaxed text-base">
+            <p className="text-slate-600 dark:text-slate-300 leading-relaxed text-base whitespace-pre-line">
               {event.caption}
             </p>
           </div>

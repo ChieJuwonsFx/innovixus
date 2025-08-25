@@ -3,11 +3,10 @@
 import { createServerActionClient } from '@supabase/auth-helpers-nextjs'
 import { cookies } from 'next/headers'
 import { revalidatePath } from 'next/cache'
-import { Database } from '@/types/database' 
 
 export async function getFields() {
   try {
-    const supabase = createServerActionClient<Database>({ cookies })
+    const supabase = createServerActionClient({ cookies })
     
     const { data, error } = await supabase
       .from('fields')
@@ -26,9 +25,36 @@ export async function getFields() {
   }
 }
 
+export async function getFieldsForCategory(kategori?: string) {
+  try {
+    const supabase = createServerActionClient({ cookies })
+    
+    let query = supabase
+      .from('fields')
+      .select('*')
+      .order('name')
+
+    if (kategori && kategori !== 'info-lomba') {
+      query = query.eq('only_lomba', false)
+    }
+
+    const { data, error } = await query
+
+    if (error) {
+      console.error('Error fetching fields:', error)
+      throw new Error(`Failed to get fields: ${error.message}`)
+    }
+
+    return data || []
+  } catch (error) {
+    console.error('Get fields error:', error)
+    return []
+  }
+}
+
 export async function createField(formData: FormData) {
   try {
-    const supabase = createServerActionClient<Database>({ cookies })
+    const supabase = createServerActionClient({ cookies })
 
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) {
@@ -36,6 +62,7 @@ export async function createField(formData: FormData) {
     }
     
     const name = formData.get('name') as string
+    const only_lomba = formData.get('only_lomba') === 'true'
     
     if (!name || !name.trim()) {
       throw new Error('Field name is required')
@@ -45,27 +72,27 @@ export async function createField(formData: FormData) {
       .from('fields')
       .insert({
         id: crypto.randomUUID(), 
-        name: name.trim()
+        name: name.trim(),
+        only_lomba
       })
 
     if (error) {
-      console.error('Error creating field:', error)
       throw new Error(`Failed to create field: ${error.message}`)
     }
 
     revalidatePath('/admin/fields')
     return { success: true }
   } catch (error) {
-    console.error('Create field error:', error)
     throw error
   }
 }
 
 export async function updateField(id: string, formData: FormData) {
   try {
-    const supabase = createServerActionClient<Database>({ cookies })
+    const supabase = createServerActionClient({ cookies })
     
     const name = formData.get('name') as string
+    const only_lomba = formData.get('only_lomba') === 'true'
     
     if (!name || !name.trim()) {
       throw new Error('Field name is required')
@@ -73,25 +100,26 @@ export async function updateField(id: string, formData: FormData) {
 
     const { error } = await supabase
       .from('fields')
-      .update({ name: name.trim() })
+      .update({ 
+        name: name.trim(),
+        only_lomba 
+      })
       .eq('id', id)
 
     if (error) {
-      console.error('Error updating field:', error)
       throw new Error(`Failed to update field: ${error.message}`)
     }
 
     revalidatePath('/admin/fields')
     return { success: true }
   } catch (error) {
-    console.error('Update field error:', error)
     throw error
   }
 }
 
 export async function deleteField(id: string) {
   try {
-    const supabase = createServerActionClient<Database>({ cookies })
+    const supabase = createServerActionClient({ cookies })
     
     const { data: eventFields, error: checkError } = await supabase
       .from('event_fields')
@@ -100,7 +128,6 @@ export async function deleteField(id: string) {
       .limit(1)
 
     if (checkError) {
-      console.error('Error checking field dependencies:', checkError)
       throw new Error(`Failed to check field dependencies: ${checkError.message}`)
     }
 
@@ -114,14 +141,12 @@ export async function deleteField(id: string) {
       .eq('id', id)
 
     if (error) {
-      console.error('Error deleting field:', error)
       throw new Error(`Failed to delete field: ${error.message}`)
     }
 
     revalidatePath('/admin/fields')
     return { success: true }
   } catch (error) {
-    console.error('Delete field error:', error)
     throw error
   }
 }

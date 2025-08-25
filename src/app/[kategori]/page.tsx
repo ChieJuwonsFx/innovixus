@@ -133,7 +133,7 @@ export default async function KategoriPage({ params, searchParams }: PageProps) 
     { data: latestEventsData }
   ] = await Promise.all([
     supabase.from('levels').select('id, name').order('name'),
-    supabase.from('fields').select('id, name').order('name'),
+    supabase.from('fields').select('id, name, only_lomba').order('name'),
     supabase.from('events').select('*', { count: 'exact', head: true }).eq('kategori', dbCategory).eq('status', 'Success').lte('open_date', now).gte('close_date', now),
     isFiltered 
       ? Promise.resolve({ data: [] }) 

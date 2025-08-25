@@ -52,10 +52,9 @@ export default function Sidebar({
 }: SidebarProps) {
   return (
     <div className="sticky top-24 space-y-6">
-      {/* Action Card */}
       <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
         <div className="text-center space-y-4">
-          <div className="flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full mx-auto">
+          <div className="flex items-center justify-center w-16 h-16 bg-blue-500 rounded-full mx-auto">
             <CheckCircle className="w-8 h-8 text-white" />
           </div>
           <div>
@@ -65,13 +64,12 @@ export default function Sidebar({
             </p>
           </div>
           
-          {/* Register Button */}
           {statusInfo.status !== 'closed' ? (
             <Link 
               href={event.registerlink} 
               target="_blank" 
               rel="noopener noreferrer" 
-              className="inline-flex items-center justify-center gap-2 w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 hover:shadow-lg hover:shadow-blue-500/25 hover:scale-105"
+              className="inline-flex items-center justify-center gap-2 w-full bg-blue-600  hover:blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 hover:shadow-lg hover:shadow-blue-500/25 hover:scale-105"
             >
               <span>{categoryConfig.registerText}</span>
               <ExternalLink className="w-4 h-4" />
@@ -82,7 +80,6 @@ export default function Sidebar({
             </div>
           )}
           
-          {/* Guide Link */}
           {event.guidelink && (
             <Link 
               href={event.guidelink} 
@@ -97,7 +94,6 @@ export default function Sidebar({
         </div>
       </div>
       
-      {/* Summary Card */}
       <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
         <h3 className="font-bold text-slate-900 dark:text-white mb-4">Ringkasan</h3>
         <div className="space-y-3">
@@ -131,16 +127,9 @@ export default function Sidebar({
               {event.kategori || categoryConfig.title}
             </span>
           </div>
-          {posterArray && posterArray.length > 1 && (
-            <div className="flex items-center justify-between py-2">
-              <span className="text-slate-600 dark:text-slate-400 text-sm">Total Gambar</span>
-              <span className="text-slate-900 dark:text-white text-sm font-medium">{posterArray.length} gambar</span>
-            </div>
-          )}
         </div>
       </div>
       
-      {/* Share Card */}
       <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6">
         <h3 className="font-bold text-slate-900 dark:text-white mb-4">Bagikan</h3>
         <p className="text-slate-600 dark:text-slate-400 text-sm mb-4">

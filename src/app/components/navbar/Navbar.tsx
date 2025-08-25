@@ -21,7 +21,7 @@ async function getServerProfile(): Promise<Profile | null> {
       return null;
     }
 
-    const { data: userProfile, error: profileError } = await supabase
+    const { data: userProfile } = await supabase
       .from('users')
       .select('id, name, avatar, role')
       .eq('id', user.id)
@@ -32,10 +32,6 @@ async function getServerProfile(): Promise<Profile | null> {
         ...userProfile,
         email: user.email!
       };
-    }
-    
-    if (profileError) {
-        console.error('Error fetching user profile, using fallback. Error:', profileError.message);
     }
     
     return {

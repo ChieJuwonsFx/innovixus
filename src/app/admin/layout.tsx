@@ -200,7 +200,8 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                     <li className="px-6 pt-4 pb-2 text-xs font-semibold text-slate-400 uppercase tracking-wider">Manajemen Konten</li>
                       <NavItem href="/admin/events" icon={Megaphone} onLinkClick={closeSidebarOnMobile}>Manajemen Event</NavItem>
                       <NavItem href="/admin/organizers" icon={BookUser} onLinkClick={closeSidebarOnMobile}>Manajemen Organizer</NavItem>
-                      <NavItem href="/admin/levels" icon={Library} onLinkClick={closeSidebarOnMobile}>Level & Bidang</NavItem>
+                      <NavItem href="/admin/fields" icon={Library} onLinkClick={closeSidebarOnMobile}>Bidang</NavItem>
+                      <NavItem href="/admin/levels" icon={Library} onLinkClick={closeSidebarOnMobile}>Level</NavItem>
                       <NavItem href="/admin/generate-post" icon={Megaphone} onLinkClick={closeSidebarOnMobile}>Generate Post</NavItem>
                 </ul>
             </nav>

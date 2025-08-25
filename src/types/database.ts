@@ -207,14 +207,17 @@ export type Database = {
         Row: {
           id: string
           name: string
+          only_lomba: boolean
         }
         Insert: {
           id: string
           name: string
+          only_lomba: boolean
         }
         Update: {
           id?: string
           name?: string
+          only_lomba: boolean
         }
         Relationships: []
       }

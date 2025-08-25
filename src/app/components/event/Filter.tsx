@@ -47,13 +47,37 @@ export default function EventFilters({ levels, fields, kategori }: FilterProps) 
         await new Promise(resolve => setTimeout(resolve, 300));
       }
       
-      const params = new URLSearchParams();
+      const params = new URLSearchParams(searchParams.toString());
       
-      if (searchTerm.trim()) params.set('q', searchTerm.trim());
-      if (selectedLevel) params.set('level', selectedLevel);
-      if (selectedBidang) params.set('bidang', selectedBidang);
-      if (selectedTipe) params.set('tipe', selectedTipe);
-      if (selectedGratis) params.set('gratis', selectedGratis);
+      if (searchTerm.trim()) {
+        params.set('q', searchTerm.trim());
+      } else {
+        params.delete('q');
+      }
+
+      if (selectedLevel) {
+        params.set('level', selectedLevel);
+      } else {
+        params.delete('level');
+      }
+
+      if (selectedBidang) {
+        params.set('bidang', selectedBidang);
+      } else {
+        params.delete('bidang');
+      }
+
+      if (selectedTipe) {
+        params.set('tipe', selectedTipe);
+      } else {
+        params.delete('tipe');
+      }
+
+      if (selectedGratis) {
+        params.set('gratis', selectedGratis);
+      } else {
+        params.delete('gratis');
+      }
       
       params.set('page', '1');
       
@@ -66,7 +90,7 @@ export default function EventFilters({ levels, fields, kategori }: FilterProps) 
     } finally {
       setIsLoading(false);
     }
-  }, [searchTerm, selectedLevel, selectedBidang, selectedTipe, selectedGratis, pathname, router, isLoading]);
+  }, [searchTerm, selectedLevel, selectedBidang, selectedTipe, selectedGratis, pathname, router, isLoading, searchParams]);
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !isLoading) {
@@ -146,6 +170,8 @@ export default function EventFilters({ levels, fields, kategori }: FilterProps) 
   };
 
   const labels = getLabelText();
+
+  const displayFields = kategori !== 'info-lomba' ? fields.filter(f => f.only_lomba === false) : fields;
 
   const selectClasses = `w-full p-3 pr-10 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-sm appearance-none bg-no-repeat bg-[url('data:image/svg+xml,%3csvg%20xmlns%3d%22http%3a//www.w3.org/2000/svg%22%20viewBox%3d%220%200%2020%2020%22%20fill%3d%22currentColor%22%3e%3cpath%20fill-rule%3d%22evenodd%22%20d%3d%22M5.293%207.293a1%201%200%20011.414%200L10%2010.586l3.293-3.293a1%201%200%20111.414%201.414l-4%204a1%201%200%2001-1.414%200l-4-4a1%201%200%20010-1.414z%22%20clip-rule%3d%22evenodd%22%20/%3e%3c/svg%3e')] bg-[position:right_0.75rem_center] bg-[size:1.25em]`;
 
@@ -260,7 +286,7 @@ export default function EventFilters({ levels, fields, kategori }: FilterProps) 
                 autoComplete="off"
               >
                 <option value="">Semua {labels.bidang}</option>
-                {fields.map(field => (
+                {displayFields.map(field => (
                   <option key={field.id} value={field.id}>
                     {field.name}
                   </option>

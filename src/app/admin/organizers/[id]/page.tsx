@@ -15,7 +15,6 @@ export default async function OrganizerDetailPage({
   searchParams 
 }: OrganizerDetailPageProps) {
   
-  // Await the params and searchParams
   const { id } = await params
   const { view } = await searchParams
   

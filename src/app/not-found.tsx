@@ -14,7 +14,6 @@ export default function NotFound() {
         dangerouslySetInnerHTML={{
           __html: `
             (function() {
-              try {
                 var theme = localStorage.getItem('theme');
                 var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
                 var shouldBeDark = theme === 'dark' || (!theme && prefersDark);
@@ -24,9 +23,6 @@ export default function NotFound() {
                 } else {
                   document.documentElement.classList.remove('dark');
                 }
-              } catch (e) {
-                console.warn('Theme initialization failed:', e);
-              }
             })();
           `,
         }}

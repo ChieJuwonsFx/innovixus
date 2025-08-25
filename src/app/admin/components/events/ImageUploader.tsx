@@ -120,7 +120,6 @@ export default function ImageUploader({ existingImages = [], onUploadSuccess }: 
 
     if (!apiKey || !cloudName) {
       const errorMessage = "Konfigurasi Cloudinary tidak ditemukan.";
-      console.error(errorMessage);
       setFiles(prev => prev.map(f => 
         f.key === uploadingFile.key 
           ? { ...f, status: 'error', error: errorMessage } 
@@ -183,7 +182,6 @@ export default function ImageUploader({ existingImages = [], onUploadSuccess }: 
         errorMessage = error;
       }
       
-      console.error('Error uploading image to Cloudinary:', errorMessage);
       setFiles(prev => prev.map(f => 
         f.key === uploadingFile.key 
           ? { ...f, status: 'error', error: errorMessage, progress: 0 } 

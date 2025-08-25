@@ -11,7 +11,6 @@ export async function middleware(req: NextRequest) {
 
   if (req.nextUrl.pathname.startsWith('/admin')) {
     if (!user) {
-      console.log('MIDDLEWARE: No user found, redirecting to unauthorized.');
       return NextResponse.redirect(new URL('/unauthorized', req.url));
     }
 
@@ -22,12 +21,10 @@ export async function middleware(req: NextRequest) {
       .single();
     
     if (error) {
-        console.error('MIDDLEWARE: Error fetching user profile:', error.message);
         return NextResponse.redirect(new URL('/error', req.url));
     }
 
     if (userProfile?.role !== 'Admin') {
-      console.log(`MIDDLEWARE: User ${user.email} with role '${userProfile?.role}' tried to access admin area.`);
       return NextResponse.redirect(new URL('/unauthorized', req.url));
     }
   }
