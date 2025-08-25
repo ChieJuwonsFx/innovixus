@@ -6,8 +6,8 @@ import OrganizerForm from '../../components/organizers/OrganizerForm'
 import { getOrganizer } from '../actions'
 
 interface OrganizerDetailPageProps {
-  params: { id: string }
-  searchParams: { view?: string }
+  params: Promise<{ id: string }>
+  searchParams: Promise<{ view?: string }>
 }
 
 export default async function OrganizerDetailPage({ 
@@ -15,8 +15,12 @@ export default async function OrganizerDetailPage({
   searchParams 
 }: OrganizerDetailPageProps) {
   
-  const organizer = await getOrganizer(params.id)
-  const isViewMode = searchParams.view === 'true'
+  // Await the params and searchParams
+  const { id } = await params
+  const { view } = await searchParams
+  
+  const organizer = await getOrganizer(id)
+  const isViewMode = view === 'true'
 
   if (!organizer) {
     notFound()
