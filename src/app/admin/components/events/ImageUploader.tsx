@@ -211,7 +211,7 @@ export default function ImageUploader({ existingImages = [], onUploadSuccess }: 
         }
       });
     };
-  }, []);
+  }, [files]);
 
   return (
     <div className="space-y-6">
@@ -284,7 +284,7 @@ export default function ImageUploader({ existingImages = [], onUploadSuccess }: 
                 )}
               </div>
 
-              <div className="absolute top-3 right-3 flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">                
+              <div className="absolute top-3 right-3 flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
                 {upload.status !== 'uploading' && (
                   <button
                     type="button"
