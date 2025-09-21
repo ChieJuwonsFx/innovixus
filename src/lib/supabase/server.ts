@@ -1,19 +1,12 @@
-import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
-import { type Database } from '@/types/database';
+import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
 
-export const createClient = async () => {
-  const cookieStore = await cookies();
-
-  return createServerClient<Database>(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+export function createClient() {
+  return createServerComponentClient(
+    { cookies },
     {
-      cookies: {
-        get(name: string) {
-          return cookieStore.get(name)?.value;
-        },
-      },
+      supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL,
+      supabaseKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
     }
   );
-};
+}
