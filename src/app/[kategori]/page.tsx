@@ -132,8 +132,8 @@ export default async function KategoriPage({ params, searchParams }: PageProps) 
     { count: totalEvents },
     { data: latestEventsData }
   ] = await Promise.all([
-    supabase.from('levels').select('id, name').order('name'),
-    supabase.from('fields').select('id, name, only_lomba').order('name'),
+    supabase.from('levels').select('*').order('name'),
+    supabase.from('fields').select('*').order('name'),
     supabase.from('events').select('*', { count: 'exact', head: true }).eq('kategori', dbCategory).eq('status', 'Success').lte('open_date', now).gte('close_date', now),
     isFiltered 
       ? Promise.resolve({ data: [] }) 
@@ -158,7 +158,7 @@ export default async function KategoriPage({ params, searchParams }: PageProps) 
   const totalPages = Math.ceil((count || 0) / pageSize);
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200 transition-colors duration-300">
+    <div className="min-h-screen text-slate-800 dark:text-slate-200 transition-colors duration-300">
       <div className="mx-auto py-8 pt-28">
         <section className='px-4'>
           <Header

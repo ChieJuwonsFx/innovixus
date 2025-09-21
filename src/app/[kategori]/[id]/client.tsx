@@ -37,7 +37,7 @@ type CategoryConfigType = {
   registerText: string;
 };
 
-interface EventDetailPageClientProps {
+interface DetailClientProps {
   event: EventWithRelations;
   kategori: string;
   posterArray: Poster[] | null;
@@ -45,13 +45,13 @@ interface EventDetailPageClientProps {
   categoryConfig: CategoryConfigType;
 }
 
-export default function EventDetailPageClient({ 
+export default function DetailClient({ 
   event, 
   kategori, 
   posterArray, 
   statusInfo, 
   categoryConfig,
-}: EventDetailPageClientProps) {
+}: DetailClientProps) {
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [isImageViewerOpen, setIsImageViewerOpen] = useState(false);
   const [imageViewerIndex, setImageViewerIndex] = useState(0);
@@ -68,7 +68,7 @@ export default function EventDetailPageClient({
   };
 
   return (
-    <div className="min-h-screen pt-4 bg-slate-50 dark:bg-slate-950">
+    <div className="min-h-screen pt-4">
       <Header
         kategori={kategori}
         categoryConfig={categoryConfig}

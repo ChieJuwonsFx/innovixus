@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import { GraduationCap, Calendar, Users } from 'lucide-react';
 import { getEventWithRelations } from '@/lib/supabase/event';
-import DetailClient from './detail-event-client';
+import DetailClient from './client';
 
 type Poster = {
   url: string;
