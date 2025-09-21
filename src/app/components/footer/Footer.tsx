@@ -5,13 +5,13 @@ const Footer = () => {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-slate-50 dark:bg-slate-950 p-4 mt-2">
+    <footer className="bg-slate-50 dark:bg-slate-950 p-4 pt-2">
       <div className="mx-auto">
-        <div className="bg-white dark:bg-slate-900 rounded-3xl p-8 shadow-lg border border-slate-200/50 dark:border-slate-700/50">
+        <div className="bg-white dark:bg-slate-900 rounded-3xl p-8 shadow-lg">
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
             
             <div className="lg:col-span-1">
-              <div className="bg-slate-50 dark:bg-slate-800 rounded-2xl p-6">
+              <div className="bg-slate-50 dark:bg-slate-800 rounded-2xl p-6 h-full">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-8 h-8 flex items-center justify-center">
                     <Image 
@@ -105,7 +105,7 @@ const Footer = () => {
         </div>
 
         <div className="mt-6">
-          <div className="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-slate-200/50 dark:border-slate-700/50 mb-2">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-slate-200/50 dark:border-slate-700/50 mb-2 shadow-lg">
             <div className="text-center text-sm text-slate-600 dark:text-slate-400">
               <p className="font-medium">
                 &copy; {currentYear} InnoVixus. All Rights Reserved.
