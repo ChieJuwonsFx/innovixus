@@ -52,7 +52,7 @@ export default async function PartnershipPage() {
           <FeaturesSection />
         </div>
         
-        <section id="pricing" className="w-full py-12 sm:py-14 lg:py-16 xl:py-20 bg-slate-50 dark:bg-slate-900/90">
+        <section id="pricing" className="w-full bg-slate-50 dark:bg-slate-900/90">
           <div className="container mx-auto px-4 text-center">
             <h2 className="text-3xl font-bold tracking-tight sm:text-4xl text-slate-900 dark:text-white">
               Paket yang Tepat untuk Anda

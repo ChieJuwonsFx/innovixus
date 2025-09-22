@@ -50,7 +50,7 @@ export function FaqSection() {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
   return (
-    <section className="py-16 sm:py-24">
+    <section>
       <div className="container mx-auto px-4">
         <h2 className="text-3xl font-bold text-center text-slate-900 dark:text-white sm:text-4xl">
           Pertanyaan Umum (FAQ)

@@ -53,7 +53,7 @@ export function FeaturesSection() {
   const theme = themeClasses[activeFeature.theme as keyof typeof themeClasses];
 
   return (
-    <section className="relative py-12 max-w-7xl mx-auto">
+    <section className="relative max-w-7xl mx-auto">
       <div 
         aria-hidden="true" 
         className="absolute inset-0 -z-10 h-full w-full bg-slate-50 dark:bg-slate-900 bg-[radial-gradient(#e2e8f0_1px,transparent_1px)] dark:bg-[radial-gradient(#ffffff1a_1px,transparent_1px)] [background-size:20px_20px]"
