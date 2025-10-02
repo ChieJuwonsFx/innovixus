@@ -45,7 +45,6 @@ interface SidebarProps {
 export default function Sidebar({ 
   event, 
   kategori, 
-  posterArray, 
   statusInfo, 
   categoryConfig,
   onShareClick
