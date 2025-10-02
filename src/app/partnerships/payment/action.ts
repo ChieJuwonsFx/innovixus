@@ -14,7 +14,7 @@ export async function uploadPaymentProof(partnershipId: string, proofUrl: string
       .from('partnerships')
       .update({
         payment_proof: proofUrl,  
-        payment_status: 'Unpaid',
+        payment_status: 'Pending',
       })
       .eq('id', partnershipId);
 
