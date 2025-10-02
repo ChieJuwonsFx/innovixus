@@ -380,10 +380,9 @@ export default function SubmissionDetailPage({
     );
   }
 
-  const isCancellable =
-    submission.payment_status === "Unpaid" ||
-    submission.payment_status === "Pending";
+  
   const { events, packages, ...partnershipDetails } = submission;
+  const isCancellable = submission.payment_status === "Unpaid" || (packages?.price || 0) == 0 &&  submission.payment_status !== "Canceled" && submission.payment_status !== "Paid";
   const posterUrl = events ? getPosterUrl(events.poster) : null;
   const eventStatus =
     partnershipDetails.payment_status === "Unpaid" && (packages?.price || 0) > 0
