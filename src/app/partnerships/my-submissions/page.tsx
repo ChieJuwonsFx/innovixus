@@ -17,7 +17,6 @@ import {
   Tag,
   Calendar,
 } from "lucide-react";
-import clsx from "clsx";
 
 type PackageType = Database["public"]["Tables"]["packages"]["Row"];
 type EventType = Database["public"]["Tables"]["events"]["Row"];
@@ -33,48 +32,73 @@ const StatusBadge = ({
   status: string;
   type: "payment" | "event";
 }) => {
-  const statusConfig = {
-    payment: {
-      Paid: { text: "Lunas", icon: CheckCircle2, color: "green" },
-      Pending: { text: "Verifikasi", icon: Clock, color: "yellow" },
-      Unpaid: { text: "Belum Bayar", icon: CreditCard, color: "red" },
-      Canceled: { text: "Batal", icon: XCircle, color: "slate" },
-    },
-    event: {
-      Success: { text: "Disetujui", icon: CheckCircle2, color: "green" },
-      Pending: { text: "Direview", icon: Clock, color: "yellow" },
-      Canceled: { text: "Ditolak", icon: XCircle, color: "red" },
-      Waiting: { text: "Tunggu Bayar", icon: CreditCard, color: "slate" },
-    },
+  const getPaymentBadge = (status: string) => {
+    switch (status) {
+      case "Paid":
+        return (
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300">
+            <CheckCircle2 size={14} />
+            Lunas
+          </span>
+        );
+      case "Pending":
+        return (
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300">
+            <Clock size={14} />
+            Verifikasi
+          </span>
+        );
+      case "Canceled":
+        return (
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800 dark:bg-red-700 dark:text-red-300">
+            <XCircle size={14} />
+            Batal
+          </span>
+        );
+      default:
+        return (
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-full bg-slate-100 text-slate-800 dark:bg-slate-700 dark:text-slate-300">
+            <Clock size={14} />
+            {status}
+          </span>
+        );
+    }
   };
-  const typeConfig = statusConfig[type];
-  const config = typeConfig[status as keyof typeof typeConfig] || {
-    text: status,
-    icon: Clock,
-    color: "slate",
-  };
-  const Icon = config.icon;
 
-  return (
-    <span
-      className={clsx(
-        "inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-full",
-        {
-          "bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300":
-            config.color === "green",
-          "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300":
-            config.color === "yellow",
-          "bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300":
-            config.color === "red",
-          "bg-slate-100 text-slate-800 dark:bg-slate-700 dark:text-slate-300":
-            config.color === "slate",
-        }
-      )}
-    >
-      <Icon size={14} />
-      {config.text}
-    </span>
-  );
+  const getEventBadge = (status: string) => {
+    switch (status) {
+      case "Success":
+        return (
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-full bg-green-200 text-green-800 dark:bg-green-900/50 dark:text-green-300">
+            <CheckCircle2 size={14} />
+            Disetujui
+          </span>
+        );
+      case "Pending":
+        return (
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300">
+            <Clock size={14} />
+            Direview
+          </span>
+        );
+      case "Waiting":
+        return (
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-700 dark:text-yellow-300">
+            <CreditCard size={14} />
+            Tunggu Bayar
+          </span>
+        );
+      default:
+        return (
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800 dark:bg-red-700 dark:text-red-300">
+            <Clock size={14} />
+            {status}
+          </span>
+        );
+    }
+  };
+
+  return type === "payment" ? getPaymentBadge(status) : getEventBadge(status);
 };
 
 const SubmissionCard = ({ submission }: { submission: Submission }) => {
@@ -91,7 +115,7 @@ const SubmissionCard = ({ submission }: { submission: Submission }) => {
     (submission.payment_status === "Paid" && eventStatus === "Pending");
 
   return (
-    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 flex flex-col">
+    <div className="border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 flex flex-col">
       <div className="p-6">
         <h2 className="font-bold text-xl mb-2 text-slate-900 dark:text-white">
           {event?.title || "Informasi Event Tidak Tersedia"}
@@ -130,7 +154,6 @@ const SubmissionCard = ({ submission }: { submission: Submission }) => {
               <StatusBadge status={eventStatus} type="event" />
             )
           ) : (
-            // Tampilkan kedua status jika berbeda
             <>
               <StatusBadge status={submission.payment_status} type="payment" />
               <StatusBadge status={eventStatus} type="event" />
