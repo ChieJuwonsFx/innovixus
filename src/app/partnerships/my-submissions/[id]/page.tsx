@@ -405,7 +405,7 @@ export default function SubmissionDetailPage({
       />
 
       <div className="min-h-screen">
-        <div className="container mx-auto px-4 py-20 sm:py-24">
+        <div className="container mx-auto px-4 py-24">
           <Link
             href="/partnerships/my-submissions"
             className="inline-flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400 hover:text-blue-600 mb-6"
