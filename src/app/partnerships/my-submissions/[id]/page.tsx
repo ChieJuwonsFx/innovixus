@@ -236,7 +236,7 @@ const StatusBadge = ({
         );
       case "Waiting":
         return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-full w-full justify-center bg-slate-100 text-slate-800 dark:bg-slate-700 dark:text-slate-300">
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-full w-full justify-center bg-yellow-100 text-yellow-800 dark:bg-yellow-700 dark:text-yellow-300">
             <CreditCard size={14} />
             Tunggu Bayar
           </span>
@@ -527,11 +527,21 @@ export default function SubmissionDetailPage({
                     )
                   ) : (
                     <>
-                      <StatusBadge
-                        status={partnershipDetails.payment_status}
-                        type="payment"
-                      />
-                      <StatusBadge status={eventStatus} type="event" />
+                      <div>
+                        <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-1.5">
+                          Status Pembayaran
+                        </p>
+                        <StatusBadge
+                          status={partnershipDetails.payment_status}
+                          type="payment"
+                        />
+                      </div>
+                      <div>
+                        <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-1.5">
+                          Status Event
+                        </p>
+                        <StatusBadge status={eventStatus} type="event" />
+                      </div>
                     </>
                   )}
                 </div>
