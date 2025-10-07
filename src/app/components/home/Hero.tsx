@@ -1,12 +1,11 @@
 "use client";
 import type { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
-import Image from "next/image"; // Menggunakan kembali komponen Image dari Next.js
-
+import Image from "next/image"; 
 interface HeroSectionProps {
   router: AppRouterInstance;
 }
 
-export default function Hero({ router }: HeroSectionProps) {
+export default function Hero({}: HeroSectionProps) {
   return (
     <section className="min-h-screen flex items-center justify-center px-4 bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-blue-900">
       <div className="max-w-6xl mx-auto">
