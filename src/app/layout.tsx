@@ -2,10 +2,9 @@ import './globals.css'
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import Navbar from './components/navbar/Navbar'
-import Footer from './components/footer/Footer'
+import FooterLayout from './components/footer/FooterLayout'
 
 export const dynamic = 'force-dynamic';
-
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -52,10 +51,10 @@ export default function RootLayout({
       </head>
       <body className={inter.className}>
         <Navbar />
-        <div className='bg-slate-100 dark:bg-slate-950'>
+        <div className='bg-slate-50 dark:bg-slate-950'>
           {children}
         </div>
-        <Footer/>
+        <FooterLayout />
       </body>
     </html>
   )
