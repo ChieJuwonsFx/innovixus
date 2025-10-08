@@ -307,7 +307,7 @@ export default function EventFilters({ levels, fields, kategori }: FilterProps) 
                 <option value="">Semua Tipe</option>
                 <option value="Online">Online</option>
                 <option value="Offline">Offline</option>
-                <option value="Hybrid">Hybrid</option>
+                <option value="Online & Offline">Hybrid</option>
               </select>
             </div>
 
