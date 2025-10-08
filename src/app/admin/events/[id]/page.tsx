@@ -1,7 +1,7 @@
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import AdminPageHeader from '../../components/AdminPageHeader';
-import EventForm from '../../components/events/EventForm';
+import EventForm, { type EventWithRelations } from '../../components/events/EventForm';
 import { Database } from '@/types/database';
 import { notFound } from 'next/navigation';
 import { CircleArrowLeft } from "lucide-react";
@@ -11,7 +11,7 @@ type EditEventPageProps = {
 };
 
 export default async function EditEventPage({ params }: EditEventPageProps) {
-  const { id } = await params; 
+  const { id } = await params;
 
   const supabase = createServerComponentClient<Database>({ cookies });
 
@@ -39,7 +39,7 @@ export default async function EditEventPage({ params }: EditEventPageProps) {
         icon={ CircleArrowLeft }
       />
       <EventForm
-        event={event}
+        event={event as EventWithRelations}
         organizers={organizers || []}
         levels={levels || []}
         fields={fields || []}

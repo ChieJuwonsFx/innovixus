@@ -3,7 +3,7 @@
 import { useState, useId, useEffect, useRef, useMemo } from 'react';
 import Image from 'next/image';
 import { UploadCloud, X, Loader2, CheckCircle2, AlertTriangle, ImageIcon } from 'lucide-react';
-import { generateUploadSignature } from '../../events/cloudinary.action';
+import { generateUploadSignature } from '../../../../lib/cloudinary.action';
 
 type UploadStatus = 'pending' | 'uploading' | 'success' | 'error';
 

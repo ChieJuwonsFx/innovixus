@@ -77,7 +77,7 @@ export async function createEvent(prevState: FormState, formData: FormData): Pro
     organizer_id: formData.get('organizer_id') as string,
     poster: JSON.parse(posterJsonString || '[]') as PosterData,
     user_id: user.id,
-    status: 'Success' as const,
+    status: formData.get('status') as 'Pending' | 'Success' | 'Canceled',
   };
 
   if (!eventData.title || !eventData.kategori || !eventData.organizer_id) {
@@ -131,7 +131,7 @@ export async function updateEvent(id: string, prevState: FormState, formData: Fo
     is_free: formData.get('is_free') === 'true',
     organizer_id: formData.get('organizer_id') as string,
     poster: JSON.parse(posterJsonString || '[]') as PosterData,
-    status: 'Success' as const,
+    status: formData.get('status') as 'Pending' | 'Success' | 'Canceled',
   };
 
   const { error: updateError } = await supabase
