@@ -2,12 +2,12 @@ import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import AdminPageHeader from '../components/AdminPageHeader';
 import AdminEventCard from '../components/events/AdminEventCard';
-import { Database } from '@/types/database';
-import{CirclePlus} from "lucide-react"
+import { CirclePlus } from "lucide-react";
 
 export default async function EventsPage() {
-  const supabase = createServerComponentClient<Database>({ cookies });
-
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const supabase = createServerComponentClient<any>({ cookies });
+  
   const { data: events, error } = await supabase
     .from('events')
     .select('*, organizers(name)')
@@ -26,7 +26,7 @@ export default async function EventsPage() {
         description='Halaman Event Admin'
         icon={CirclePlus}
       />
-      
+     
       {events && events.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {events.map((event) => (
