@@ -4,12 +4,11 @@ import AdminPageHeader from '../../components/AdminPageHeader'
 import { notFound } from 'next/navigation'
 
 interface Props {
-  params: {
-    id: string
-  }
+  params: Promise<{ id: string }>
 }
 
 export default async function EditPackagePage({ params }: Props) {
+  const { id } = await params
   const supabase = await createClient()
   
   const { data: packageData, error } = await supabase
@@ -18,7 +17,7 @@ export default async function EditPackagePage({ params }: Props) {
       *,
       partnerships(count)
     `)
-    .eq('id', params.id)
+    .eq('id', id) 
     .single()
 
   if (error || !packageData) {
