@@ -2,7 +2,7 @@
 
 import { useState, useId, useEffect, useRef, useMemo } from 'react';
 import Image from 'next/image';
-import { UploadCloud, X, Loader2, CheckCircle2, AlertTriangle, ImageIcon } from 'lucide-react';
+import { UploadCloud, X, Loader2, CheckCircle2, AlertTriangle, Image as ImageIconLucide, GripVertical } from 'lucide-react';
 import { generateUploadSignature } from '../../../../lib/cloudinary.action';
 
 type UploadStatus = 'pending' | 'uploading' | 'success' | 'error';
@@ -27,6 +27,8 @@ export default function ImageUploader({ existingImages = [], onUploadSuccess }: 
   const dragCounter = useRef(0);
   const [isDragOver, setIsDragOver] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
 
   const [files, setFiles] = useState<FileUpload[]>(() =>
     existingImages.map((img, index) => ({
@@ -203,6 +205,54 @@ export default function ImageUploader({ existingImages = [], onUploadSuccess }: 
     setSelectedImage(null);
   };
 
+  // Sortable handlers
+  const handleImageDragStart = (e: React.DragEvent, index: number) => {
+    setDraggedIndex(index);
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/html', ''); // Required for Firefox
+  };
+
+  const handleImageDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (draggedIndex === null || draggedIndex === index) return;
+    
+    setDragOverIndex(index);
+  };
+
+  const handleImageDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragOverIndex(null);
+  };
+
+  const handleImageDrop = (e: React.DragEvent, dropIndex: number) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (draggedIndex === null || draggedIndex === dropIndex) {
+      setDraggedIndex(null);
+      setDragOverIndex(null);
+      return;
+    }
+
+    const newFiles = [...files];
+    const draggedFile = newFiles[draggedIndex];
+    
+    newFiles.splice(draggedIndex, 1);
+    newFiles.splice(dropIndex, 0, draggedFile);
+    
+    setFiles(newFiles);
+    setDraggedIndex(null);
+    setDragOverIndex(null);
+  };
+
+  const handleImageDragEnd = () => {
+    setDraggedIndex(null);
+    setDragOverIndex(null);
+  };
+
   useEffect(() => {
     return () => {
       files.forEach(file => {
@@ -226,10 +276,34 @@ export default function ImageUploader({ existingImages = [], onUploadSuccess }: 
         )}
       </div>
 
+      {files.length > 1 && (
+        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
+          <div className="flex items-center space-x-2 text-sm text-blue-700 dark:text-blue-300">
+            <GripVertical className="w-4 h-4" />
+            <span className="font-medium">Drag gambar untuk mengurutkan posisi</span>
+          </div>
+        </div>
+      )}
+
       {files.length > 0 && (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
-          {files.map((upload) => (
-            <div key={upload.key} className="relative group bg-gray-100 dark:bg-gray-800 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-200">
+          {files.map((upload, index) => (
+            <div
+              key={upload.key}
+              draggable={upload.status === 'success'}
+              onDragStart={(e) => handleImageDragStart(e, index)}
+              onDragOver={(e) => handleImageDragOver(e, index)}
+              onDragLeave={handleImageDragLeave}
+              onDrop={(e) => handleImageDrop(e, index)}
+              onDragEnd={handleImageDragEnd}
+              className={`relative group bg-gray-100 dark:bg-gray-800 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-200 ${
+                upload.status === 'success' ? 'cursor-move' : ''
+              } ${
+                draggedIndex === index ? 'opacity-40 scale-95' : ''
+              } ${
+                dragOverIndex === index ? 'ring-4 ring-blue-500 scale-105' : ''
+              }`}
+            >
               <div className="aspect-square relative">
                 <Image 
                   src={upload.previewUrl} 
@@ -278,9 +352,18 @@ export default function ImageUploader({ existingImages = [], onUploadSuccess }: 
                 )}
 
                 {upload.status === 'success' && (
-                  <div className="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <CheckCircle2 className="w-6 h-6 text-green-500 bg-green-100 rounded-full" />
-                  </div>
+                  <>
+                    <div className="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <CheckCircle2 className="w-6 h-6 text-green-500 bg-green-100 rounded-full" />
+                    </div>
+                    
+                    <div className="absolute top-3 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="bg-black/70 text-white px-2 py-1 rounded-full flex items-center space-x-1">
+                        <GripVertical className="w-4 h-4" />
+                        <span className="text-xs font-medium">Drag</span>
+                      </div>
+                    </div>
+                  </>
                 )}
               </div>
 
@@ -298,12 +381,19 @@ export default function ImageUploader({ existingImages = [], onUploadSuccess }: 
               </div>
 
               <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent text-white p-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                <p className="text-xs font-medium truncate">
-                  {upload.file?.name || 'Uploaded image'}
-                </p>
-                <p className="text-xs text-gray-300">
-                  {upload.file && `${(upload.file.size / 1024 / 1024).toFixed(1)} MB`}
-                </p>
+                <div className="flex items-center justify-between">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-medium truncate">
+                      {upload.file?.name || 'Uploaded image'}
+                    </p>
+                    <p className="text-xs text-gray-300">
+                      {upload.file && `${(upload.file.size / 1024 / 1024).toFixed(1)} MB`}
+                    </p>
+                  </div>
+                  <div className="bg-gray-900/80 px-2 py-1 rounded text-xs font-bold ml-2">
+                    #{index + 1}
+                  </div>
+                </div>
               </div>
             </div>
           ))}
@@ -331,7 +421,7 @@ export default function ImageUploader({ existingImages = [], onUploadSuccess }: 
               : 'bg-gray-100 dark:bg-gray-800 text-gray-400 group-hover:bg-blue-100 dark:group-hover:bg-blue-900/30 group-hover:text-blue-500 group-hover:scale-110'
           }`}>
             {isDragOver ? (
-              <ImageIcon className="w-12 h-12" />
+              <ImageIconLucide className="w-12 h-12" />
             ) : (
               <UploadCloud className="w-12 h-12" />
             )}
