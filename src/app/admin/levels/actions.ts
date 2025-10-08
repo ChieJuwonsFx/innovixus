@@ -27,32 +27,46 @@ export async function createLevel(formData: FormData) {
     
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) {
-      throw new Error('Authentication failed. Please log in again.')
+      return { success: false, message: 'Authentication failed. Please log in again.' }
     }
 
     const name = formData.get('name') as string
     
     if (!name || !name.trim()) {
-      throw new Error('Level name is required')
+      return { success: false, message: 'Level name is required' }
     }
 
-    const { error } = await supabase
+    const newLevelId = crypto.randomUUID()
+
+    const { data, error } = await supabase
       .from('levels')
       .insert({
-        id: crypto.randomUUID(), 
+        id: newLevelId, 
         name: name.trim()
       })
+      .select() 
+      .single()
 
     if (error) {
       console.error('Error creating level:', error)
-      throw new Error(`Failed to create level: ${error.message}`)
+      return { success: false, message: `Failed to create level: ${error.message}` }
     }
 
     revalidatePath('/admin/levels')
-    return { success: true }
+    
+    return { 
+      success: true, 
+      data: data || {
+        id: newLevelId,
+        name: name.trim()
+      }
+    }
   } catch (error) {
     console.error('Create level error:', error)
-    throw error
+    return { 
+      success: false, 
+      message: error instanceof Error ? error.message : 'Gagal menambah level.' 
+    }
   }
 }
 

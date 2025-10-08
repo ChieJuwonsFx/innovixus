@@ -58,32 +58,49 @@ export async function createField(formData: FormData) {
 
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) {
-      throw new Error('Authentication failed. Please log in again.')
+      return { success: false, message: 'Authentication failed. Please log in again.' }
     }
     
     const name = formData.get('name') as string
     const only_lomba = formData.get('only_lomba') === 'true'
     
     if (!name || !name.trim()) {
-      throw new Error('Field name is required')
+      return { success: false, message: 'Field name is required' }
     }
 
-    const { error } = await supabase
+    const newFieldId = crypto.randomUUID()
+    
+    const { data, error } = await supabase
       .from('fields')
       .insert({
-        id: crypto.randomUUID(), 
+        id: newFieldId, 
         name: name.trim(),
         only_lomba
       })
+      .select() 
+      .single()
 
     if (error) {
-      throw new Error(`Failed to create field: ${error.message}`)
+      console.error('Create field error:', error)
+      return { success: false, message: `Failed to create field: ${error.message}` }
     }
 
     revalidatePath('/admin/fields')
-    return { success: true }
+
+    return { 
+      success: true, 
+      data: data || {
+        id: newFieldId,
+        name: name.trim(),
+        only_lomba
+      }
+    }
   } catch (error) {
-    throw error
+    console.error('Create field error:', error)
+    return { 
+      success: false, 
+      message: error instanceof Error ? error.message : 'Gagal menambah bidang.' 
+    }
   }
 }
 
