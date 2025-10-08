@@ -4,10 +4,10 @@ import { createServerActionClient } from '@supabase/auth-helpers-nextjs';
 import { revalidatePath } from 'next/cache';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import { Database } from '@/types/database';
 
 export async function cancelSubmission(partnershipId: string, eventId: string | null) {
-  const supabase = createServerActionClient<Database>({ cookies });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const supabase = createServerActionClient<any>({ cookies });
 
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {

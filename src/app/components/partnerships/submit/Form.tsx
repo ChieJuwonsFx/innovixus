@@ -60,6 +60,11 @@ interface PartnershipFormProps {
   allFields: Field[];
 }
 
+type OrganizerCheckResult = {
+  status: 'exact_match' | 'partial_match' | 'created' | 'error';
+  data?: Organizer;
+  message?: string;
+};
 
 export default function PartnershipMultiStepForm({ selectedPackage, allLevels, allFields }: PartnershipFormProps) {
   const [step, setStep] = useState(1);
@@ -73,7 +78,7 @@ export default function PartnershipMultiStepForm({ selectedPackage, allLevels, a
   const handleOrganizerSubmit = async (data: OrganizerData) => {
     setIsLoading(true);
     setOrganizerData(data);
-    const result = await checkAndCreateOrganizer(data);
+    const result = await checkAndCreateOrganizer(data) as OrganizerCheckResult;
     setIsLoading(false);
     if (!result || result.status === 'error' || !result.data) {
       alert(result?.message || 'Terjadi kesalahan saat memeriksa penyelenggara.');

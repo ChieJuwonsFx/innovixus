@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Database } from "@/types/database";
 import {
   Loader2,
   Clock,
@@ -18,9 +17,24 @@ import {
   Calendar,
 } from "lucide-react";
 
-type PackageType = Database["public"]["Tables"]["packages"]["Row"];
-type EventType = Database["public"]["Tables"]["events"]["Row"];
-type Submission = Database["public"]["Tables"]["partnerships"]["Row"] & {
+type PackageType = {
+  id: string;
+  name: string;
+  price: number;
+};
+
+type EventType = {
+  id: string;
+  title: string;
+  status: string;
+};
+
+type Submission = {
+  id: string;
+  package_id: string;
+  event_id: string;
+  payment_status: string;
+  created_at: string;
   packages: Pick<PackageType, "name" | "price"> | null;
   events: Pick<EventType, "title" | "status"> | null;
 };
@@ -185,7 +199,8 @@ export default function MySubmissionsPage() {
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
-  const supabase = createClientComponentClient<Database>();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const supabase = createClientComponentClient<any>();
 
   useEffect(() => {
     const getSubmissionsData = async () => {
@@ -210,12 +225,14 @@ export default function MySubmissionsPage() {
         }
         const packageIds = [
           ...new Set(
-            partnerships.map((p) => p.package_id).filter(Boolean) as string[]
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            partnerships.map((p: any) => p.package_id).filter(Boolean) as string[]
           ),
         ];
         const eventIds = [
           ...new Set(
-            partnerships.map((p) => p.event_id).filter(Boolean) as string[]
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            partnerships.map((p: any) => p.event_id).filter(Boolean) as string[]
           ),
         ];
         const { data: packagesData, error: packagesError } = await supabase
@@ -228,18 +245,21 @@ export default function MySubmissionsPage() {
           .in("id", eventIds);
         if (packagesError) throw packagesError;
         if (eventsError) throw eventsError;
-        const combinedData = partnerships.map((p) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const combinedData = partnerships.map((p: any) => {
           const relatedPackage =
-            packagesData?.find((pkg) => pkg.id === p.package_id) || null;
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            packagesData?.find((pkg: any) => pkg.id === p.package_id) || null;
           const relatedEvent =
-            eventsData?.find((evt) => evt.id === p.event_id) || null;
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            eventsData?.find((evt: any) => evt.id === p.event_id) || null;
           return { ...p, packages: relatedPackage, events: relatedEvent };
         });
         setSubmissions(
-          combinedData.sort(
-            (a, b) =>
-              new Date(b.created_at).getTime() -
-              new Date(a.created_at).getTime()
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          combinedData.sort((a: any, b: any) =>
+            new Date(b.created_at).getTime() -
+            new Date(a.created_at).getTime()
           )
         );
       } catch (error) {

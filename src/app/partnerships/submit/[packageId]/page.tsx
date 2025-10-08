@@ -2,8 +2,8 @@ import { createClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
 import PartnershipMultiStepForm from '../../../components/partnerships/submit/Form'; 
 
-export default async function SubmitPartnershipPage({ params }: { params: { packageId: string } }) {
-  const { packageId } = params;
+export default async function SubmitPartnershipPage({ params }: { params: Promise<{ packageId: string }> }) {
+  const { packageId } = await params; 
   const supabase = await createClient();
 
   const { data: pkg } = await supabase.from('packages').select('*').eq('id', packageId).single();

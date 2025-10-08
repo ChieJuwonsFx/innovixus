@@ -3,11 +3,11 @@
 import { createServerActionClient } from '@supabase/auth-helpers-nextjs'
 import { cookies } from 'next/headers'
 import { revalidatePath } from 'next/cache'
-import { Database } from '@/types/database'
 
 export async function createOrganizer(formData: FormData) {
   try {
-    const supabase = createServerActionClient<Database>({ cookies })
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const supabase = createServerActionClient<any>({ cookies })
     
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) {
@@ -45,7 +45,8 @@ export async function createOrganizer(formData: FormData) {
 
 export async function updateOrganizer(id: string, formData: FormData) {
   try {
-    const supabase = createServerActionClient<Database>({ cookies })
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const supabase = createServerActionClient<any>({ cookies })
 
     const name = formData.get('name') as string
     const instagram = formData.get('instagram') as string
@@ -76,7 +77,8 @@ export async function updateOrganizer(id: string, formData: FormData) {
 
 export async function deleteOrganizer(id: string) {
   try {
-    const supabase = await createServerActionClient<Database>({ cookies })
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const supabase = createServerActionClient<any>({ cookies })
     
     const { data: events, error: checkError } = await supabase
       .from('events')
@@ -111,7 +113,8 @@ export async function deleteOrganizer(id: string) {
 }
 
 export async function getOrganizer(id: string) {
-  const supabase = createServerActionClient<Database>({ cookies })
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const supabase = createServerActionClient<any>({ cookies })
   
   const { data, error } = await supabase
     .from('organizers')
@@ -128,7 +131,8 @@ export async function getOrganizer(id: string) {
 }
 
 export async function getOrganizers() {
-  const supabase = createServerActionClient<Database>({ cookies })
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const supabase = createServerActionClient<any>({ cookies })
   
   const { data, error } = await supabase
     .from('organizers')

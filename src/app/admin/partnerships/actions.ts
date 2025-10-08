@@ -4,14 +4,14 @@ import { createServerActionClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import { Database } from '@/types/database';
 
 export async function approveFreePartnership(partnershipId: string, eventId: string | null) {
   if (!eventId) {
     throw new Error("Event ID tidak ditemukan untuk partnership ini.");
   }
 
-  const supabase = createServerActionClient<Database>({ cookies });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const supabase = createServerActionClient<any>({ cookies });
 
   const { error: eventError } = await supabase
     .from('events')
@@ -34,7 +34,8 @@ export async function approveFreePartnership(partnershipId: string, eventId: str
 }
 
 export async function verifyPayment(partnershipId: string) {
-  const supabase = createServerActionClient<Database>({ cookies });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const supabase = createServerActionClient<any>({ cookies });
 
   const { error } = await supabase
     .from('partnerships')
@@ -56,7 +57,8 @@ export async function publishEvent(eventId: string | null) {
     throw new Error("Event ID tidak valid untuk dipublikasikan.");
   }
   
-  const supabase = createServerActionClient<Database>({ cookies });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const supabase = createServerActionClient<any>({ cookies });
 
   const { error } = await supabase
     .from('events')
@@ -72,9 +74,9 @@ export async function publishEvent(eventId: string | null) {
   redirect('/admin/partnerships');
 }
 
-
 export async function rejectPartnership(partnershipId: string, eventId: string | null) {
-  const supabase = createServerActionClient<Database>({ cookies });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const supabase = createServerActionClient<any>({ cookies });
 
   if (eventId) {
     const { error: eventError } = await supabase

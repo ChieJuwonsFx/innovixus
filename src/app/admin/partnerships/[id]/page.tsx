@@ -22,14 +22,15 @@ export type Package = Database['public']['Tables']['packages']['Row'];
 export type Event = Database['public']['Tables']['events']['Row'];
 export type User = Pick<Database['public']['Tables']['users']['Row'], 'id' | 'name' | 'email'>;
 
-export default async function PartnershipDetailPage({ params }: { params: { id: string } }) {
+export default async function PartnershipDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params; 
   const supabase = await createClient();
   
   try {
     const { data: partnership, error: partnershipError } = await supabase
       .from('partnerships')
       .select('*')
-      .eq('id', params.id)
+      .eq('id', id) 
       .single();
 
     if (partnershipError || !partnership) {
