@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import Navbar from './components/navbar/Navbar'
 import FooterLayout from './components/footer/FooterLayout'
+import { Toaster } from 'react-hot-toast';
 
 export const dynamic = 'force-dynamic';
 
@@ -50,6 +51,51 @@ export default function RootLayout({
         />
       </head>
       <body className={inter.className}>
+        <Toaster
+          position="bottom-right"
+          toastOptions={{
+            duration: 5000,
+            style: {
+              fontSize: '16px',
+              borderRadius: '10px',
+              padding: '16px 24px',
+              border: '2px solid #e5e7eb', 
+              color: '#1f2937', 
+            },
+            
+            success: {
+              style: {
+                background: '#f0fdf4',
+                color: '#15803d',
+                border: '2px solid #22c55e',
+              },
+              iconTheme: {
+                primary: '#22c55e',
+                secondary: '#f0fdf4',
+              },
+            },
+
+            error: {
+              style: {
+                background: '#fef2f2',
+                color: '#b91c1c',
+                border: '2px solid #ef4444',
+              },
+              iconTheme: {
+                primary: '#ef4444',
+                secondary: '#fef2f2',
+              },
+            },
+
+            loading: {
+              style: {
+                background: '#eff6ff', 
+                color: '#1d4ed8', 
+                border: '2px solid #3b82f6', 
+              },
+            },
+          }}
+        />
         <Navbar />
         <div className='bg-slate-50 dark:bg-slate-950'>
           {children}
