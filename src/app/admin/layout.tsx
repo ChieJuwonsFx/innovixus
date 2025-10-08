@@ -10,9 +10,13 @@ import {
   LogOut,
   Megaphone,
   Library,
-  BookUser,
   Menu,
   X,
+  Users, 
+  Package,
+  Handshake,
+  Sparkles,
+  Shapes, 
 } from 'lucide-react';
 import ThemeToggle from "@/app/components/ThemeToggle";
 import { motion, AnimatePresence } from 'framer-motion';
@@ -78,7 +82,7 @@ function NavItem({ href, icon: Icon, children, onLinkClick }: NavItemProps) {
   const isActive = pathname === href || (href !== "/admin" && pathname.startsWith(href));
 
   return (
-    <li className="relative px-3">
+    <li className="relative">
       <Link href={href} onClick={onLinkClick} className={clsx(
         "flex items-center gap-3 rounded-lg p-3 text-sm transition-colors duration-200",
         isActive
@@ -86,8 +90,8 @@ function NavItem({ href, icon: Icon, children, onLinkClick }: NavItemProps) {
           : "text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 font-medium"
       )}>
         {isActive && <motion.div layoutId="active-pill" className="absolute left-0 top-2 bottom-2 w-1 bg-blue-600 rounded-r-full" />}
-        <Icon className={clsx("w-5 h-5", isActive ? "text-blue-600 dark:text-blue-400" : "text-slate-500 dark:text-slate-500")} />
-        <span>{children}</span>
+        <Icon className={clsx("w-5 h-5 ml-2 z-10", isActive ? "text-blue-600 dark:text-blue-400" : "text-slate-500 dark:text-slate-500")} />
+        <span className="z-10">{children}</span>
       </Link>
     </li>
   );
@@ -102,36 +106,19 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const getProfileData = async () => {
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-
-      if (sessionError || !session) {
-        router.push('/login');
-        return;
-      }
-      
-      const { data: userProfile, error } = await supabase
-        .from('users')
-        .select('*')
-        .eq('id', session.user.id)
-        .single();
-      
-      if (error) {
-        console.error("Error fetching admin profile:", error);
-        router.push('/login');
-      } else {
-        setProfile(userProfile);
-      }
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) { router.push('/login'); return; }
+      const { data: userProfile, error } = await supabase.from('users').select('*').eq('id', session.user.id).single();
+      if (error) { console.error("Error fetching admin profile:", error); router.push('/login'); } 
+      else { setProfile(userProfile); }
     };
     getProfileData();
   }, [supabase, router]);
   
   useEffect(() => {
     const savedState = localStorage.getItem('sidebarState');
-    if (savedState) {
-      setIsSidebarOpen(savedState === 'open');
-    } else if (typeof window !== 'undefined') {
-      setIsSidebarOpen(window.innerWidth >= 1024);
-    }
+    if (savedState) { setIsSidebarOpen(savedState === 'open'); } 
+    else if (typeof window !== 'undefined') { setIsSidebarOpen(window.innerWidth >= 1024); }
   }, []);
 
   const toggleSidebar = useCallback(() => {
@@ -144,8 +131,8 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
 
   const closeSidebarOnMobile = useCallback(() => {
     if (typeof window !== 'undefined' && window.innerWidth < 1024) {
-        setIsSidebarOpen(false);
-        localStorage.setItem('sidebarState', 'closed');
+      setIsSidebarOpen(false);
+      localStorage.setItem('sidebarState', 'closed');
     }
   }, []);
 
@@ -158,7 +145,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     <div className="bg-slate-100 dark:bg-slate-950 min-h-screen">
       
       <header className="fixed top-4 left-4 right-4 h-[72px] z-40 bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg rounded-2xl shadow-xl shadow-blue-600/5 dark:shadow-blue-600/10 border border-slate-200/80 dark:border-slate-800/80">
-          <div className="px-6 h-full flex items-center justify-between">
+        <div className="px-6 h-full flex items-center justify-between">
             <div className="flex items-center">
                 <Link href="/admin" className="flex items-center gap-3">
                     <div className="w-9 h-9 flex items-center justify-center">
@@ -169,48 +156,50 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                 </Link>
             </div>
             <div className="flex items-center gap-4">
-              <ThemeToggle />
-              <div className="h-8 w-px bg-slate-200 dark:bg-slate-700/50"></div>
-              <UserNav profile={profile} onSignOut={handleSignOut} />
-              <button onClick={toggleSidebar} className="p-2 -mr-2 rounded-full text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700">
-                <AnimatePresence mode="wait" initial={false}>
-                  <motion.div
-                    key={isSidebarOpen ? 'x' : 'menu'}
-                    initial={{ rotate: -45, opacity: 0, scale: 0.7 }}
-                    animate={{ rotate: 0, opacity: 1, scale: 1 }}
-                    exit={{ rotate: 45, opacity: 0, scale: 0.7 }}
-                    transition={{ duration: 0.2, ease: 'easeOut' }}
-                  >
-                    {isSidebarOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-                  </motion.div>
-                </AnimatePresence>
-              </button>
+                <ThemeToggle />
+                <div className="h-8 w-px bg-slate-200 dark:bg-slate-700/50"></div>
+                <UserNav profile={profile} onSignOut={handleSignOut} />
+                <button onClick={toggleSidebar} className="p-2 -mr-2 rounded-full text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700">
+                    <AnimatePresence mode="wait" initial={false}>
+                        <motion.div
+                        key={isSidebarOpen ? 'x' : 'menu'}
+                        initial={{ rotate: -45, opacity: 0, scale: 0.7 }}
+                        animate={{ rotate: 0, opacity: 1, scale: 1 }}
+                        exit={{ rotate: 45, opacity: 0, scale: 0.7 }}
+                        transition={{ duration: 0.2, ease: 'easeOut' }}
+                        >
+                        {isSidebarOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+                        </motion.div>
+                    </AnimatePresence>
+                </button>
             </div>
-          </div>
+        </div>
       </header>
 
       <aside className={clsx(
         "fixed top-0 left-0 h-full w-72 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 z-30 transform transition-transform duration-300 ease-in-out shadow-xl shadow-blue-600/5 dark:shadow-blue-500/10",
         isSidebarOpen ? "translate-x-0" : "-translate-x-full"
       )}>
-        <div className="pt-32 h-full flex flex-col">
-            <nav className="flex-1">
-                <ul className="list-none p-0 m-0 space-y-2">
-                    <NavItem href="/admin" icon={LayoutDashboard} onLinkClick={closeSidebarOnMobile}>Dashboard</NavItem>
-                    <li className="px-6 pt-4 pb-2 text-xs font-semibold text-slate-400 uppercase tracking-wider">Manajemen Konten</li>
-                      <NavItem href="/admin/events" icon={Megaphone} onLinkClick={closeSidebarOnMobile}>Manajemen Event</NavItem>
-                      <NavItem href="/admin/organizers" icon={BookUser} onLinkClick={closeSidebarOnMobile}>Manajemen Organizer</NavItem>
-                      <NavItem href="/admin/fields" icon={Library} onLinkClick={closeSidebarOnMobile}>Bidang</NavItem>
-                      <NavItem href="/admin/levels" icon={Library} onLinkClick={closeSidebarOnMobile}>Level</NavItem>
-                      <NavItem href="/admin/generate-post" icon={Megaphone} onLinkClick={closeSidebarOnMobile}>Generate Post</NavItem>
-                </ul>
-            </nav>
-            <div className="p-4 border-t border-slate-200 dark:border-slate-800">
-                <button onClick={handleSignOut} className="flex items-center gap-3 w-full p-3 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
-                    <LogOut className="w-5 h-5"/>
-                    <span className="font-medium">Logout</span>
-                </button>
-            </div>
+        <div className="pt-[104px] h-full flex flex-col">
+          <nav className="flex-1 px-3 overflow-y-auto">
+            <ul className="list-none p-0 m-0 space-y-4">
+                  <NavItem href="/admin" icon={LayoutDashboard} onLinkClick={closeSidebarOnMobile}>Dashboard</NavItem>
+                  <NavItem href="/admin/generate-post" icon={Sparkles} onLinkClick={closeSidebarOnMobile}>Generate Post</NavItem>
+                  <NavItem href="/admin/events" icon={Megaphone} onLinkClick={closeSidebarOnMobile}>Manajemen Event</NavItem>
+                  <NavItem href="/admin/organizers" icon={Users} onLinkClick={closeSidebarOnMobile}>Manajemen Organizer</NavItem>
+                  <NavItem href="/admin/partnerships" icon={Handshake} onLinkClick={closeSidebarOnMobile}>Partnerships</NavItem>
+                  <NavItem href="/admin/packages" icon={Package} onLinkClick={closeSidebarOnMobile}>Manajemen Packages</NavItem>
+                  <NavItem href="/admin/fields" icon={Library} onLinkClick={closeSidebarOnMobile}>Bidang</NavItem>
+                  <NavItem href="/admin/levels" icon={Shapes} onLinkClick={closeSidebarOnMobile}>Level</NavItem>
+            </ul>
+          </nav>
+          
+          <div className="p-4 border-t border-slate-200 dark:border-slate-800">
+            <button onClick={handleSignOut} className="flex items-center gap-3 w-full p-3 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-red-50 dark:hover:bg-red-900/30 hover:text-red-600 dark:hover:text-red-500 transition-colors">
+              <LogOut className="w-5 h-5"/>
+              <span className="font-medium">Logout</span>
+            </button>
+          </div>
         </div>
       </aside>
 
@@ -223,9 +212,9 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
         isSidebarOpen ? "lg:pl-72" : "lg:pl-0"
       )}>
         <div className="px-4 sm:px-6 lg:px-8">
-            <motion.div key={pathname} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, ease: "easeOut" }}>
-                {children}
-            </motion.div>
+          <motion.div key={pathname} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, ease: "easeOut" }}>
+            {children}
+          </motion.div>
         </div>
       </main>
     </div>
