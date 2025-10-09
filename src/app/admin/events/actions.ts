@@ -3,7 +3,7 @@
 import { createServerActionClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { revalidatePath } from 'next/cache';
-
+import { deleteMultipleCloudinaryImages } from '@/lib/cloudinary.action'; 
 export type FormState = {
   success: boolean;
   message: string;
@@ -170,11 +170,36 @@ export async function updateEvent(id: string, prevState: FormState, formData: Fo
 export async function deleteEvent(id: string) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const supabase = createServerActionClient<any>({ cookies });
+  
+  const { data: event, error: fetchError } = await supabase
+    .from('events')
+    .select('poster, kategori')
+    .eq('id', id)
+    .single();
+
+  if (fetchError) {
+    console.error('Error fetching event:', fetchError);
+    return;
+  }
+
+  if (event?.poster && Array.isArray(event.poster)) {
+    const imageUrls = event.poster.map((p: { url: string }) => p.url).filter(Boolean);
+    
+    if (imageUrls.length > 0) {
+      console.log('Deleting images from Cloudinary:', imageUrls);
+      await deleteMultipleCloudinaryImages(imageUrls);
+    }
+  }
+
   const { error } = await supabase.from('events').delete().eq('id', id);
 
   if (error) {
     console.error('Error deleting event:', error);
     return;
   }
+
   revalidatePath('/admin/events');
+  if (event?.kategori) {
+    revalidatePath(`/${event.kategori.replace(/\s+/g, '-').toLowerCase()}`);
+  }
 }
