@@ -84,6 +84,7 @@ export default function PublicNavbar({ initialProfile = null }: PublicNavbarProp
 
         <div className="flex items-center gap-4">
           <ThemeToggle />
+          
           <AuthSection initialProfile={initialProfile} />
 
           <button
@@ -110,6 +111,7 @@ export default function PublicNavbar({ initialProfile = null }: PublicNavbarProp
               <NavigationLinks isMobile onLinkClick={closeAllMenus} pathname={pathname} />
             </nav>
             <div className="border-t border-slate-200 dark:border-slate-700 p-4">
+              <AuthSection initialProfile={initialProfile} isMobile />
             </div>
           </motion.div>
         )}

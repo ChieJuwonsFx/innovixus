@@ -21,8 +21,15 @@ const AuthSkeleton = () => (
     </div>
 );
 
+const MobileAuthSkeleton = () => (
+    <div className="flex flex-col gap-3">
+        <div className="w-full h-10 bg-slate-200 dark:bg-slate-700 rounded-lg animate-pulse"></div>
+        <div className="w-full h-10 bg-slate-200 dark:bg-slate-700 rounded-lg animate-pulse"></div>
+    </div>
+);
 
-export function AuthSection({ initialProfile }: { initialProfile: Profile | null }) {
+
+export function AuthSection({ initialProfile, isMobile = false }: { initialProfile: Profile | null, isMobile?: boolean }) {
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [profile, setProfile] = useState<Profile | null>(initialProfile);
   const [isLoading, setIsLoading] = useState<boolean>(!initialProfile);
@@ -77,7 +84,25 @@ export function AuthSection({ initialProfile }: { initialProfile: Profile | null
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
   
-  if (!mounted || isLoading) {
+  const isLoadingState = !mounted || isLoading;
+
+  if (isMobile) {
+    if (isLoadingState) return <MobileAuthSkeleton />;
+    if (profile) return null; 
+    
+    return (
+      <div className="flex flex-col gap-3">
+        <Link href="/login" className="w-full text-center text-blue-600 bg-white border border-blue-600 hover:bg-blue-600 hover:text-white font-medium rounded-lg text-sm px-4 py-2.5 transition-all duration-300 dark:text-blue-400 dark:bg-transparent dark:border-blue-400 dark:hover:bg-blue-400 dark:hover:text-slate-900">
+            Login
+        </Link>
+        <Link href="/register" className="w-full text-center text-white bg-blue-600 border border-blue-600 hover:bg-blue-700 font-medium rounded-lg text-sm px-4 py-2.5 transition-all duration-300 dark:bg-blue-500 dark:border-blue-500 dark:hover:bg-blue-600">
+            Register
+        </Link>
+      </div>
+    );
+  }
+
+  if (isLoadingState) {
     return <AuthSkeleton />;
   }
 
@@ -87,7 +112,7 @@ export function AuthSection({ initialProfile }: { initialProfile: Profile | null
       <div className="relative" ref={profileMenuRef}>
         <button 
             onClick={() => setIsProfileMenuOpen(prev => !prev)}
-            className="flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-full"
+            className="flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-slate-900 focus:ring-blue-500 rounded-full"
             aria-label="User menu"
         >
           <UserAvatar profile={profile} />
