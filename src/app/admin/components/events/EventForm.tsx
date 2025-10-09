@@ -1,6 +1,6 @@
 'use client';
 
-import { useActionState, useEffect, useState } from 'react';
+import { useActionState, useEffect, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast'; 
 import { Database } from '@/types/database';
@@ -44,18 +44,25 @@ const formInputStyle = "block w-full rounded-lg border border-gray-300 dark:bord
 
 export default function EventForm({ event, organizers, levels, fields, asChild = false }: EventFormProps) {
   const router = useRouter();
-  const [state, formAction] = useActionState(event ? updateEvent.bind(null, event.id) : createEvent, null);
+  const [isPending, startTransition] = useTransition();
   
-  const [posterImages, setPosterImages] = useState<PosterImage[]>(() => {
+  const [newImageFiles, setNewImageFiles] = useState<File[]>([]);
+  
+  const [existingImages, setExistingImages] = useState<PosterImage[]>(() => {
     if (event?.poster && isPosterImageArray(event.poster)) return event.poster;
     return [];
   });
   
   const [selectedKategori, setSelectedKategori] = useState(event?.kategori ?? '');
   const [dateError, setDateError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  const [state, formAction] = useActionState(event ? updateEvent.bind(null, event.id) : createEvent, null);
 
   useEffect(() => {
     if (state && state.message) {
+      setIsSubmitting(false);
+      
       if (state.success) {
         toast.success(state.message);
         
@@ -67,6 +74,66 @@ export default function EventForm({ event, organizers, levels, fields, asChild =
       }
     }
   }, [state, router, asChild]);
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    
+    try {
+      const form = e.currentTarget;
+      const formData = new FormData(form);
+      
+      const uploadedUrls: string[] = [];
+      
+      if (newImageFiles.length > 0) {
+        const uploadToast = toast.loading('Menyimpan data...');
+        
+        try {
+          const uploadPromises = newImageFiles.map(async (file) => {
+            const uploadFormData = new FormData();
+            uploadFormData.append('file', file);
+            uploadFormData.append('folder', 'event-posters');
+            
+            const response = await fetch('/api/upload-image', {
+              method: 'POST',
+              body: uploadFormData,
+            });
+            
+            if (!response.ok) {
+              const errorData = await response.json();
+              throw new Error(errorData.error || `Gagal mengupload ${file.name}`);
+            }
+            
+            const data = await response.json();
+            return data.url;
+          });
+          
+          const urls = await Promise.all(uploadPromises);
+          uploadedUrls.push(...urls);
+          
+          toast.dismiss(uploadToast);
+        } catch (error) {
+          toast.dismiss(uploadToast);
+          throw error;
+        }
+      }
+      
+      const allImages = [
+        ...existingImages.map(img => ({ url: img.url })),
+        ...uploadedUrls.map(url => ({ url }))
+      ];
+      
+      formData.set('poster_json', JSON.stringify(allImages));
+      
+      startTransition(() => {
+        formAction(formData);
+      });
+      
+    } catch (error) {
+      setIsSubmitting(false);
+      toast.error(error instanceof Error ? error.message : 'Gagal menyimpan event');
+    }
+  };
 
   const FormContent = (
     <>
@@ -82,7 +149,6 @@ export default function EventForm({ event, organizers, levels, fields, asChild =
       )}
       
       {event && <input type="hidden" name="id" value={event.id} />}
-      <input type="hidden" name="poster_json" value={JSON.stringify(posterImages)} />
 
       <BasicInfoSection 
         event={event} 
@@ -101,18 +167,20 @@ export default function EventForm({ event, organizers, levels, fields, asChild =
         formInputStyle={formInputStyle} 
       />
       {!asChild && (
-        <>
-          <PublicationStatusSection 
-            event={event} 
-            formInputStyle={formInputStyle} 
-          />
-        </>
+        <PublicationStatusSection 
+          event={event} 
+          formInputStyle={formInputStyle} 
+        />
       )}
       <div className="space-y-6">
         <h2 className="text-xl font-semibold text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-700 pb-3">
           Media Event
         </h2>
-        <ImageUploader existingImages={posterImages} onUploadSuccess={setPosterImages} />
+        <ImageUploader 
+          existingImages={existingImages}
+          onFilesChange={setNewImageFiles}
+          onExistingImagesChange={setExistingImages}
+        />
       </div>
       <TargetAudienceSection 
         event={event}
@@ -125,6 +193,7 @@ export default function EventForm({ event, organizers, levels, fields, asChild =
           <SubmitButton 
             label={event ? 'Perbarui Event' : 'Buat Event'}
             loadingLabel={event ? 'Memperbarui...' : 'Membuat...'} 
+            disabled={isSubmitting || isPending}
           />
         </div>
       )}
@@ -137,7 +206,10 @@ export default function EventForm({ event, organizers, levels, fields, asChild =
 
   return (
     <div className="bg-white dark:bg-gray-800 shadow-xl rounded-2xl overflow-hidden">
-      <form action={formAction} className="p-8 space-y-8">
+      <form 
+        onSubmit={handleSubmit}
+        className="p-8 space-y-8"
+      >
         {FormContent}
       </form>
     </div>
