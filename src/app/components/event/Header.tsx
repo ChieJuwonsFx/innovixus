@@ -402,23 +402,18 @@ export default function Header({ kategori, totalEvents }: KategoriHeaderProps) {
           </motion.div>
 
           <motion.h1
-            className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight text-transparent bg-clip-text mb-3 md:mb-4 leading-tight"
+            className="text-2xl sm:text-3xl md:text-4xl font-bold text-transparent bg-clip-text mb-3 md:mb-4"
             style={{
               backgroundImage: `linear-gradient(135deg, ${currentPalette.lightGradients.join(', ')})`,
-              textShadow: `0 0 15px ${currentPalette.glow}30`,
               lineHeight: '1.2',
             }}
             variants={textVariants}
-            whileHover={{
-              scale: 1.02,
-              transition: { duration: 0.2 }
-            }}
           >
             {titleMap[kategori]}
           </motion.h1>
 
           <motion.p
-            className="text-sm sm:text-base text-slate-700 dark:text-slate-300 max-w-xs sm:max-w-md md:max-w-lg mx-auto mb-4 md:mb-6 leading-snug font-medium"
+            className="text-sm sm:text-base text-slate-700 dark:text-slate-300 max-w-xs sm:max-w-md md:max-w-lg mx-auto mb-4 md:mb-6 font-medium"
             variants={textVariants}
           >
             {descriptionMap[kategori]}
