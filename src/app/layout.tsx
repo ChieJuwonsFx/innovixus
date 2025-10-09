@@ -1,13 +1,16 @@
 import './globals.css'
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
+import { Inter } from 'next/font/google'; 
 import Navbar from './components/navbar/Navbar'
 import FooterLayout from './components/footer/FooterLayout'
 import { Toaster } from 'react-hot-toast';
 
 export const dynamic = 'force-dynamic';
 
-const inter = Inter({ subsets: ['latin'] })
+const inter = Inter({ 
+  subsets: ['latin'],
+  display: 'swap', 
+});
 
 export const metadata: Metadata = {
   title: {
