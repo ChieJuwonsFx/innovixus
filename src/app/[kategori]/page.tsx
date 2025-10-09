@@ -10,6 +10,7 @@ import Slider from '../components/event/Slider';
 import Grid from '../components/event/Grid';
 import Pagination from '../components/event/Pagination';
 
+
 type EventRow = Database['public']['Tables']['events']['Row'];
 type LevelRow = Database['public']['Tables']['levels']['Row'];
 type FieldRow = Database['public']['Tables']['fields']['Row'];
@@ -64,7 +65,7 @@ export default async function KategoriPage({ params, searchParams }: PageProps) 
   
   let query = supabase
     .from('events')
-    .select('*, organizers(name, instagram), levels(id, name), fields(id, name)', { count: 'exact' })
+    .select('*, organizers(name, instagram), event_levels!inner(levels(id, name)), event_fields!inner(fields(id, name))', { count: 'exact' })
     .eq('kategori', dbCategory)
     .eq('status', 'Success')
     .filter('open_date', 'lte', 'now()')
@@ -76,33 +77,12 @@ export default async function KategoriPage({ params, searchParams }: PageProps) 
   }
 
   if (resolvedSearchParams.level) {
-    const { data: eventIdsWithLevel } = await supabase
-      .from('event_levels')
-      .select('event_id')
-      .eq('level_id', resolvedSearchParams.level);
-    
-    if (eventIdsWithLevel && eventIdsWithLevel.length > 0) {
-      const eventIds = eventIdsWithLevel.map(item => item.event_id);
-      query = query.in('id', eventIds);
-    } else {
-      query = query.eq('id', '-1');
-    }
+    query = query.eq('event_levels.level_id', resolvedSearchParams.level);
   }
 
   if (resolvedSearchParams.bidang) {
-    const { data: eventIdsWithField } = await supabase
-      .from('event_fields')
-      .select('event_id')
-      .eq('field_id', resolvedSearchParams.bidang);
-    
-    if (eventIdsWithField && eventIdsWithField.length > 0) {
-      const eventIds = eventIdsWithField.map(item => item.event_id);
-      query = query.in('id', eventIds);
-    } else {
-      query = query.eq('id', '-1'); 
-    }
+    query = query.eq('event_fields.field_id', resolvedSearchParams.bidang);
   }
-
   if (resolvedSearchParams.tipe) {
     switch (resolvedSearchParams.tipe) {
       case 'Online':

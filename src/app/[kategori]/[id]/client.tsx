@@ -2,11 +2,12 @@
 
 import { useState } from 'react';
 import { Database } from '@/types/database';
+import dynamic from 'next/dynamic';
 import Header from '@/app/components/detail-event/Header';
 import Content from '@/app/components/detail-event/Content';
 import Sidebar from '@/app/components/detail-event/Sidebar';
-import ShareModal from '@/app/components/detail-event/ShareModal';
-import ImageViewerModal from '@/app/components/detail-event/ImageViewerModal';
+const ShareModal = dynamic(() => import('@/app/components/detail-event/ShareModal'));
+const ImageViewerModal = dynamic(() => import('@/app/components/detail-event/ImageViewerModal'));
 
 type Poster = {
   url: string;
