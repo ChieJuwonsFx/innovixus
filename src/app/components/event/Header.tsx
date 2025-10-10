@@ -1,9 +1,20 @@
 "use client";
 
-import { motion, useMotionValue, useSpring, type Variants, useTransform } from 'framer-motion';
-import { useEffect, useState, useRef } from 'react';
+import { motion,  type Variants } from 'framer-motion';
+import { useEffect, useState} from 'react';
 
-const colorMap = {
+type ColorPalette = {
+  lightGradients: string[];
+  darkGradients: string[];
+  accent: string;
+  glow: string;
+  particles: string;
+  cardBg: string;
+  lightShadow: string;
+  lightBorder: string;
+};
+
+const colorMap: { [key in 'info-lomba' | 'info-magang' | 'info-loker']: ColorPalette } = {
   'info-lomba': {
     lightGradients: ['#FF5E1A', '#FF8C42', '#FFB347'],
     darkGradients: ['#FF6B35', '#F7931E', '#FFD23F'],
@@ -83,24 +94,24 @@ const LIGHT_CIRCLES = [
 const containerVariants: Variants = {
   hidden: {
     opacity: 0,
-    scale: 0.95,
+    scale: 0.98, 
   },
   show: {
     opacity: 1,
     scale: 1,
     transition: {
-      duration: 0.8,
+      duration: 0.6, 
       ease: [0.04, 0.62, 0.23, 0.98],
-      staggerChildren: 0.15,
+      staggerChildren: 0.1,
     },
   },
 };
 
 const textVariants: Variants = {
   hidden: {
-    y: 20,
+    y: 15, 
     opacity: 0,
-    filter: 'blur(5px)',
+    filter: 'blur(3px)',
   },
   show: {
     y: 0,
@@ -108,7 +119,7 @@ const textVariants: Variants = {
     filter: 'blur(0px)',
     transition: {
       type: 'spring',
-      duration: 0.8,
+      duration: 0.7,
       bounce: 0.2,
     },
   },
@@ -120,44 +131,10 @@ const particleVariants: Variants = {
     scale: 1,
     opacity: 0.4,
     transition: {
-      duration: 1.5,
+      duration: 1.2,
       ease: "easeOut",
     },
   },
-};
-
-const useHeaderMouseTrail = (headerRef: React.RefObject<HTMLElement | null>) => {
-  const mouseX = useMotionValue(0);
-  const mouseY = useMotionValue(0);
-  const [isInHeader, setIsInHeader] = useState(false);
-
-  const springConfig = { damping: 25, stiffness: 300, mass: 0.5 };
-  const x = useSpring(mouseX, springConfig);
-  const y = useSpring(mouseY, springConfig);
-
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      if (headerRef.current) {
-        const rect = headerRef.current.getBoundingClientRect();
-        const isInside = e.clientX >= rect.left &&
-                         e.clientX <= rect.right &&
-                         e.clientY >= rect.top &&
-                         e.clientY <= rect.bottom;
-       
-        setIsInHeader(isInside);
-       
-        if (isInside) {
-          mouseX.set(e.clientX);
-          mouseY.set(e.clientY);
-        }
-      }
-    };
-
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, [mouseX, mouseY, headerRef]);
-
-  return { x, y, isInHeader };
 };
 
 const FloatingParticles = ({ color }: { color: string }) => {
@@ -257,76 +234,17 @@ type KategoriHeaderProps = {
 };
 
 export default function Header({ kategori, totalEvents }: KategoriHeaderProps) {
-  const headerRef = useRef<HTMLElement | null>(null);
-  const { x: trailX, y: trailY, isInHeader } = useHeaderMouseTrail(headerRef);
   const currentPalette = colorMap[kategori as keyof typeof colorMap] || colorMap['info-loker'];
-
-  const rotateX = useTransform(trailY, [0, 1000], [1, -1]);
-  const rotateY = useTransform(trailX, [0, 1000], [-1, 1]);
 
   return (
     <div className="relative">
-      {isInHeader && (
-        <motion.div
-          className="pointer-events-none fixed left-0 top-0 z-50"
-          style={{ x: trailX, y: trailY }}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-        >
-          <div className="relative">
-            <motion.div
-              className="absolute rounded-full -translate-x-1/2 -translate-y-1/2"
-              style={{
-                width: 30,
-                height: 30,
-                backgroundColor: currentPalette.glow,
-                filter: 'blur(12px)',
-              }}
-              animate={{
-                scale: [1, 1.3, 1],
-                opacity: [0.2, 0.4, 0.2],
-              }}
-              transition={{
-                duration: 1.5,
-                repeat: Infinity,
-                ease: "easeInOut",
-              }}
-            />
-            <motion.div
-              className="absolute rounded-full -translate-x-1/2 -translate-y-1/2"
-              style={{
-                width: 8,
-                height: 8,
-                backgroundColor: currentPalette.accent,
-                boxShadow: `0 0 15px ${currentPalette.glow}`,
-              }}
-              animate={{
-                scale: [1, 1.1, 1],
-              }}
-              transition={{
-                duration: 1,
-                repeat: Infinity,
-                ease: "easeInOut",
-              }}
-            />
-          </div>
-        </motion.div>
-      )}
-
       <motion.header
-        ref={headerRef}
         className={`relative flex flex-col items-center justify-center text-center px-4 py-8 md:px-8 md:py-12 mb-8 md:mb-12 overflow-hidden rounded-2xl md:rounded-3xl
           ${currentPalette.cardBg} dark:bg-gradient-to-br dark:from-slate-900 dark:via-slate-800 dark:to-slate-900
           border ${currentPalette.lightBorder} dark:border-slate-600/30 shadow-xl ${currentPalette.lightShadow} dark:shadow-none`}
         variants={containerVariants}
         initial="hidden"
         animate="show"
-        style={{
-          rotateX,
-          rotateY,
-          transformPerspective: 800,
-        }}
       >
         <motion.div
           className="absolute inset-0 z-0 opacity-20 dark:opacity-30"
@@ -338,11 +256,11 @@ export default function Header({ kategori, totalEvents }: KategoriHeaderProps) {
             `,
           }}
           animate={{
-            scale: [1, 1.03, 1],
-            rotate: [0, 1, 0],
+            scale: [1, 1.02, 1],
+            rotate: [0, 0.5, 0],
           }}
           transition={{
-            duration: 15,
+            duration: 18,
             repeat: Infinity,
             repeatType: 'mirror',
             ease: 'easeInOut',
@@ -361,7 +279,7 @@ export default function Header({ kategori, totalEvents }: KategoriHeaderProps) {
             rotate: [0, 360],
           }}
           transition={{
-            duration: 20,
+            duration: 25,
             repeat: Infinity,
             ease: "linear",
           }}
@@ -394,7 +312,7 @@ export default function Header({ kategori, totalEvents }: KategoriHeaderProps) {
                 opacity: [0.6, 1, 0.6],
               }}
               transition={{
-                duration: 2,
+                duration: 2.5,
                 repeat: Infinity,
                 ease: "easeInOut",
               }}
@@ -402,10 +320,9 @@ export default function Header({ kategori, totalEvents }: KategoriHeaderProps) {
           </motion.div>
 
           <motion.h1
-            className="text-2xl sm:text-3xl md:text-4xl font-bold text-transparent bg-clip-text mb-3 md:mb-4"
+            className="text-2xl sm:text-3xl md:text-4xl font-bold text-transparent bg-clip-text mb-3 md:mb-4 leading-snug" // Added leading-snug (Tailwind class)
             style={{
               backgroundImage: `linear-gradient(135deg, ${currentPalette.lightGradients.join(', ')})`,
-              lineHeight: '1.2',
             }}
             variants={textVariants}
           >
@@ -421,7 +338,7 @@ export default function Header({ kategori, totalEvents }: KategoriHeaderProps) {
 
           <motion.div variants={textVariants}>
             <motion.div
-              className="inline-flex items-center px-4 py-2 md:px-5 md:py-3 rounded-full backdrop-blur-sm border-2"
+              className="inline-flex items-center px-4 py-2 md:px-5 md:py-3 rounded-full backdrop-blur-sm border-2 cursor-pointer" // Added cursor-pointer
               style={{
                 background: `linear-gradient(135deg, ${currentPalette.accent}12, ${currentPalette.glow}06)`,
                 borderColor: `${currentPalette.accent}40`,
@@ -444,7 +361,7 @@ export default function Header({ kategori, totalEvents }: KategoriHeaderProps) {
                   scale: [1, 1.05, 1],
                 }}
                 transition={{
-                  duration: 1.5,
+                  duration: 2,
                   repeat: Infinity,
                   ease: "easeInOut",
                 }}
