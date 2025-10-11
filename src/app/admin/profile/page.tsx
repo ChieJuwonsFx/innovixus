@@ -169,7 +169,7 @@ export default function UserProfilePage() {
                         <div className="space-y-4 pt-4 md:pt-0">
                             <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">Quick Actions</h3>
                             <Link
-                                href="/profile/edit"
+                                href="admin/profile/edit"
                                 className="w-full flex items-center justify-between px-4 py-3 bg-blue-600 text-white rounded-xl shadow-md hover:bg-blue-700 transition-colors duration-200"
                             >
                                 <span className="flex items-center space-x-3">
