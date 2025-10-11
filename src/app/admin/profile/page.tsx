@@ -1,4 +1,3 @@
-// app/profile/page.tsx
 'use client';
 
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
@@ -72,7 +71,7 @@ const ProfileDetailsSection = ({ profile }: { profile: Profile }) => {
                 </div>
             </div>
 
-            <div className="bg-white dark:bg-gray-700/50 p-6 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
+            <div className="p-6 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
                 <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4 border-b border-gray-300 dark:border-gray-600 pb-2">Account Details</h2>
                 
                 <div className="grid grid-cols-1 gap-4">
@@ -130,7 +129,7 @@ export default function UserProfilePage() {
 
     if (!profile) {
         return (
-            <div className="flex flex-col justify-center items-center min-h-screen bg-gray-50 dark:bg-gray-900 p-4">
+            <div className="flex flex-col justify-center items-center min-h-screen p-4">
                 <p className="text-xl text-red-500 dark:text-red-400 font-semibold mb-4">
                     Authentication Required or Profile Not Found 😔
                 </p>
@@ -145,7 +144,7 @@ export default function UserProfilePage() {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pt-28 pb-12 px-4">
+        <div className="min-h-screen py-12 px-4">
             <div className="max-w-5xl mx-auto bg-white dark:bg-gray-800 rounded-2xl shadow-2xl overflow-hidden p-6 sm:p-8">
                 <div className="flex justify-between items-center border-b border-gray-200 dark:border-gray-700 pb-4 mb-6">
                     <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center space-x-2">
