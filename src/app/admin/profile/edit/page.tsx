@@ -41,7 +41,7 @@ async function updateProfile(formData: FormData): Promise<void> {
         console.error("Error updating profile:", error.message);
     }
 
-    redirect('admin/profile'); 
+    redirect('/profile'); 
 }
 
 export default async function EditProfilePage() {
@@ -62,7 +62,7 @@ export default async function EditProfilePage() {
 
     if (error || !profileData) {
         console.error("Error fetching profile for edit:", error?.message);
-        redirect('admin/profile'); 
+        redirect('/profile'); 
     }
 
     const profile = profileData as Profile;
@@ -75,7 +75,7 @@ export default async function EditProfilePage() {
                         Edit Profile
                     </h2>
                     <Link 
-                        href="admin/profile"
+                        href="/profile"
                         className="flex items-center text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
                     >
                         <ChevronLeft className="w-5 h-5 mr-1" />
