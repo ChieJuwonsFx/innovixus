@@ -8,14 +8,12 @@ import { Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import clsx from "clsx";
 
-import { Profile } from '../../../types/profile';
 import ThemeToggle from '../ThemeToggle';
 import { NavigationLinks } from './NavLink';
 import { AuthSection } from './Auth';
 
 interface ClientNavbarProps {
   isMobile?: boolean;
-  initialProfile?: Profile | null;
 }
 
 const menuVariants = {
@@ -30,7 +28,7 @@ const iconVariants = {
   exit: { rotate: 45, opacity: 0 }
 };
 
-export default function ClientNavbar({ isMobile = false, initialProfile = null }: ClientNavbarProps) {
+export default function ClientNavbar({ isMobile = false }: ClientNavbarProps) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -86,7 +84,7 @@ export default function ClientNavbar({ isMobile = false, initialProfile = null }
         <div className="flex items-center gap-4">
           <ThemeToggle />
           
-          <AuthSection initialProfile={initialProfile} isMobile={isMobile} />
+          <AuthSection isMobile={isMobile} />
 
           <button
             onClick={() => setIsMenuOpen(prev => !prev)}
@@ -112,7 +110,7 @@ export default function ClientNavbar({ isMobile = false, initialProfile = null }
               <NavigationLinks isMobile onLinkClick={closeAllMenus} pathname={pathname} />
             </nav>
             <div className="border-t border-slate-200 dark:border-slate-700 p-4">
-              <AuthSection initialProfile={initialProfile} isMobile />
+              <AuthSection isMobile />
             </div>
           </motion.div>
         )}
