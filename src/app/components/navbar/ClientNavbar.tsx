@@ -8,12 +8,13 @@ import { Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import clsx from "clsx";
 
-import { Profile } from "../../../types/profile";
-import ThemeToggle from "../ThemeToggle";
-import { NavigationLinks } from "./NavLink";
-import { AuthSection } from "./Auth"; 
+import { Profile } from '../../../types/profile';
+import ThemeToggle from '../ThemeToggle';
+import { NavigationLinks } from './NavLink';
+import { AuthSection } from './Auth';
 
-interface PublicNavbarProps {
+interface ClientNavbarProps {
+  isMobile?: boolean;
   initialProfile?: Profile | null;
 }
 
@@ -29,10 +30,10 @@ const iconVariants = {
   exit: { rotate: 45, opacity: 0 }
 };
 
-export default function PublicNavbar({ initialProfile = null }: PublicNavbarProps) {
+export default function ClientNavbar({ isMobile = false, initialProfile = null }: ClientNavbarProps) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  
+
   const pathname = usePathname();
   const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -45,7 +46,7 @@ export default function PublicNavbar({ initialProfile = null }: PublicNavbarProp
       setIsScrolled(window.scrollY > 10);
     }, 50);
   }, []);
-  
+
   const closeAllMenus = useCallback(() => {
     setIsMenuOpen(false);
   }, []);
@@ -85,7 +86,7 @@ export default function PublicNavbar({ initialProfile = null }: PublicNavbarProp
         <div className="flex items-center gap-4">
           <ThemeToggle />
           
-          <AuthSection initialProfile={initialProfile} />
+          <AuthSection initialProfile={initialProfile} isMobile={isMobile} />
 
           <button
             onClick={() => setIsMenuOpen(prev => !prev)}

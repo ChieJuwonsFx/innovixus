@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { FormMessage } from './FormMessage';
-import { signInWithGoogle } from '@/lib/supabase/auth';
+import { signIn } from "next-auth/react";
 
 const GoogleIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
@@ -21,17 +21,12 @@ export const SocialAuth = () => {
     setIsLoading(true);
     setMessage(null);
     try {
-      await signInWithGoogle();
+      await signIn("google", { 
+        callbackUrl: "/" 
+      }); 
       setMessage({ type: 'success', message: 'Mengarahkan ke Google...' });
-    } catch (err) {
-      const error = err as Error;
-      let errorMessage = 'Gagal masuk dengan Google. Silakan coba lagi.';
-      if (error.message.includes('popup')) {
-        errorMessage = 'Mohon izinkan popup untuk situs ini dan coba lagi.';
-      } else if (error.message.includes('network')) {
-        errorMessage = 'Kesalahan jaringan. Periksa koneksi Anda dan coba lagi.';
-      }
-      setMessage({ type: 'error', message: errorMessage });
+    } catch {
+      setMessage({ type: 'error', message: 'Gagal masuk dengan Google.' });
       setIsLoading(false);
     }
   };

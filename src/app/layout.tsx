@@ -4,6 +4,7 @@ import { Inter } from 'next/font/google';
 import Navbar from './components/navbar/Navbar'
 import FooterLayout from './components/footer/FooterLayout'
 import { Toaster } from 'react-hot-toast';
+import { Providers } from './providers'
 
 export const dynamic = 'force-dynamic';
 
@@ -54,7 +55,8 @@ export default function RootLayout({
         />
       </head>
       <body className={inter.className}>
-        <Toaster
+        <Providers>
+          <Toaster
           position="bottom-right"
           toastOptions={{
             duration: 5000,
@@ -100,11 +102,15 @@ export default function RootLayout({
           }}
         />
         <Navbar />
+        
+        
         <div className='bg-slate-50 dark:bg-slate-950'>
           {children}
         </div>
         <FooterLayout />
+        </Providers>
       </body>
     </html>
   )
 }
+

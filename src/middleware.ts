@@ -1,77 +1,61 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { createMiddlewareClient } from '@supabase/auth-helpers-nextjs';
+import { withAuth } from "next-auth/middleware"
+import { NextResponse } from "next/server"
 
-export async function middleware(req: NextRequest) {
-  const res = NextResponse.next();
-  const supabase = createMiddlewareClient({ req, res });
+export default withAuth(
+  function middleware(req) {
+    const token = req.nextauth.token
+    const isAuth = !!token
+    const isAuthPage = req.nextUrl.pathname.startsWith('/login') || 
+                       req.nextUrl.pathname.startsWith('/register')
+    const isAdminPage = req.nextUrl.pathname.startsWith('/admin')
 
-  const { data: { session } } = await supabase.auth.getSession();
-  const user = session?.user;
-
-  const protectedRoutes = [
-    '/partnerships/my-submissions',
-    '/partnerships/payment',
-    '/profile',
-    '/dashboard'
-  ];
-
-  const authPages = ['/login', '/register'];
-
-  if (req.nextUrl.pathname.startsWith('/admin')) {
-    if (!user) {
-      return NextResponse.redirect(new URL('/login', req.url));
+    if (isAuthPage && isAuth) {
+      return NextResponse.redirect(new URL('/', req.url))
     }
 
-    try {
-      const { data: userProfile, error } = await supabase
-        .from('users')
-        .select('role')
-        .eq('id', user.id)
-        .single();
+    if (isAdminPage) {
+      if (!isAuth) {
+        return NextResponse.redirect(new URL('/login', req.url))
+      }
       
-      if (error) {
-        console.error('Error fetching user profile:', error);
-        return NextResponse.redirect(new URL('/error', req.url));
+      if (token?.role !== 'Admin') {
+        return NextResponse.redirect(new URL('/unauthorized', req.url))
       }
-
-      if (userProfile?.role !== 'Admin') {
-        return NextResponse.redirect(new URL('/unauthorized', req.url));
-      }
-    } catch (error) {
-      console.error('Error in admin route check:', error);
-      return NextResponse.redirect(new URL('/error', req.url));
     }
-  }
 
-  const needsAuth = protectedRoutes.some(route => 
-    req.nextUrl.pathname.startsWith(route)
-  );
+    return NextResponse.next()
+  },
+  {
+    callbacks: {
+      authorized: ({ token, req }) => {
+        const isAuthPage = req.nextUrl.pathname.startsWith('/login') || 
+                          req.nextUrl.pathname.startsWith('/register')
+        const isAdminPage = req.nextUrl.pathname.startsWith('/admin')
+        const isProfilePage = req.nextUrl.pathname.startsWith('/profile')
+        const isPartnershipSubmit = req.nextUrl.pathname.startsWith('/partnerships/submit') ||
+                                   req.nextUrl.pathname.startsWith('/partnerships/my-submissions') ||
+                                   req.nextUrl.pathname.startsWith('/partnerships/payment')
 
-  if (needsAuth && !user) {
-    const redirectUrl = new URL('/login', req.url);
-    redirectUrl.searchParams.set('redirectTo', req.nextUrl.pathname);
-    return NextResponse.redirect(redirectUrl);
-  }
+        if (isAuthPage) return true
 
-  if (user && authPages.includes(req.nextUrl.pathname)) {
-    const redirectTo = req.nextUrl.searchParams.get('redirectTo');
-    if (redirectTo) {
-      return NextResponse.redirect(new URL(redirectTo, req.url));
-    }
-    return NextResponse.redirect(new URL('/', req.url));
+        if (isAdminPage || isProfilePage || isPartnershipSubmit) {
+          return !!token
+        }
+
+        return true
+      },
+    },
   }
-  
-  return res;
-}
+)
 
 export const config = {
   matcher: [
     '/admin/:path*',
+    '/profile/:path*',
     '/login',
     '/register',
-    '/partnerships/my-submissions',
+    '/partnerships/submit/:path*',
+    '/partnerships/my-submissions/:path*',
     '/partnerships/payment/:path*',
-    '/profile',
-    '/dashboard'
   ],
-};
+}
