@@ -1,4 +1,5 @@
 import { NextAuthOptions } from "next-auth";
+import { Session } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import { createClient } from "@supabase/supabase-js";
 
@@ -8,6 +9,10 @@ interface ExtendedUser {
   name?: string | null;
   image?: string | null;
   supabaseId?: string;
+}
+
+interface ExtendedSession extends Session {
+  idToken?: string;
 }
 
 const supabase = createClient(
@@ -20,6 +25,13 @@ export const authOptions: NextAuthOptions = {
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      authorization: {
+        params: {
+          prompt: "consent",
+          access_type: "offline",
+          response_type: "code"
+        }
+      }
     }),
   ],
 
@@ -27,7 +39,6 @@ export const authOptions: NextAuthOptions = {
     async signIn({ user }) {
       try {
         if (!user.email) {
-          console.error("No email provided");
           return false;
         }
 
@@ -68,15 +79,8 @@ export const authOptions: NextAuthOptions = {
               role: "User",
             });
 
-          if (dbError) {
-            console.error("Error inserting to users table:", dbError);
-            if (dbError.code === '23505') {
-              console.log("User already exists");
-            } else {
-              console.error("Unhandled database error:", dbError);
-            }
-          } else {
-            console.log("User inserted to database");
+          if (dbError && dbError.code !== '23505') {
+            console.error("Database error:", dbError);
           }
 
           (user as ExtendedUser).supabaseId = supabaseUserId;
@@ -91,7 +95,7 @@ export const authOptions: NextAuthOptions = {
             .eq("email", user.email);
 
           if (updateError) {
-            console.error("⚠️ Error updating user:", updateError);
+            console.error("Error updating user:", updateError);
           }
 
           (user as ExtendedUser).supabaseId = existingUser.id;
@@ -102,14 +106,18 @@ export const authOptions: NextAuthOptions = {
       }
     },
 
-    async jwt({ token, user, trigger }) {
+    async jwt({ token, user, account }) {
       if (user) {
         const extendedUser = user as ExtendedUser;
         token.supabaseId = extendedUser.supabaseId;
         token.email = user.email ?? undefined;
       }
 
-      if (token.email && (!token.role || trigger === 'update')) {
+      if (account?.id_token) {
+        token.idToken = account.id_token;
+      }
+
+      if (token.email) {
         const { data: userData } = await supabase
           .from('users')
           .select('role')
@@ -127,15 +135,20 @@ export const authOptions: NextAuthOptions = {
     async session({ session, token }) {
       if (session.user) {
         if (token?.supabaseId) {
-          session.user.supabaseId = token.supabaseId as string;
+          (session.user as { supabaseId?: string }).supabaseId = token.supabaseId as string;
         }
         if (token?.email) {
           session.user.email = token.email as string;
         }
         if (token?.role) {
-          session.user.role = token.role as string;
+          (session.user as { role?: string }).role = token.role as string;
         }
       }
+      
+      if (token?.idToken) {
+        (session as ExtendedSession).idToken = token.idToken as string;
+      }
+      
       return session;
     },
   },
@@ -150,5 +163,5 @@ export const authOptions: NextAuthOptions = {
     maxAge: 30 * 24 * 60 * 60,
   },
 
-  debug: process.env.NODE_ENV === 'development',
+  debug: false,
 };

@@ -38,7 +38,12 @@ export default withAuth(
 
         if (isAuthPage) return true
 
-        if (isAdminPage || isProfilePage || isPartnershipSubmit) {
+        if (isAdminPage) {
+          const hasAccess = !!token && token.role === 'Admin'
+          return hasAccess
+        }
+
+        if (isProfilePage || isPartnershipSubmit) {
           return !!token
         }
 

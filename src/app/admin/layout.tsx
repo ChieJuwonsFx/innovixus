@@ -1,10 +1,11 @@
 'use client';
 
-import { ReactNode, useState, useEffect, useCallback, ElementType } from 'react';
+import { ReactNode, useState, useEffect, useCallback, ElementType, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { useSession } from 'next-auth/react'; 
 import {
   LayoutDashboard,
   LogOut,
@@ -32,6 +33,23 @@ type Profile = {
 
 function UserNav({ profile, onSignOut }: { profile: Profile | null, onSignOut: () => void }) {
   const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    }
+
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isOpen]);
   
   if (!profile) {
     return <div className="w-9 h-9 rounded-full bg-slate-200 dark:bg-slate-700 animate-pulse"></div>;
@@ -40,7 +58,7 @@ function UserNav({ profile, onSignOut }: { profile: Profile | null, onSignOut: (
   const profilePath = profile.role === 'Admin' ? '/admin/profile' : '/profile';
 
   return (
-    <div className="relative">
+    <div className="relative" ref={dropdownRef}>
       <button onClick={() => setIsOpen(!isOpen)} className="flex items-center gap-3 focus:outline-none group">
         {profile.avatar ? (
           <Image 
@@ -59,15 +77,34 @@ function UserNav({ profile, onSignOut }: { profile: Profile | null, onSignOut: (
       </button>
       <AnimatePresence>
         {isOpen && (
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }} transition={{ duration: 0.2, ease: "easeOut" }}
-            className="absolute right-0 mt-2 w-56 bg-white dark:bg-slate-800 rounded-lg shadow-xl z-50 border border-slate-200 dark:border-slate-700 overflow-hidden">
+          <motion.div 
+            initial={{ opacity: 0, y: 10 }} 
+            animate={{ opacity: 1, y: 0 }} 
+            exit={{ opacity: 0, y: 10 }} 
+            transition={{ duration: 0.2, ease: "easeOut" }}
+            className="absolute right-0 mt-2 w-56 bg-white dark:bg-slate-800 rounded-lg shadow-xl z-50 border border-slate-200 dark:border-slate-700 overflow-hidden"
+          >
             <div className="px-4 py-3 border-b border-slate-200 dark:border-slate-700">
               <p className="text-sm font-semibold text-slate-900 dark:text-slate-50">{profile.name}</p>
               <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{profile.email}</p>
             </div>
-            <Link href={profilePath} onClick={() => setIsOpen(false)} className="block px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Your Profile</Link>
+            <Link 
+              href={profilePath} 
+              onClick={() => setIsOpen(false)} 
+              className="block px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+            >
+              Your Profile
+            </Link>
             <div className="border-t border-slate-100 dark:border-slate-700"></div>
-            <button onClick={onSignOut} className="block w-full text-left px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 transition-colors">Sign out</button>
+            <button 
+              onClick={() => {
+                setIsOpen(false);
+                onSignOut();
+              }} 
+              className="block w-full text-left px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 transition-colors"
+            >
+              Sign out
+            </button>
           </motion.div>
         )}
       </AnimatePresence>
@@ -99,22 +136,58 @@ function NavItem({ href, icon: Icon, children, onLinkClick }: NavItemProps) {
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [profile, setProfile] = useState<Profile | null>(null); 
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const pathname = usePathname();
   const router = useRouter();
   const supabase = createClientComponentClient();
+  const { data: nextAuthSession, status } = useSession();
 
   useEffect(() => {
     const getProfileData = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) { router.push('/login'); return; }
-      const { data: userProfile, error } = await supabase.from('users').select('*').eq('id', session.user.id).single();
-      if (error) { console.error("Error fetching admin profile:", error); router.push('/login'); } 
-      else { setProfile(userProfile); }
+      if (status === 'loading') {
+        return;
+      }
+
+      if (status === 'unauthenticated' || !nextAuthSession) {
+        setIsLoading(false)
+        return;
+      }
+
+      let retries = 0;
+      const maxRetries = 10;
+      
+      while (retries < maxRetries) {
+        const { data: { session: supabaseSession } } = await supabase.auth.getSession();
+        
+        if (supabaseSession) {
+          const { data: userProfile, error } = await supabase
+            .from('users')
+            .select('*')
+            .eq('id', supabaseSession.user.id)
+            .single();
+          
+          if (error) {
+            console.error("Error fetching profile:", error);
+          } else {
+            setProfile(userProfile);
+          }
+          
+          setIsLoading(false)
+          return;
+        }
+        
+        await new Promise(resolve => setTimeout(resolve, 500));
+        retries++;
+      }
+      
+      console.error('Supabase session not available')
+      setIsLoading(false)
     };
+    
     getProfileData();
-  }, [supabase, router]);
-  
+  }, [supabase, status, nextAuthSession]);
+
   useEffect(() => {
     const savedState = localStorage.getItem('sidebarState');
     if (savedState) { setIsSidebarOpen(savedState === 'open'); } 
@@ -140,6 +213,17 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     await supabase.auth.signOut();
     router.push('/login');
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-100 dark:bg-slate-950">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-slate-600 dark:text-slate-400">Loading...</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="bg-slate-100 dark:bg-slate-950 min-h-screen">
