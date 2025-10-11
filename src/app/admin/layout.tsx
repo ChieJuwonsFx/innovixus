@@ -145,22 +145,10 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const getProfileData = async () => {
-      if (status === 'loading') {
-        return;
-      }
-
-      if (status === 'unauthenticated' || !nextAuthSession) {
-        setIsLoading(false)
-        return;
-      }
-
-      let retries = 0;
-      const maxRetries = 10;
-      
-      while (retries < maxRetries) {
+      try {
         const { data: { session: supabaseSession } } = await supabase.auth.getSession();
         
-        if (supabaseSession) {
+        if (supabaseSession?.user) {
           const { data: userProfile, error } = await supabase
             .from('users')
             .select('*')
@@ -169,29 +157,73 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
           
           if (error) {
             console.error("Error fetching profile:", error);
-          } else {
-            setProfile(userProfile);
+            setIsLoading(false);
+            return;
           }
           
-          setIsLoading(false)
+          if (userProfile) {
+            setProfile(userProfile);
+            setIsLoading(false);
+            return;
+          }
+        }
+
+        if (status === 'loading') {
           return;
         }
+
+        if (status === 'authenticated' && nextAuthSession?.user?.email) {
+          const { data: userProfile, error } = await supabase
+            .from('users')
+            .select('*')
+            .eq('email', nextAuthSession.user.email)
+            .single();
+          
+          if (error) {
+            console.error("Error fetching profile:", error);
+          } else if (userProfile) {
+            setProfile(userProfile);
+          }
+        }
         
-        await new Promise(resolve => setTimeout(resolve, 500));
-        retries++;
+        setIsLoading(false);
+      } catch (error) {
+        console.error("Error in getProfileData:", error);
+        setIsLoading(false);
       }
-      
-      console.error('Supabase session not available')
-      setIsLoading(false)
     };
     
     getProfileData();
-  }, [supabase, status, nextAuthSession]);
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        getProfileData();
+      } else if (status === 'unauthenticated') {
+        setProfile(null);
+        router.push('/login');
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [supabase, status, nextAuthSession, router]);
+
+  useEffect(() => {
+    if (!isLoading && !profile) {
+      router.push('/login');
+    } else if (!isLoading && profile && profile.role !== 'Admin') {
+      router.push('/unauthorized');
+    }
+  }, [isLoading, profile, router]);
 
   useEffect(() => {
     const savedState = localStorage.getItem('sidebarState');
-    if (savedState) { setIsSidebarOpen(savedState === 'open'); } 
-    else if (typeof window !== 'undefined') { setIsSidebarOpen(window.innerWidth >= 1024); }
+    if (savedState) { 
+      setIsSidebarOpen(savedState === 'open'); 
+    } else if (typeof window !== 'undefined') { 
+      setIsSidebarOpen(window.innerWidth >= 1024); 
+    }
   }, []);
 
   const toggleSidebar = useCallback(() => {
@@ -210,8 +242,17 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   }, []);
 
   const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    router.push('/login');
+    try {
+      await supabase.auth.signOut();
+      
+      const { signOut } = await import('next-auth/react');
+      await signOut({ redirect: false });
+      
+      router.push('/login');
+    } catch (error) {
+      console.error('Sign out error:', error);
+      router.push('/login');
+    }
   };
 
   if (isLoading) {
@@ -223,6 +264,10 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
         </div>
       </div>
     )
+  }
+
+  if (!profile || profile.role !== 'Admin') {
+    return null;
   }
 
   return (

@@ -1,57 +1,47 @@
-import { withAuth } from "next-auth/middleware"
 import { NextResponse } from "next/server"
+import type { NextRequest } from "next/server"
+import { createMiddlewareClient } from '@supabase/auth-helpers-nextjs'
 
-export default withAuth(
-  function middleware(req) {
-    const token = req.nextauth.token
-    const isAuth = !!token
-    const isAuthPage = req.nextUrl.pathname.startsWith('/login') || 
-                       req.nextUrl.pathname.startsWith('/register')
-    const isAdminPage = req.nextUrl.pathname.startsWith('/admin')
+export async function middleware(req: NextRequest) {
+  const res = NextResponse.next()
+  const supabase = createMiddlewareClient({ req, res })
 
-    if (isAuthPage && isAuth) {
-      return NextResponse.redirect(new URL('/', req.url))
+  const {
+    data: { session: supabaseSession },
+  } = await supabase.auth.getSession()
+
+  const isAuthPage = req.nextUrl.pathname.startsWith('/login') || 
+                     req.nextUrl.pathname.startsWith('/register')
+  const isAdminPage = req.nextUrl.pathname.startsWith('/admin')
+  const isProfilePage = req.nextUrl.pathname.startsWith('/profile')
+  const isPartnershipSubmit = req.nextUrl.pathname.startsWith('/partnerships/submit') ||
+                             req.nextUrl.pathname.startsWith('/partnerships/my-submissions') ||
+                             req.nextUrl.pathname.startsWith('/partnerships/payment')
+
+  if (isAuthPage && supabaseSession) {
+    return NextResponse.redirect(new URL('/', req.url))
+  }
+
+  if (isProfilePage || isPartnershipSubmit || isAdminPage) {
+    if (!supabaseSession) {
+      return NextResponse.redirect(new URL('/login', req.url))
     }
 
     if (isAdminPage) {
-      if (!isAuth) {
-        return NextResponse.redirect(new URL('/login', req.url))
-      }
-      
-      if (token?.role !== 'Admin') {
+      const { data: userData } = await supabase
+        .from('users')
+        .select('role')
+        .eq('id', supabaseSession.user.id)
+        .single()
+
+      if (!userData || userData.role !== 'Admin') {
         return NextResponse.redirect(new URL('/unauthorized', req.url))
       }
     }
-
-    return NextResponse.next()
-  },
-  {
-    callbacks: {
-      authorized: ({ token, req }) => {
-        const isAuthPage = req.nextUrl.pathname.startsWith('/login') || 
-                          req.nextUrl.pathname.startsWith('/register')
-        const isAdminPage = req.nextUrl.pathname.startsWith('/admin')
-        const isProfilePage = req.nextUrl.pathname.startsWith('/profile')
-        const isPartnershipSubmit = req.nextUrl.pathname.startsWith('/partnerships/submit') ||
-                                   req.nextUrl.pathname.startsWith('/partnerships/my-submissions') ||
-                                   req.nextUrl.pathname.startsWith('/partnerships/payment')
-
-        if (isAuthPage) return true
-
-        if (isAdminPage) {
-          const hasAccess = !!token && token.role === 'Admin'
-          return hasAccess
-        }
-
-        if (isProfilePage || isPartnershipSubmit) {
-          return !!token
-        }
-
-        return true
-      },
-    },
   }
-)
+
+  return res
+}
 
 export const config = {
   matcher: [

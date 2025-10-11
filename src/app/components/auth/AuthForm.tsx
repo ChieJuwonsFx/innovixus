@@ -122,7 +122,7 @@ export const AuthForm = ({ type, onSuccess, onPasswordChange }: AuthFormProps) =
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleAuthAction = async () => {
+const handleAuthAction = async () => {
     setErrors({});
     
     if (!validateForm()) return;
@@ -135,7 +135,9 @@ export const AuthForm = ({ type, onSuccess, onPasswordChange }: AuthFormProps) =
       switch (type) {
         case 'login':
           result = await signInWithEmail(email, password);
-          if (!result.error) router.push('/');
+          if (!result.error) {
+            window.location.href = '/';
+          }
           break;
         case 'register':
           result = await signUpWithEmail(email, password, name);

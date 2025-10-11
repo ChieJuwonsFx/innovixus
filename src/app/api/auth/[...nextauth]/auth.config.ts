@@ -1,6 +1,7 @@
 import { NextAuthOptions } from "next-auth";
 import { Session } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
+import CredentialsProvider from "next-auth/providers/credentials";
 import { createClient } from "@supabase/supabase-js";
 
 interface ExtendedUser {
@@ -9,6 +10,7 @@ interface ExtendedUser {
   name?: string | null;
   image?: string | null;
   supabaseId?: string;
+  role?: string;
 }
 
 interface ExtendedSession extends Session {
@@ -33,10 +35,34 @@ export const authOptions: NextAuthOptions = {
         }
       }
     }),
+    CredentialsProvider({
+      id: "supabase",
+      name: "Supabase",
+      credentials: {
+        email: { label: "Email", type: "email" },
+        supabaseId: { label: "Supabase ID", type: "text" },
+        name: { label: "Name", type: "text" },
+        role: { label: "Role", type: "text" },
+      },
+      async authorize(credentials) {
+        if (!credentials?.email) return null;
+
+        return {
+          id: credentials.supabaseId || credentials.email,
+          email: credentials.email,
+          name: credentials.name,
+          role: credentials.role || "User",
+        };
+      },
+    }),
   ],
 
   callbacks: {
-    async signIn({ user }) {
+    async signIn({ user, account }) {
+      if (account?.provider !== "google") {
+        return true;
+      }
+
       try {
         if (!user.email) {
           return false;
@@ -109,23 +135,25 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user, account }) {
       if (user) {
         const extendedUser = user as ExtendedUser;
-        token.supabaseId = extendedUser.supabaseId;
+        token.supabaseId = extendedUser.supabaseId || extendedUser.id;
         token.email = user.email ?? undefined;
+        token.role = extendedUser.role;
       }
 
       if (account?.id_token) {
         token.idToken = account.id_token;
       }
 
-      if (token.email) {
+      if (token.email && !token.role) {
         const { data: userData } = await supabase
           .from('users')
-          .select('role')
+          .select('role, id')
           .eq('email', token.email as string)
           .single();
 
         if (userData) {
           token.role = userData.role;
+          token.supabaseId = userData.id;
         }
       }
 

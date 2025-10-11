@@ -39,7 +39,6 @@ export function SupabaseSessionSync() {
       const idToken = extendedSession?.idToken
 
       if (!idToken) {
-        console.error('No idToken in session. Please logout and login again.')
         return
       }
 

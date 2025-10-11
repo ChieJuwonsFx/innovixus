@@ -1,65 +1,101 @@
-'use client'
+import { useEffect, useState } from 'react';
+import { useSession } from 'next-auth/react';
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
-import { useSession } from 'next-auth/react'
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
-import { useEffect, useState } from 'react'
-
-interface AuthUser {
-  id: string
-  email: string
-  name?: string
-  avatar?: string
-  role?: string
+interface User {
+  id: string;
+  email: string;
+  name: string;
+  avatar?: string | null;
+  role: string;
 }
 
 export function useAuth() {
-  const { data: session, status } = useSession()
-  const supabase = createClientComponentClient()
-  const [user, setUser] = useState<AuthUser | null>(null)
-  const [loading, setLoading] = useState(true)
+  const { data: nextAuthSession, status: nextAuthStatus } = useSession();
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  const supabase = createClientComponentClient();
 
   useEffect(() => {
+    let mounted = true;
+
     async function loadUser() {
-      if (status === 'loading') {
-        return
-      }
-
-      if (status === 'unauthenticated') {
-        setUser(null)
-        setLoading(false)
-        return
-      }
-
-      if (session?.user?.email) {
-        try {
-          const { data: userData, error } = await supabase
+      try {
+        const { data: { session: supabaseSession } } = await supabase.auth.getSession();
+        
+        if (supabaseSession?.user) {
+          const { data: userData } = await supabase
             .from('users')
             .select('id, email, name, avatar, role')
-            .eq('email', session.user.email)
-            .single()
+            .eq('email', supabaseSession.user.email)
+            .single();
 
-          if (error) {
-            console.error('Error fetching user:', error)
-            setUser(null)
-          } else {
-            setUser(userData)
+          if (mounted && userData) {
+            setUser({
+              id: userData.id,
+              email: userData.email,
+              name: userData.name || userData.email.split('@')[0],
+              avatar: userData.avatar,
+              role: userData.role || 'User',
+            });
+            setLoading(false);
+            return;
           }
-        } catch (error) {
-          console.error('Error loading user:', error)
-          setUser(null)
+        }
+
+        if (nextAuthStatus === 'authenticated' && nextAuthSession?.user?.email) {
+          const { data: userData } = await supabase
+            .from('users')
+            .select('id, email, name, avatar, role')
+            .eq('email', nextAuthSession.user.email)
+            .single();
+
+          if (mounted && userData) {
+            setUser({
+              id: userData.id,
+              email: userData.email,
+              name: userData.name || nextAuthSession.user.name || userData.email.split('@')[0],
+              avatar: userData.avatar || nextAuthSession.user.image,
+              role: userData.role || 'User',
+            });
+          }
+        } else if (nextAuthStatus === 'unauthenticated') {
+          if (mounted) {
+            setUser(null);
+          }
+        }
+      } catch (error) {
+        console.error('Error loading user:', error);
+        if (mounted) {
+          setUser(null);
+        }
+      } finally {
+        if (mounted) {
+          setLoading(false);
         }
       }
-
-      setLoading(false)
     }
 
-    loadUser()
-  }, [session, status, supabase])
+    loadUser();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        loadUser();
+      } else if (!nextAuthSession) {
+        setUser(null);
+      }
+    });
+
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
+  }, [nextAuthSession, nextAuthStatus, supabase]);
 
   return {
     user,
-    loading: loading || status === 'loading',
+    loading: loading || nextAuthStatus === 'loading',
     isAuthenticated: !!user,
     isAdmin: user?.role === 'Admin',
-  }
+  };
 }
