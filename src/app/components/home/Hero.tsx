@@ -1,14 +1,19 @@
 "use client";
 import type { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
-import Image from "next/image"; 
+import Image from "next/image";
+
 interface HeroSectionProps {
   router: AppRouterInstance;
 }
 
 export default function Hero({}: HeroSectionProps) {
   return (
-    <section className="min-h-screen flex items-center justify-center px-4 bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-blue-900">
-      <div className="max-w-6xl mx-auto">
+    // PENYESUAIAN KRITIS:
+    // 1. Tambahkan `pt-32` (padding atas sangat besar) untuk mobile
+    // 2. Turunkan kembali padding di layar medium (`md:pt-0`)
+    // 3. Tambahkan `py-16` untuk padding vertical yang aman di layar besar
+    <section className="min-h-screen flex items-center justify-center pt-32 pb-16 md:py-16 px-4 bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-blue-900">
+      <div className="max-w-6xl mx-auto w-full">
         <div className="text-center mb-4">
           <div className="flex justify-center mb-5">
             <Image
