@@ -169,22 +169,12 @@ export default function UserProfilePage() {
                         <div className="space-y-4 pt-4 md:pt-0">
                             <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">Quick Actions</h3>
                             <Link
-                                href="admin/profile/edit"
+                                href="profile/edit"
                                 className="w-full flex items-center justify-between px-4 py-3 bg-blue-600 text-white rounded-xl shadow-md hover:bg-blue-700 transition-colors duration-200"
                             >
                                 <span className="flex items-center space-x-3">
                                     <Edit className="w-5 h-5" />
                                     <span className="font-semibold">Edit Account Information</span>
-                                </span>
-                                <ArrowRight className="w-5 h-5" />
-                            </Link>
-                            <Link
-                                href="/partnerships/my-submissions"
-                                className="w-full flex items-center justify-between px-4 py-3 bg-gray-100 dark:bg-gray-700/50 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-200 shadow-sm"
-                            >
-                                <span className="flex items-center space-x-3">
-                                    <Layers className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                                    <span className="font-semibold">View My Partnership Submissions</span>
                                 </span>
                                 <ArrowRight className="w-5 h-5" />
                             </Link>
