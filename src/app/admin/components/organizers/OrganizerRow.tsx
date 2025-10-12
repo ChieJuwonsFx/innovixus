@@ -10,7 +10,6 @@ interface Organizer {
   id: string
   name: string
   instagram: string
-  created_at: string
 }
 
 interface OrganizerRowProps {
@@ -37,26 +36,23 @@ export default function OrganizerRow({ organizer }: OrganizerRowProps) {
   return (
     <>
       <tr className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-        <td className="px-6 py-4 whitespace-nowrap">
-          <div className="text-sm font-medium text-gray-900 dark:text-white">{organizer.name}</div>
+        <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
+          <div className="text-sm sm:text-base font-medium text-gray-900 dark:text-white">
+            {organizer.name}
+          </div>
         </td>
-        <td className="px-6 py-4 whitespace-nowrap">
-          <a 
-            href={`https://instagram.com/${organizer.instagram}`} 
-            target="_blank" 
+        <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
+          <a
+            href={`https://instagram.com/${organizer.instagram}`}
+            target="_blank"
             rel="noopener noreferrer"
-            className="text-sm text-blue-500 hover:underline"
+            className="text-blue-500 hover:underline break-words"
           >
             @{organizer.instagram}
           </a>
         </td>
-        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-          {new Date(organizer.created_at).toLocaleDateString('id-ID', {
-            day: 'numeric', month: 'long', year: 'numeric'
-          })}
-        </td>
-        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-          <div className="flex items-center justify-end space-x-3">
+        <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-right">
+          <div className="flex items-center justify-end space-x-2 sm:space-x-3">
             <Link href={`/admin/organizers/${organizer.id}?view=true`} title="Lihat Detail">
               <Eye className="w-5 h-5 text-gray-500 hover:text-blue-600 transition-colors" />
             </Link>
@@ -71,15 +67,16 @@ export default function OrganizerRow({ organizer }: OrganizerRowProps) {
       </tr>
 
       {showDeleteModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4 shadow-xl">
+        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4 sm:p-0">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md shadow-xl">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
               Konfirmasi Hapus
             </h3>
             <p className="text-gray-600 dark:text-gray-400 mb-6">
-              Apakah Anda yakin ingin menghapus <strong>{organizer.name}</strong>? Tindakan ini tidak dapat dibatalkan.
+              Apakah Anda yakin ingin menghapus{' '}
+              <strong>{organizer.name}</strong>? Tindakan ini tidak dapat dibatalkan.
             </p>
-            <div className="flex justify-end space-x-3">
+            <div className="flex flex-col sm:flex-row justify-end gap-3">
               <button
                 onClick={() => setShowDeleteModal(false)}
                 disabled={isDeleting}
@@ -90,7 +87,7 @@ export default function OrganizerRow({ organizer }: OrganizerRowProps) {
               <button
                 onClick={handleDelete}
                 disabled={isDeleting}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 flex items-center justify-center"
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50"
               >
                 {isDeleting ? 'Menghapus...' : 'Ya, Hapus'}
               </button>
