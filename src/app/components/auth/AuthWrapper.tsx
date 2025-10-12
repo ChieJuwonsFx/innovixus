@@ -3,6 +3,7 @@
 import { ReactNode, useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
+import { createClient } from "@supabase/supabase-js";
 import {
   Code,
   Terminal,
@@ -11,6 +12,11 @@ import {
   Briefcase,
   Rocket,
 } from "lucide-react";
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL || "",
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
+);
 
 type IconProp = {
   IconComponent: React.ElementType;
@@ -76,6 +82,144 @@ const AnimatedIconsRain = () => {
   );
 };
 
+const roundStats = (count: number): string => {
+  if (count >= 10000) return "10k+";
+  if (count >= 5000) return "5k+";
+  if (count >= 2000) return "2k+";
+  if (count >= 1000) return "1k+";
+  if (count >= 500) return "500+";
+  if (count >= 200) return "200+";
+  if (count >= 100) return "100+";
+  if (count >= 50) return "50+";
+  if (count >= 20) return "20+";
+  if (count >= 10) return "10+";
+  if (count >= 5) return "5+";
+  if (count >= 1) return "1+";
+  return "0";
+};
+
+const AnimatedCounter = ({ value }: { value: string }) => {
+  const [displayValue, setDisplayValue] = useState("0");
+
+  useEffect(() => {
+    setDisplayValue(value);
+  }, [value]);
+
+  return (
+    <motion.p
+      key={displayValue}
+      initial={{ scale: 0.8, opacity: 0 }}
+      animate={{ scale: 1, opacity: 1 }}
+      transition={{ duration: 0.2 }}
+      className="text-2xl font-bold text-slate-800 dark:text-white"
+    >
+      {displayValue}
+    </motion.p>
+  );
+};
+
+const StatsCounter = () => {
+  const [stats, setStats] = useState({
+    events: "0",
+    organizers: "0",
+    users: "0",
+  });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const { count: eventsCount } = await supabase
+          .from("events")
+          .select("*", { count: "exact", head: true });
+
+        const { count: organizersCount } = await supabase
+          .from("organizers")
+          .select("*", { count: "exact", head: true });
+
+        const { count: usersCount } = await supabase
+          .from("users")
+          .select("*", { count: "exact", head: true });
+
+        setStats({
+          events: roundStats(eventsCount || 0),
+          organizers: roundStats(organizersCount || 0),
+          users: roundStats(usersCount || 0),
+        });
+      } catch {
+        setStats({
+          events: "100+",
+          organizers: "50+",
+          users: "500+",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStats();
+
+    const eventsSubscription = supabase
+      .channel("stats-changes")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "events" },
+        () => fetchStats()
+      )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "organizers" },
+        () => fetchStats()
+      )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "users" },
+        () => fetchStats()
+      )
+      .subscribe();
+
+    return () => {
+      eventsSubscription.unsubscribe();
+    };
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="mt-10 flex gap-x-8 text-center">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="animate-pulse">
+            <div className="h-8 w-16 bg-slate-300 dark:bg-slate-600 rounded mb-2"></div>
+            <div className="h-4 w-20 bg-slate-200 dark:bg-slate-700 rounded"></div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  return (
+    <div className="mt-10 flex gap-x-8 text-center">
+      <div>
+        <AnimatedCounter value={stats.events} />
+        <p className="text-sm text-slate-500 dark:text-slate-400">
+          Info Peluang
+        </p>
+      </div>
+      <div>
+        <AnimatedCounter value={stats.organizers} />
+        <p className="text-sm text-slate-500 dark:text-slate-400">
+          Penyelenggara
+        </p>
+      </div>
+      <div>
+        <AnimatedCounter value={stats.users} />
+        <p className="text-sm text-slate-500 dark:text-slate-400">
+          Pengguna Aktif
+        </p>
+      </div>
+    </div>
+  );
+};
+
 interface AuthWrapperProps {
   children: ReactNode;
   scrollable?: boolean;
@@ -136,32 +280,7 @@ export default function AuthWrapper({
             </p>
           </div>
 
-          <div className="mt-10 flex gap-x-8 text-center">
-            <div>
-              <p className="text-2xl font-bold text-slate-800 dark:text-white">
-                1k+
-              </p>
-              <p className="text-sm text-slate-500 dark:text-slate-400">
-                Info Lomba
-              </p>
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-slate-800 dark:text-white">
-                500+
-              </p>
-              <p className="text-sm text-slate-500 dark:text-slate-400">
-                Perusahaan
-              </p>
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-slate-800 dark:text-white">
-                10k+
-              </p>
-              <p className="text-sm text-slate-500 dark:text-slate-400">
-                Pengguna Aktif
-              </p>
-            </div>
-          </div>
+          <StatsCounter />
         </div>
       </div>
       <div
