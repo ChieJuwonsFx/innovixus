@@ -242,17 +242,17 @@ export default function Card({ event, kategori, variant = 'grid' }: CardProps) {
           )}
         </div>
         
-        <div className="pt-4 border-t border-slate-200/60 dark:border-slate-700/60 flex items-center justify-between">
-          <div className="flex items-center gap-2 text-sm">
-            <Users className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
-            <span className="text-slate-500 dark:text-slate-400 truncate">
-              {event.organizers?.name || 'Penyelenggara'}
-            </span>
-          </div>
-          <div className="inline-flex items-center gap-1.5 text-blue-600 dark:text-blue-400 text-sm font-semibold group-hover:text-blue-700 dark:group-hover:text-blue-300 transition-colors bg-blue-50 dark:bg-blue-900/30 px-3 py-1.5 rounded-lg group-hover:bg-blue-100 dark:group-hover:bg-blue-900/50">
-            <span>Detail</span>
-            <ExternalLink className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
-          </div>
+        <div className="pt-4 mt-auto border-t border-slate-200/60 dark:border-slate-700/60 flex items-center justify-between gap-4">
+            <div className="flex items-center gap-2 text-sm flex-1 min-w-0">
+                <Users className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400 flex-shrink-0" />
+                <span className="text-slate-500 dark:text-slate-400 truncate">
+                    {event.organizers?.name || 'Penyelenggara'}
+                </span>
+            </div>
+            <div className="inline-flex items-center gap-1.5 text-blue-600 dark:text-blue-400 text-sm font-semibold group-hover:text-blue-700 dark:group-hover:text-blue-300 transition-colors bg-blue-50 dark:bg-blue-900/30 px-3 py-1.5 rounded-lg group-hover:bg-blue-100 dark:group-hover:bg-blue-900/50 flex-shrink-0">
+                <span>Detail</span>
+                <ExternalLink className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+            </div>
         </div>
       </div>
     </div>
