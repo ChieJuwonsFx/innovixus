@@ -77,7 +77,7 @@ export default function EventSlider({ events, kategori }: SliderProps) {
     
     if (currentX <= -originalSetWidth * 2) {
       setTransform(currentX + originalSetWidth);
-    } else if (currentX > 0) {
+    } else if (currentX >= -originalSetWidth + CARD_WITH_GAP) {
       setTransform(currentX - originalSetWidth);
     }
   }, [originalSetWidth, setTransform]);
@@ -115,11 +115,7 @@ export default function EventSlider({ events, kategori }: SliderProps) {
 
   const handleMouseLeave = useCallback(() => {
     isHoveredRef.current = false;
-    
-    if (!isAnimatingRef.current && events.length > 0) {
-      startAnimation();
-    }
-  }, [startAnimation, events.length]);
+  }, []);
 
   const handleDragStart = useCallback((clientX: number) => {
     stopAnimation();
@@ -182,6 +178,9 @@ export default function EventSlider({ events, kategori }: SliderProps) {
     }
 
     if (dragStateRef.current.isDragging) {
+      if (e.cancelable) {
+        e.preventDefault();
+      }
       setTransform(dragStateRef.current.startTranslateX + deltaX);
     }
   }, [setTransform, handleDragEnd]);
@@ -208,10 +207,7 @@ export default function EventSlider({ events, kategori }: SliderProps) {
     }
 
     const handleMouseMove = (e: MouseEvent) => handleDragMove(e);
-    const handleTouchMove = (e: TouchEvent) => {
-      e.preventDefault(); 
-      handleDragMove(e);
-    };
+    const handleTouchMove = (e: TouchEvent) => handleDragMove(e);
 
     document.addEventListener('mousemove', handleMouseMove);
     document.addEventListener('mouseup', handleDragEnd);
@@ -243,7 +239,7 @@ export default function EventSlider({ events, kategori }: SliderProps) {
         <div className="relative overflow-hidden">
           <div
             ref={containerRef}
-            className="flex gap-5 will-change-transform cursor-grab active:cursor-grabbing"
+            className="flex gap-5 will-change-transform cursor-grab active:cursor-grabbing touch-pan-y"
             style={{
               width: `${infiniteEvents.length * CARD_WITH_GAP}px`,
             }}
