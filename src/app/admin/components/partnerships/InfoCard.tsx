@@ -46,7 +46,7 @@ export default function InfoCard({ partnership, user }: Props) {
             Informasi User
           </h3>
           <div className="bg-white dark:bg-slate-800 p-4 rounded-lg border dark:border-slate-600">
-            <p className="font-semibold text-lg">{user.name}</p>
+            <p className="font-semibold text-lg text-gray-600 dark:text-white">{user.name}</p>
             <p className="text-gray-600 dark:text-gray-300">{user.email}</p>
           </div>
         </div>
