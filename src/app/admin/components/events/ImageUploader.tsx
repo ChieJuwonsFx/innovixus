@@ -72,7 +72,7 @@ function SortableImageItem({
 
   const style = {
     transform: CSS.Transform.toString(transform),
-    transition,
+    transition: isDragging ? 'none' : transition,
     opacity: isDragging ? 0.5 : 1,
     zIndex: isDragging ? 50 : 'auto',
   };
@@ -80,7 +80,7 @@ function SortableImageItem({
   const handleTouchStart = (e: React.TouchEvent) => {
     const timer = setTimeout(() => {
       setIsLongPress(true);
-    }, 200); 
+    }, 150); 
     setLongPressTimer(timer);
   };
 
@@ -115,15 +115,16 @@ function SortableImageItem({
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
           onClick={handleClick}
-          className={`absolute inset-0 cursor-pointer touch-none ${
+          className={`absolute inset-0 touch-none ${
             isDragging ? 'cursor-grabbing' : 'cursor-grab md:cursor-pointer'
           }`}
+          style={{ touchAction: 'none' }} 
         >
           <Image 
             src={preview.url} 
             alt="Preview gambar event" 
             fill 
-            className="object-cover transition-transform group-hover:scale-105 select-none pointer-events-none" 
+            className="object-cover select-none pointer-events-none" 
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
             unoptimized
             draggable={false}
@@ -200,13 +201,13 @@ export default function ImageUploader({
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
-        distance: 8,
+        distance: 5, 
       },
     }),
     useSensor(TouchSensor, {
       activationConstraint: {
-        delay: 200,
-        tolerance: 8,
+        delay: 150, 
+        tolerance: 5, 
       },
     }),
     useSensor(KeyboardSensor, {
