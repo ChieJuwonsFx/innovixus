@@ -8,6 +8,7 @@ import {
   closestCenter,
   KeyboardSensor,
   PointerSensor,
+  TouchSensor,
   useSensor,
   useSensors,
   DragEndEvent,
@@ -66,6 +67,9 @@ function SortableImageItem({
     isDragging,
   } = useSortable({ id: preview.key });
 
+  const [longPressTimer, setLongPressTimer] = useState<NodeJS.Timeout | null>(null);
+  const [isLongPress, setIsLongPress] = useState(false);
+
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
@@ -73,7 +77,24 @@ function SortableImageItem({
     zIndex: isDragging ? 50 : 'auto',
   };
 
-  const handleImageClick = () => {
+  const handleTouchStart = (e: React.TouchEvent) => {
+    const timer = setTimeout(() => {
+      setIsLongPress(true);
+    }, 200); 
+    setLongPressTimer(timer);
+  };
+
+  const handleTouchEnd = () => {
+    if (longPressTimer) {
+      clearTimeout(longPressTimer);
+    }
+    if (!isLongPress && !isDraggingAny) {
+      onClick(preview.key);
+    }
+    setIsLongPress(false);
+  };
+
+  const handleClick = (e: React.MouseEvent) => {
     if (!isDraggingAny) {
       onClick(preview.key);
     }
@@ -84,38 +105,42 @@ function SortableImageItem({
       ref={setNodeRef}
       style={style}
       className={`relative group bg-gray-100 dark:bg-gray-800 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-200 ${
-        isDragging ? 'scale-105' : ''
+        isDragging ? 'scale-105 ring-4 ring-blue-500' : ''
       }`}
     >
       <div className="aspect-square relative">
-        <Image 
-          src={preview.url} 
-          alt="Preview gambar event" 
-          fill 
-          className="object-cover transition-transform group-hover:scale-105 select-none" 
-          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-          unoptimized
-          draggable={false}
-        />
-        
-        <button 
-          type="button"
-          {...attributes} 
+        <div
+          {...attributes}
           {...listeners}
-          className="absolute top-2 left-2 bg-white/95 dark:bg-gray-800/95 rounded-lg p-2.5 cursor-grab active:cursor-grabbing shadow-lg z-30 hover:bg-white dark:hover:bg-gray-800 transition-colors hover:scale-110"
-          onClick={(e) => e.stopPropagation()}
-          aria-label="Drag untuk mengubah urutan"
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+          onClick={handleClick}
+          className={`absolute inset-0 cursor-pointer touch-none ${
+            isDragging ? 'cursor-grabbing' : 'cursor-grab md:cursor-pointer'
+          }`}
         >
-          <GripVertical className="w-5 h-5 text-gray-700 dark:text-gray-300" />
-        </button>
+          <Image 
+            src={preview.url} 
+            alt="Preview gambar event" 
+            fill 
+            className="object-cover transition-transform group-hover:scale-105 select-none pointer-events-none" 
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+            unoptimized
+            draggable={false}
+          />
+        </div>
+
+        <div className="hidden md:block absolute top-2 left-2 bg-white/95 dark:bg-gray-800/95 rounded-lg p-2 shadow-lg z-20 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+          <GripVertical className="w-4 h-4 text-gray-700 dark:text-gray-300" />
+        </div>
 
         {preview.isExisting ? (
-          <div className="absolute top-2 right-16 bg-green-500 text-white text-xs font-semibold px-2 py-1 rounded-full flex items-center gap-1 shadow-lg z-20">
+          <div className="absolute top-2 right-14 md:right-16 bg-green-500 text-white text-xs font-semibold px-2 py-1 rounded-full flex items-center gap-1 shadow-lg z-20">
             <CheckCircle2 className="w-3 h-3" />
             <span>Saved</span>
           </div>
         ) : (
-          <div className="absolute top-2 right-16 bg-blue-500 text-white text-xs font-semibold px-2 py-1 rounded-full shadow-lg z-20">
+          <div className="absolute top-2 right-14 md:right-16 bg-blue-500 text-white text-xs font-semibold px-2 py-1 rounded-full shadow-lg z-20">
             Baru
           </div>
         )}
@@ -132,15 +157,7 @@ function SortableImageItem({
           <X size={16} />
         </button>
 
-        <button
-          type="button"
-          className="absolute inset-0 cursor-pointer z-10 bg-transparent hover:bg-black/5 transition-colors"
-          onClick={handleImageClick}
-          disabled={isDraggingAny}
-          aria-label="Klik untuk melihat gambar"
-        />
-
-        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent text-white p-3 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-20">
+        <div className="hidden md:block absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent text-white p-3 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-20">
           <p className="text-xs font-medium truncate">
             {preview.file?.name || 'Uploaded image'}
           </p>
@@ -184,6 +201,12 @@ export default function ImageUploader({
     useSensor(PointerSensor, {
       activationConstraint: {
         distance: 8,
+      },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 200,
+        tolerance: 8,
       },
     }),
     useSensor(KeyboardSensor, {
@@ -326,10 +349,15 @@ export default function ImageUploader({
             </span>
           )}
           {totalImages > 1 && (
-            <span className="text-xs text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 px-3 py-1 rounded-full flex items-center gap-1">
-              <GripVertical className="w-3 h-3" />
-              <span>Drag icon grip untuk urutkan</span>
-            </span>
+            <>
+              <span className="md:hidden text-xs text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 px-3 py-1 rounded-full">
+                Tahan gambar untuk geser urutan
+              </span>
+              <span className="hidden md:flex text-xs text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 px-3 py-1 rounded-full items-center gap-1">
+                <GripVertical className="w-3 h-3" />
+                <span>Drag untuk urutkan</span>
+              </span>
+            </>
           )}
         </div>
       </div>
