@@ -180,11 +180,10 @@ export default function ImageUploader({
     ...newFiles.map(p => ({ key: p.key, url: p.previewUrl, file: p.file, isExisting: false })),
   ];
 
-  // Gunakan PointerSensor untuk kompatibilitas desktop & mobile yang lebih baik
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
-        distance: 8, // Distance yang pas untuk desktop
+        distance: 8,
       },
     }),
     useSensor(KeyboardSensor, {
