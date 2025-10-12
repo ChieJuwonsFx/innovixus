@@ -38,6 +38,7 @@ export default function EventSlider({ events, kategori }: SliderProps) {
     isActive: false,
     isDragging: false,
     startX: 0,
+    startY: 0,
     startTranslateX: 0,
   });
 
@@ -77,7 +78,7 @@ export default function EventSlider({ events, kategori }: SliderProps) {
     
     if (currentX <= -originalSetWidth * 2) {
       setTransform(currentX + originalSetWidth);
-    } else if (currentX >= -originalSetWidth + CARD_WITH_GAP) {
+    } else if (currentX > 0) {
       setTransform(currentX - originalSetWidth);
     }
   }, [originalSetWidth, setTransform]);
@@ -115,15 +116,20 @@ export default function EventSlider({ events, kategori }: SliderProps) {
 
   const handleMouseLeave = useCallback(() => {
     isHoveredRef.current = false;
-  }, []);
+    
+    if (!isAnimatingRef.current && events.length > 0) {
+      startAnimation();
+    }
+  }, [startAnimation, events.length]);
 
-  const handleDragStart = useCallback((clientX: number) => {
+  const handleDragStart = useCallback((clientX: number, clientY: number) => {
     stopAnimation();
     
     dragStateRef.current = {
       isActive: true,
       isDragging: false,
       startX: clientX,
+      startY: clientY,
       startTranslateX: translateXRef.current,
     };
 
@@ -166,21 +172,29 @@ export default function EventSlider({ events, kategori }: SliderProps) {
     }
 
     const clientX = e instanceof MouseEvent ? e.clientX : e.touches[0].clientX;
+    const clientY = e instanceof MouseEvent ? e.clientY : e.touches[0].clientY;
+    
     const deltaX = clientX - dragStateRef.current.startX;
+    const deltaY = clientY - dragStateRef.current.startY;
 
     if (!dragStateRef.current.isDragging && Math.abs(deltaX) > DRAG_THRESHOLD) {
-      dragStateRef.current.isDragging = true;
+      const isHorizontal = Math.abs(deltaX) > Math.abs(deltaY);
       
-      const container = containerRef.current;
-      if (container) {
-        container.style.cursor = 'grabbing';
+      if (isHorizontal) {
+        dragStateRef.current.isDragging = true;
+        
+        const container = containerRef.current;
+        if (container) {
+          container.style.cursor = 'grabbing';
+        }
+      } else {
+        dragStateRef.current.isActive = false;
+        return;
       }
     }
 
     if (dragStateRef.current.isDragging) {
-      if (e.cancelable) {
-        e.preventDefault();
-      }
+      e.preventDefault(); 
       setTransform(dragStateRef.current.startTranslateX + deltaX);
     }
   }, [setTransform, handleDragEnd]);
@@ -193,11 +207,11 @@ export default function EventSlider({ events, kategori }: SliderProps) {
   }, []);
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
-    handleDragStart(e.clientX);
+    handleDragStart(e.clientX, e.clientY);
   }, [handleDragStart]);
 
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
-    handleDragStart(e.touches[0].clientX);
+    handleDragStart(e.touches[0].clientX, e.touches[0].clientY);
   }, [handleDragStart]);
 
   useEffect(() => {
@@ -207,7 +221,12 @@ export default function EventSlider({ events, kategori }: SliderProps) {
     }
 
     const handleMouseMove = (e: MouseEvent) => handleDragMove(e);
-    const handleTouchMove = (e: TouchEvent) => handleDragMove(e);
+    const handleTouchMove = (e: TouchEvent) => {
+      if (dragStateRef.current.isDragging) {
+        e.preventDefault();
+      }
+      handleDragMove(e);
+    };
 
     document.addEventListener('mousemove', handleMouseMove);
     document.addEventListener('mouseup', handleDragEnd);
@@ -239,7 +258,7 @@ export default function EventSlider({ events, kategori }: SliderProps) {
         <div className="relative overflow-hidden">
           <div
             ref={containerRef}
-            className="flex gap-5 will-change-transform cursor-grab active:cursor-grabbing touch-pan-y"
+            className="flex gap-5 will-change-transform cursor-grab active:cursor-grabbing"
             style={{
               width: `${infiniteEvents.length * CARD_WITH_GAP}px`,
             }}
