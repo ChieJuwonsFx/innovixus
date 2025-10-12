@@ -69,10 +69,12 @@ function SortableImageItem({
 
   const [longPressTimer, setLongPressTimer] = useState<NodeJS.Timeout | null>(null);
   const [isLongPress, setIsLongPress] = useState(false);
+  const [isDragActive, setIsDragActive] = useState(false);
+  const touchStartPos = useRef<{ x: number; y: number } | null>(null);
 
   const style = {
     transform: CSS.Transform.toString(transform),
-    transition: isDragging ? 'none' : transition,
+    transition: isDragging ? 'none' : transition, 
     opacity: isDragging ? 0.5 : 1,
     zIndex: isDragging ? 50 : 'auto',
   };
@@ -134,6 +136,16 @@ function SortableImageItem({
         <div className="hidden md:block absolute top-2 left-2 bg-white/95 dark:bg-gray-800/95 rounded-lg p-2 shadow-lg z-20 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
           <GripVertical className="w-4 h-4 text-gray-700 dark:text-gray-300" />
         </div>
+
+        {isDragging && (
+          <div className="md:hidden absolute inset-0 bg-blue-500/20 border-4 border-blue-500 rounded-xl pointer-events-none z-10">
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="bg-blue-500 text-white px-4 py-2 rounded-full text-sm font-semibold shadow-lg">
+                Geser untuk pindahkan
+              </div>
+            </div>
+          </div>
+        )}
 
         {preview.isExisting ? (
           <div className="absolute top-2 right-14 md:right-16 bg-green-500 text-white text-xs font-semibold px-2 py-1 rounded-full flex items-center gap-1 shadow-lg z-20">
@@ -201,7 +213,7 @@ export default function ImageUploader({
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
-        distance: 5, 
+        distance: 5,
       },
     }),
     useSensor(TouchSensor, {
