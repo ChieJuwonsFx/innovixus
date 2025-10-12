@@ -82,7 +82,7 @@ function SortableImageItem({
   const handleTouchStart = (e: React.TouchEvent) => {
     const timer = setTimeout(() => {
       setIsLongPress(true);
-    }, 150); 
+    }, 50); 
     setLongPressTimer(timer);
   };
 
@@ -90,6 +90,7 @@ function SortableImageItem({
     if (longPressTimer) {
       clearTimeout(longPressTimer);
     }
+    // Jika bukan long press, buka preview
     if (!isLongPress && !isDraggingAny) {
       onClick(preview.key);
     }
@@ -120,7 +121,7 @@ function SortableImageItem({
           className={`absolute inset-0 touch-none ${
             isDragging ? 'cursor-grabbing' : 'cursor-grab md:cursor-pointer'
           }`}
-          style={{ touchAction: 'none' }} 
+          style={{ touchAction: 'none' }}
         >
           <Image 
             src={preview.url} 
@@ -213,7 +214,7 @@ export default function ImageUploader({
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
-        distance: 5,
+        distance: 5, 
       },
     }),
     useSensor(TouchSensor, {
