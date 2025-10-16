@@ -57,8 +57,8 @@ export default function AdminEventCard({ event }: { event: EventWithOrganizer })
     setIsMenuOpen(false);
   };
   
-  const formattedDate = event.open_date 
-    ? new Date(event.open_date).toLocaleDateString('id-ID', {
+  const formattedDate = event.close_date 
+    ? new Date(event.close_date).toLocaleDateString('id-ID', {
         day: 'numeric', month: 'long', year: 'numeric' 
       }) 
     : null;
