@@ -18,7 +18,7 @@ interface Step2Props {
   onBack: () => void;
   selectedPackage: Package;
   initialData: EventData | null;
-  organizers: Pick<Organizer, 'id' | 'name'>[];
+  organizers: Pick<Organizer, 'id' | 'instagram'>[];
   levels: Level[];
   fields: Field[];
   preselectedOrganizerId: string;
