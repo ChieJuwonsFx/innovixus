@@ -29,7 +29,7 @@ interface PosterImage { id?: string; url: string; file?: File; }
 
 interface EventFormProps {
   event?: EventWithRelations;
-  organizers: Pick<Organizer, 'id' | 'name'>[];
+  organizers: Pick<Organizer, 'id' | 'instagram'>[];
   levels: Level[];
   fields: Field[];
   asChild?: boolean;
