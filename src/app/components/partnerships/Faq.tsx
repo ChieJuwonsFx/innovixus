@@ -8,19 +8,23 @@ import clsx from 'clsx';
 const faqs = [
   {
     question: "Bagaimana cara kerja proses pendaftaran partnership?",
-    answer: "Setelah Anda memilih paket dan mengisi formulir, tim kami akan meninjau pengajuan Anda dalam 1x24 jam. Jika disetujui, event Anda akan langsung dipublikasikan."
+    answer: "Setelah Anda memilih paket dan mengisi formulir, tim kami akan meninjau pengajuan Anda dalam paling lama 2x24 jam. Jika disetujui, event Anda akan langsung dipublikasikan."
   },
   {
     question: "Apa saja metode pembayaran yang diterima?",
-    answer: "Kami menerima pembayaran melalui transfer bank, kartu kredit, dan e-wallet (GoPay, OVO, Dana) melalui payment gateway yang aman."
+    answer: "Kami menerima pembayaran melalui transfer bank, dan e-wallet."
   },
   {
     question: "Berapa lama event saya akan ditampilkan di platform?",
-    answer: "Durasi penayangan event tergantung pada paket yang Anda pilih. Paket gratis biasanya ditampilkan hingga tanggal event berakhir, sementara paket berbayar mendapatkan durasi promosi yang lebih lama."
+    answer: "Durasi penayangan event akan ditampilkan hingga tanggal event berakhir."
   },
   {
     question: "Bisakah saya mengubah detail event setelah dipublikasikan?",
-    answer: "Tentu. Anda dapat mengubah detail event Anda kapan saja melalui dashboard partnership Anda. Perubahan akan langsung terlihat setelah disimpan."
+    answer: "Tentu. Anda dapat mengubah detail event Anda kapan saja dengan menghubungi kami melalui DM Instagram."
+  },
+  {
+    question: "Apa yang harus saya lakukan jika saya sudah melakukan pembayaran tetapi event saya belum dipublikasikan?",
+    answer: "Anda dapat menghubungi kami melalui DM Instagram dan melakukan konfirmasi melalui admin kami."
   }
 ];
 
