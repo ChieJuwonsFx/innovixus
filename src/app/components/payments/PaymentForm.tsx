@@ -40,7 +40,6 @@ export default function PaymentForm({ partnership }: PaymentFormProps) {
       
       setSubmitStatus('success');
       
-      // Redirect after 2 seconds
       setTimeout(() => {
         window.location.href = '/partnerships/my-submissions';
       }, 2000);
@@ -57,7 +56,6 @@ export default function PaymentForm({ partnership }: PaymentFormProps) {
   return (
     <div className="space-y-6">
       
-      {/* Header */}
       <div className="border-b border-slate-200 dark:border-slate-700 pb-6">
         <div className="flex items-start gap-3">
           <div className="flex-shrink-0 w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
@@ -92,7 +90,7 @@ export default function PaymentForm({ partnership }: PaymentFormProps) {
             <CheckCircle2 className="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" />
             <div className="flex-1">
               <p className="text-sm font-semibold text-green-800 dark:text-green-300">
-                Bukti pembayaran berhasil dikirim!
+                Bukti pembayaran berhasil dikirim! Silahkan konfirmasi ke admin kami melalui DM Instagram.
               </p>
               <p className="text-xs text-green-700 dark:text-green-400 mt-1">
                 Anda akan diarahkan ke halaman pengajuan...
