@@ -13,7 +13,7 @@ interface EventDetailsSectionProps {
     location?: string | null;
     is_free?: boolean | null;
   };
-  organizers: Pick<Organizer, 'id' | 'name'>[];
+  organizers: Pick<Organizer, 'id' | 'instagram'>[];
   formInputStyle: string;
 }
 
@@ -25,10 +25,10 @@ export default function EventDetailsSection({ event, organizers, formInputStyle 
   const searchInputRef = useRef<HTMLInputElement>(null);
 
   const filteredOrganizers = organizers.filter(org =>
-    org.name.toLowerCase().includes(searchQuery.toLowerCase())
+    org.instagram.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const selectedOrgName = organizers.find(org => org.id === selectedOrganizer)?.name || 'Pilih Penyelenggara';
+  const selectedOrgName = organizers.find(org => org.id === selectedOrganizer)?.instagram || 'Pilih Penyelenggara';
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -116,7 +116,7 @@ export default function EventDetailsSection({ event, organizers, formInputStyle 
                             : 'text-gray-900 dark:text-gray-100'
                         }`}
                       >
-                        <span className="truncate">{org.name}</span>
+                        <span className="truncate">{org.instagram}</span>
                         {selectedOrganizer === org.id && (
                           <Check className="w-5 h-5 flex-shrink-0 ml-2" />
                         )}
