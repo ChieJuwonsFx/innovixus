@@ -15,10 +15,10 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: {
-    template: '%s | InnoVixus',
-    default: 'InnoVixus',
+    template: '%s | Kraloka',
+    default: 'Kraloka',
   },
-  description: 'Platform terdepan untuk menemukan info lomba, magang, dan lowongan kerja terbaru di dunia teknologi.',
+  description: 'Knowledge that elevates your career..',
 }
 
 export default function RootLayout({

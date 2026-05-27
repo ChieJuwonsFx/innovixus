@@ -144,15 +144,15 @@ export default function Hero({}: HeroSectionProps) {
           <div className="flex justify-center mb-5">
             <Image
               src="/logo/logo.png"
-              alt="InnoVixus Logo"
+              alt="Kraloka Logo"
               width={100}
               height={100}
               priority
             />
           </div>
 
-          <div className="text-2xl md:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400 bg-clip-text text-transparent mb-6">
-            InnoVixus
+          <div className="text-2xl md:text-4xl lg:text-5xl font-bold bg-blue-900 dark:bg-blue-500 bg-clip-text text-transparent mb-6">
+            Kraloka
           </div>
           <p className="text-lg md:text-xl text-gray-700 dark:text-gray-300 mb-8 max-w-3xl mx-auto leading-relaxed">
             Platform terdepan untuk mahasiswa dan fresh graduate dalam menemukan

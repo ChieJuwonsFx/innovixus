@@ -72,9 +72,9 @@ export default function ClientNavbar({ isMobile = false }: ClientNavbarProps) {
     >
       <div className="px-6 h-full flex items-center justify-between">
         <Link href="/" className="flex items-center gap-3" onClick={closeAllMenus}>
-          <Image src="/logo/logo.png" alt="InnoVixus Logo" width={32} height={32} className="dark:hidden" priority />
-          <Image src="/logo/logo-white.png" alt="InnoVixus Logo" width={32} height={32} className="hidden dark:block" priority />
-          <span className="hidden sm:block text-xl font-bold text-slate-800 dark:text-white">InnoVixus</span>
+          <Image src="/logo/logo.png" alt="Kraloka Logo" width={32} height={32} className="dark:hidden" priority />
+          <Image src="/logo/logo-white.png" alt="Kraloka Logo" width={32} height={32} className="hidden dark:block" priority />
+          <span className="hidden sm:block text-xl font-bold text-slate-800 dark:text-white">Kraloka</span>
         </Link>
 
         <nav className="hidden lg:flex items-center gap-8">

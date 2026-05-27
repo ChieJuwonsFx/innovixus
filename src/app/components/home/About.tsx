@@ -5,11 +5,11 @@ export default function About() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <div>
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-6">
-              Tentang InnoVixus
+              Tentang Kraloka
             </h2>
             <div className="space-y-6 text-lg text-gray-700 dark:text-gray-300 leading-relaxed">
               <p>
-                InnoVixus hadir sebagai jembatan antara potensi mahasiswa dan
+                Kraloka hadir sebagai jembatan antara potensi mahasiswa dan
                 kesempatan yang ada di industri. Kami memahami bahwa setiap
                 mahasiswa memiliki mimpi dan aspirasi yang unik.
               </p>
@@ -20,7 +20,7 @@ export default function About() {
               </p>
               <p>
                 Dengan lebih dari 10,000 pengguna aktif dan ratusan partnership
-                dengan perusahaan terkemuka, InnoVixus telah membantu ribuan
+                dengan perusahaan terkemuka, Kraloka telah membantu ribuan
                 mahasiswa menemukan jalur karir mereka.
               </p>
             </div>
@@ -55,7 +55,7 @@ export default function About() {
                     </div>
                     <div>
                       <div className="font-semibold text-gray-900 dark:text-white">
-                        InnoVixus
+                        Kraloka
                       </div>
                       <div className="text-sm text-gray-500 dark:text-gray-400">
                         Your Career Partner

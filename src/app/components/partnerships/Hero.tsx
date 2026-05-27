@@ -39,7 +39,7 @@ export function HeroSection() {
           </h1>
 
           <p className="mt-6 max-w-2xl mx-auto text-lg text-slate-600 dark:text-slate-300">
-            Publikasikan acara, kompetisi, atau lowongan Anda di InnoVixus dan
+            Publikasikan acara, kompetisi, atau lowongan Anda di Kraloka dan
             terhubung dengan ribuan talenta muda Indonesia.
           </p>
 

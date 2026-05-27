@@ -281,7 +281,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                         <Image src="/logo/logo.png" alt="Logo" width={32} height={32} className="dark:hidden" />
                         <Image src="/logo/logo-white.png" alt="Logo" width={32} height={32} className="hidden dark:block" />
                     </div>
-                    <span className="hidden sm:block text-xl font-bold text-slate-800 dark:text-white">InnoVixus</span>
+                    <span className="hidden sm:block text-xl font-bold text-slate-800 dark:text-white">Kraloka</span>
                 </Link>
             </div>
             <div className="flex items-center gap-4">

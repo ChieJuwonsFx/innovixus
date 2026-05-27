@@ -271,7 +271,7 @@ export default function AuthWrapper({
               />
             </motion.div>
             <h2 className="text-3xl font-bold text-black dark:text-white">
-              Innovixus
+              Kraloka
             </h2>
 
             <p className="text-slate-600 dark:text-slate-300 mt-4 text-md max-w-md mx-auto">
