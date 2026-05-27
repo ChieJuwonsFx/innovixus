@@ -57,7 +57,7 @@ export default function UpdatePasswordPage() {
                 <AlertTriangle size={16} />
                 Pemberitahuan
               </h3>
-              <p className="text-sm text-yellow-800 dark:text-yellow-30ou0">
+              <p className="text-sm text-yellow-800 dark:text-yellow-300">
                 Setelah berhasil, Anda akan keluar dari perangkat lain.
               </p>
             </div>
