@@ -12,7 +12,6 @@ import {
   useSensor,
   useSensors,
   DragEndEvent,
-  DragStartEvent,
 } from '@dnd-kit/core';
 import {
   arrayMove,
@@ -195,6 +194,7 @@ export default function ImageUploader({
 }: ImageUploaderProps) {
   const fileInputId = useId();
   const dragCounter = useRef(0);
+  const newFilesRef = useRef<FilePreview[]>([]);
   const [isDragOver, setIsDragOver] = useState(false);
   const [isDraggingItem, setIsDraggingItem] = useState(false);
   const [selectedImageKey, setSelectedImageKey] = useState<string | null>(null);
@@ -207,6 +207,10 @@ export default function ImageUploader({
   );
 
   const [newFiles, setNewFiles] = useState<FilePreview[]>([]);
+
+  useEffect(() => {
+    newFilesRef.current = newFiles;
+  }, [newFiles]);
 
   const combinedPreviews: CombinedPreview[] = [
     ...existingPreviews.map(p => ({ ...p, isExisting: true })),
@@ -230,7 +234,7 @@ export default function ImageUploader({
     })
   );
 
-  const handleDragStart = (event: DragStartEvent) => {
+  const handleDragStart = () => {
     setIsDraggingItem(true);
   };
 
@@ -316,7 +320,7 @@ export default function ImageUploader({
   }, [existingPreviews, onExistingImagesChange]);
 
   useEffect(() => {
-    return () => newFiles.forEach(f => URL.revokeObjectURL(f.previewUrl));
+    return () => newFilesRef.current.forEach(f => URL.revokeObjectURL(f.previewUrl));
   }, []);
 
   const selectedImage = selectedImageKey 
