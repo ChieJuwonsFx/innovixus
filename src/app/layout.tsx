@@ -19,6 +19,11 @@ export const metadata: Metadata = {
     default: 'Kraloka',
   },
   description: 'Knowledge that elevates your career..',
+  icons: {
+    icon: '/logo/logo.png',
+    shortcut: '/logo/logo.png',
+    apple: '/logo/logo.png',
+  },
 }
 
 export default function RootLayout({

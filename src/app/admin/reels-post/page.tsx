@@ -196,9 +196,15 @@ export default function ReelsPostPage() {
       return;
     }
 
+    const timestamp = new Date()
+      .toISOString()
+      .replace(/[:.]/g, '-')
+      .replace('T', '_')
+      .replace('Z', '');
+
     const link = document.createElement('a');
     link.href = previewUrl;
-    link.download = 'reels-post.png';
+    link.download = `reels-post-${timestamp}.png`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);

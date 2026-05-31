@@ -321,7 +321,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                   <NavItem href="/admin/packages" icon={Package} onLinkClick={closeSidebarOnMobile}>Manajemen Packages</NavItem>
                   <NavItem href="/admin/fields" icon={Library} onLinkClick={closeSidebarOnMobile}>Bidang</NavItem>
                   <NavItem href="/admin/levels" icon={Shapes} onLinkClick={closeSidebarOnMobile}>Level</NavItem>
-                  <div className="pt-4 mt-4 border-t border-slate-200 dark:border-slate-800">
+                  <div className="pt-6 mt-6 border-t border-slate-200 dark:border-slate-800">
                     <p className="px-3 mb-2 text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-400 dark:text-slate-500">
                       Tools
                     </p>
