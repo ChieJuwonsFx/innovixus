@@ -29,7 +29,7 @@ export default function DeleteButton({ action, itemLabel }: { action: () => Prom
       <button
         type="button"
         onClick={openModal}
-        className="flex items-center gap-2 w-full text-left px-3 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 transition-colors"
+        className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-slate-600 transition-colors hover:bg-red-50 hover:text-red-600 dark:text-slate-400 dark:hover:bg-red-900/20 dark:hover:text-red-400"
       >
         <Trash2 className="w-4 h-4" />
         Hapus
@@ -60,10 +60,10 @@ export default function DeleteButton({ action, itemLabel }: { action: () => Prom
                 leaveFrom="opacity-100 scale-100"
                 leaveTo="opacity-0 scale-95"
               >
-                <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white dark:bg-slate-800 p-6 text-left align-middle shadow-xl transition-all">
+                <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-3xl border border-slate-200 bg-white p-6 text-left align-middle transition-all dark:border-slate-800 dark:bg-slate-900">
                   <Dialog.Title
                     as="h3"
-                    className="text-lg font-medium leading-6 text-slate-900 dark:text-slate-100 flex items-center gap-2"
+                    className="flex items-center gap-2 text-lg font-semibold leading-6 text-slate-900 dark:text-slate-100"
                   >
                     <AlertTriangle className="text-red-500" />
                     Konfirmasi Penghapusan
@@ -77,7 +77,7 @@ export default function DeleteButton({ action, itemLabel }: { action: () => Prom
                   <div className="mt-6 flex justify-end gap-3">
                     <button
                       type="button"
-                      className="inline-flex justify-center rounded-md border border-transparent bg-slate-100 dark:bg-slate-700 px-4 py-2 text-sm font-medium text-slate-900 dark:text-slate-100 hover:bg-slate-200 dark:hover:bg-slate-600 focus:outline-none"
+                      className="inline-flex justify-center rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 focus:outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
                       onClick={closeModal}
                     >
                       Batal
@@ -85,7 +85,7 @@ export default function DeleteButton({ action, itemLabel }: { action: () => Prom
                     <button
                       type="button"
                       disabled={isLoading}
-                      className="inline-flex justify-center items-center rounded-md border border-transparent bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 focus:outline-none disabled:bg-red-400"
+                      className="inline-flex items-center justify-center rounded-full border border-transparent bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 focus:outline-none disabled:bg-red-400"
                       onClick={handleDelete}
                     >
                       {isLoading ? <Loader2 className="animate-spin w-4 h-4 mr-2" /> : null}

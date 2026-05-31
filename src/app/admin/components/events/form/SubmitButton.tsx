@@ -19,18 +19,15 @@ export default function SubmitButton({ label, loadingLabel, disabled = false }: 
       type="submit"
       disabled={isDisabled}
       className={`
-        inline-flex items-center justify-center px-6 py-3 
-        border border-transparent text-base font-medium rounded-lg 
-        text-white bg-blue-600 hover:bg-blue-700 
-        focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500
-        transition-all duration-200 shadow-lg hover:shadow-xl
-        disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-blue-600
-        min-w-[200px]
+        inline-flex min-w-[200px] items-center justify-center rounded-full border border-slate-900 bg-slate-900 px-6 py-3 text-base font-medium text-white transition-colors duration-200
+        hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-[#003366] focus:ring-offset-2
+        disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-slate-900
+        dark:border-white dark:bg-white dark:text-slate-950 dark:hover:bg-slate-200
       `}
     >
       {pending ? (
         <>
-          <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
           {loadingLabel}
         </>
       ) : (

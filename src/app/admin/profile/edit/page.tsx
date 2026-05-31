@@ -9,7 +9,7 @@ const SubmitButton = ({ children }: { children: React.ReactNode }) => {
     return (
         <button 
             type="submit" 
-            className="w-full flex justify-center items-center space-x-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold py-3 px-4 rounded-lg transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-blue-500/50 shadow-lg hover:shadow-xl"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-slate-900 bg-slate-900 px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-[#003366] focus:ring-offset-2 dark:border-white dark:bg-white dark:text-slate-950 dark:hover:bg-slate-200"
         >
             <Save className="w-5 h-5" />
             <span>{children}</span>
@@ -67,28 +67,28 @@ export default async function AdminEditProfilePage() {
     const profile = profileData as Profile;
 
     return (
-        <div className="min-h-screen py-8 px-4">
-            <div className="max-w-3xl mx-auto bg-white dark:bg-gray-800 rounded-2xl shadow-2xl overflow-hidden p-8">
-                <div className="border-b border-gray-200 dark:border-gray-700 pb-4 mb-6 flex justify-between items-center">
+        <div className="min-h-screen px-4 py-8">
+            <div className="mx-auto max-w-3xl overflow-hidden rounded-3xl border border-slate-200 bg-white p-8 dark:border-slate-800 dark:bg-slate-900">
+                <div className="mb-6 flex items-center justify-between border-b border-slate-200 pb-4 dark:border-slate-800">
                     <div>
-                        <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white flex items-center gap-2">
-                            <Shield className="w-8 h-8 text-blue-600" />
+                        <h2 className="flex items-center gap-2 text-3xl font-semibold tracking-tight text-slate-900 dark:text-white">
+                            <Shield className="w-7 h-7 text-[#003366]" />
                             Edit Admin Profile
                         </h2>
-                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                             Update your administrator account information
                         </p>
                     </div>
                     <Link 
                         href="/admin/profile"
-                        className="flex items-center gap-1 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors font-medium px-4 py-2 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                        className="flex items-center gap-1 rounded-full border border-slate-200 px-4 py-2 font-medium text-slate-600 transition-colors hover:bg-slate-50 hover:text-[#003366] dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
                     >
                         <ChevronLeft className="w-5 h-5" />
                         <span>Back</span>
                     </Link>
                 </div>
                 
-                <div className="flex flex-col items-center mb-8 p-6 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-xl">
+                <div className="mb-8 flex flex-col items-center rounded-2xl border border-slate-200 bg-slate-50 p-6 dark:border-slate-800 dark:bg-slate-950">
                     <div className="relative mb-4">
                         {profile.avatar ? (
                             <Image
@@ -96,25 +96,25 @@ export default async function AdminEditProfilePage() {
                                 alt="Admin Avatar"
                                 width={128}
                                 height={128}
-                                className="w-32 h-32 rounded-full object-cover border-4 border-blue-500 shadow-xl"
+                                className="h-32 w-32 rounded-full border-4 border-white object-cover shadow-sm dark:border-slate-900"
                             />
                         ) : (
-                            <div className="w-32 h-32 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center border-4 border-blue-500 shadow-xl">
-                                <span className="text-5xl font-bold text-white">
+                            <div className="flex h-32 w-32 items-center justify-center rounded-full border-4 border-white bg-[#003366] shadow-sm dark:border-slate-900">
+                                <span className="text-5xl font-semibold text-white">
                                     {profile.name?.charAt(0).toUpperCase() || profile.email?.charAt(0).toUpperCase()}
                                 </span>
                             </div>
                         )}
-                        <div className="absolute -bottom-2 -right-2 w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center border-4 border-white dark:border-gray-800 shadow-lg">
+                        <div className="absolute -bottom-2 -right-2 flex h-10 w-10 items-center justify-center rounded-full border-4 border-white bg-[#003366] shadow-sm dark:border-slate-900">
                             <Shield className="w-5 h-5 text-white" />
                         </div>
                     </div>
                     <div className="text-center">
-                        <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 flex items-center gap-1 justify-center">
+                        <p className="flex items-center justify-center gap-1 text-sm font-medium text-[#003366] dark:text-white">
                             <Shield className="w-4 h-4" />
                             Administrator
                         </p>
-                        <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                        <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
                             {profile.email}
                         </p>
                     </div>
@@ -131,10 +131,10 @@ export default async function AdminEditProfilePage() {
                             name="name"
                             defaultValue={profile.name}
                             required
-                            className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-all"
+                            className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-slate-900 shadow-sm outline-none transition-colors focus:border-[#003366] focus:ring-2 focus:ring-[#003366]/20 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
                             placeholder="Enter your full name"
                         />
-                        <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                        <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
                             This name will be displayed across the admin panel
                         </p>
                     </div>
@@ -146,8 +146,8 @@ export default async function AdminEditProfilePage() {
                     </div>
                 </form>
 
-                <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg">
-                    <p className="text-sm text-blue-800 dark:text-blue-300">
+                <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-950">
+                    <p className="text-sm text-slate-600 dark:text-slate-400">
                         <strong>Note:</strong> Email and role cannot be changed. Contact system administrator if you need to modify these fields.
                     </p>
                 </div>

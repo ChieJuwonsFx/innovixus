@@ -17,12 +17,12 @@ export default function AdminPageHeader({
   icon: Icon,
 }: AdminPageHeaderProps) {
   return (
-    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-6 py-6">
+    <div className="flex flex-col gap-4 border-b border-slate-200 pb-5 pt-2 sm:flex-row sm:items-center sm:justify-between dark:border-slate-800">
       <div className="text-center sm:text-left">
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
+        <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-slate-900 dark:text-white">
           {title}
         </h1>
-        <p className="text-gray-600 dark:text-gray-400 mt-2 text-sm sm:text-base">
+        <p className="mt-2 text-sm sm:text-base text-slate-500 dark:text-slate-400">
           {description}
         </p>
       </div>
@@ -30,7 +30,7 @@ export default function AdminPageHeader({
       {buttonHref && buttonLabel && (
         <Link
           href={buttonHref}
-          className="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm sm:text-base bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors w-full sm:w-auto"
+          className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-slate-900 bg-slate-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-[#003366] focus:ring-offset-2 sm:w-auto dark:border-white dark:bg-white dark:text-slate-950 dark:hover:bg-slate-200"
         >
           {Icon && <Icon className="w-5 h-5" />}
           <span>{buttonLabel}</span>

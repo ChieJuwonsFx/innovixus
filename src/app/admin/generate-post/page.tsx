@@ -9,6 +9,7 @@ import PostPreview from '../components/generate-post/PostPreview';
 import TemplateSelector from '../components/generate-post/TemplateSelector';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiDownload, FiLoader, FiAlertTriangle } from 'react-icons/fi';
+import { Sparkles, LayoutGrid, Image as ImageIcon, Wand2 } from 'lucide-react';
 
 const DEFAULT_CATEGORIES: PostCategory[] = [
   'Info Lomba',
@@ -168,40 +169,76 @@ export default function GeneratePostPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 dark:bg-slate-950 p-4 md:p-6">
-      <div className="max-w-8xl mx-auto">
-        <motion.h1 
-          initial={{ opacity: 0, y: -20 }}
+    <div className="min-h-screen px-4 py-5 dark:bg-slate-950 dark:bg-none md:px-6 md:py-6">
+      <div className="mx-auto max-w-7xl">
+        <motion.div
+          initial={{ opacity: 0, y: -16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
-          className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-6 md:mb-8"
+          className="mb-6 rounded-3xl border border-slate-200 bg-white/90 p-5 shadow-sm backdrop-blur dark:border-slate-800 dark:bg-slate-900/90 md:p-6"
         >
-          Generate Instagram Post
-        </motion.h1>
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+            <div className="max-w-2xl space-y-3">
+              <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.24em] text-slate-500 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-400">
+                <Sparkles className="h-3.5 w-3.5 text-[#003366]" />
+                Generate Post
+              </div>
+              <h1 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-white md:text-3xl">
+                Generate Instagram Post
+              </h1>
+              <p className="max-w-xl text-sm leading-6 text-slate-500 dark:text-slate-400">
+                Buat poster feed yang rapi dari data event, pilih template, susun urutan gambar, lalu unduh hasilnya.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:w-auto">
+              {[
+                { icon: LayoutGrid, label: 'Template' },
+                { icon: ImageIcon, label: 'Images' },
+                { icon: Sparkles, label: 'Ready Export' }
+              ].map(({ icon: Icon, label }) => (
+                <div key={label} className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-medium text-slate-600 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300">
+                  <Icon className="h-4 w-4 text-[#003366]" />
+                  {label}
+                </div>
+              ))}
+            </div>
+          </div>
+        </motion.div>
         
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:items-start lg:gap-8">
           <motion.div 
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.3, delay: 0.1 }}
-            className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 md:p-6 lg:sticky lg:top-6 h-fit border border-gray-200 dark:border-gray-700"
+            className="lg:sticky lg:top-24 h-fit rounded-3xl border border-slate-200 bg-white/95 p-4 shadow-sm backdrop-blur dark:border-slate-800 dark:bg-slate-900/95 md:p-6"
           >
-             <h2 className="text-lg md:text-xl font-semibold text-gray-900 dark:text-white mb-3 md:mb-4">
-              Post Details
-            </h2>
-            <div className="space-y-4">
+             <div className="mb-5 flex items-center justify-between gap-3 border-b border-slate-200 pb-4 dark:border-slate-800">
+               <div>
+                 <h2 className="text-lg font-semibold tracking-tight text-slate-900 dark:text-white md:text-xl">
+                   Post Details
+                 </h2>
+                 <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                   Isi data inti, pilih template, lalu generate.
+                 </p>
+               </div>
+               <div className="hidden rounded-full border border-slate-200 px-3 py-1 text-xs font-medium text-slate-500 dark:border-slate-800 dark:text-slate-400 sm:block">
+                 1080 × 1350
+               </div>
+             </div>
+            <div className="space-y-5">
               <motion.div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Title <span className="text-gray-500 text-xs">(Use Shift+Enter)</span></label>
-                <textarea name="title" value={postData.title} onChange={handleInputChange} className="w-full px-3 py-2 border text-gray-900 dark:text-white border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 placeholder:text-gray-400 dark:placeholder:text-gray-500" rows={3} placeholder="Example: Lomba&#x0a;UI/UX Design" required />
+                <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">Title <span className="text-slate-500 text-xs">(Shift+Enter for line break)</span></label>
+                <textarea name="title" value={postData.title} onChange={handleInputChange} className="min-h-[112px] w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 shadow-sm outline-none transition-colors placeholder:text-slate-400 focus:border-[#003366] focus:ring-2 focus:ring-[#003366]/15 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-500" rows={4} placeholder="Example: Lomba UI/UX Design" required />
               </motion.div>
               <motion.div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Category</label>
-                <div className="flex flex-wrap gap-2 mb-2">
+                <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">Category</label>
+                <div className="mb-3 flex flex-wrap gap-2">
                   {DEFAULT_CATEGORIES.map((cat, index) => (
-                    <motion.button key={cat} type="button" onClick={() => handleCategoryChange(cat)} className={`px-3 py-1 rounded-full text-xs md:text-sm transition-colors ${postData.category === cat && !customCategory ? 'bg-blue-600 text-white font-semibold' : 'bg-gray-200 text-gray-800 dark:bg-gray-600 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-500'}`} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.05 }}>{cat}</motion.button>
+                    <motion.button key={cat} type="button" onClick={() => handleCategoryChange(cat)} className={`rounded-full px-3 py-1.5 text-xs md:text-sm transition-colors ${postData.category === cat && !customCategory ? 'bg-[#003366] text-white shadow-sm' : 'border border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-300 dark:hover:bg-slate-800'}`} whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.05 }}>{cat}</motion.button>
                   ))}
                 </div>
-                <input type="text" value={customCategory} onChange={handleCustomCategoryChange} className="w-full px-3 py-2 border text-gray-900 dark:text-white border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 placeholder:text-gray-400 dark:placeholder:text-gray-500" placeholder="Or enter a custom category" />
+                <input type="text" value={customCategory} onChange={handleCustomCategoryChange} className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 shadow-sm outline-none transition-colors placeholder:text-slate-400 focus:border-[#003366] focus:ring-2 focus:ring-[#003366]/15 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-500" placeholder="Or enter a custom category" />
               </motion.div>
               <TemplateSelector selectedTemplate={postData.template} onTemplateChange={handleTemplateChange} />
               
@@ -209,7 +246,7 @@ export default function GeneratePostPage() {
                 <motion.div 
                   initial={{ opacity: 0 }} 
                   animate={{ opacity: 1 }}
-                  className="flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400 p-2 bg-blue-100 dark:bg-blue-900/20 rounded-lg"
+                  className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-[#003366] dark:border-slate-800 dark:bg-slate-950"
                 >
                   <FiLoader className="animate-spin" />
                   <span>Loading images from event...</span>
@@ -218,8 +255,8 @@ export default function GeneratePostPage() {
               
               <ImageUploader images={postData.images} onImagesChange={handleImagesChange} onRemoveImage={handleRemoveImage} onReorder={handleReorder} />
               
-              <AnimatePresence>{error && (<motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="flex items-center gap-2 text-sm text-red-600 dark:text-red-400 p-2 bg-red-100 dark:bg-red-900/20 rounded-lg"><FiAlertTriangle /><span>{error}</span></motion.div>)}</AnimatePresence>
-              <motion.button onClick={handleGenerate} disabled={isGenerating || isLoadingImages} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 px-4 rounded-lg shadow-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-base" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+              <AnimatePresence>{error && (<motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="flex items-center gap-2 rounded-2xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600 dark:border-red-900/40 dark:bg-red-900/20 dark:text-red-300"><FiAlertTriangle /><span>{error}</span></motion.div>)}</AnimatePresence>
+              <motion.button onClick={handleGenerate} disabled={isGenerating || isLoadingImages} className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#003366] px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-[#00284d] disabled:cursor-not-allowed disabled:opacity-50" whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}>
                 {isGenerating ? (<><FiLoader className="animate-spin" /> Generating...</>) : (<><FiDownload /> Generate Post</>)}
               </motion.button>
             </div>
@@ -229,15 +266,20 @@ export default function GeneratePostPage() {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.3, delay: 0.2 }}
-            className="flex flex-col bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden"
+            className="flex min-h-[680px] flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white/95 shadow-sm backdrop-blur dark:border-slate-800 dark:bg-slate-900/95"
           >
-            <div className="p-4 md:p-6 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center flex-shrink-0">
-              <h2 className="text-lg md:text-xl font-semibold text-gray-900 dark:text-white">
-                Preview
-              </h2>
+            <div className="flex flex-shrink-0 items-center justify-between border-b border-slate-200 p-4 md:p-6 dark:border-slate-800">
+              <div>
+                <h2 className="text-lg font-semibold tracking-tight text-slate-900 dark:text-white md:text-xl">
+                  Preview
+                </h2>
+                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                  Hasil export akan tampil di sini setelah generate.
+                </p>
+              </div>
               <AnimatePresence>
                 {generatedPosts.length > 0 && (
-                  <motion.button onClick={handleDownloadAll} className="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg shadow-md transition-colors flex items-center gap-2 text-sm" initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }} whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
+                  <motion.button onClick={handleDownloadAll} className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-medium text-emerald-700 transition-colors hover:bg-emerald-100 dark:border-emerald-900/40 dark:bg-emerald-900/20 dark:text-emerald-300" initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                     <FiDownload /> Download All
                   </motion.button>
                 )}
@@ -247,7 +289,7 @@ export default function GeneratePostPage() {
             <div className="flex-1 overflow-y-auto p-4 md:p-6">
               <AnimatePresence mode="wait">
                 {isGenerating ? (
-                  <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col items-center justify-center h-full min-h-[400px] text-gray-500 dark:text-gray-400"><FiLoader className="animate-spin text-4xl mb-4" /><p>Generating your posts...</p></motion.div>
+                  <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex min-h-[420px] flex-col items-center justify-center text-slate-500 dark:text-slate-400"><FiLoader className="mb-4 animate-spin text-4xl text-[#003366]" /><p>Generating your posts...</p></motion.div>
                 ) : generatedPosts.length > 0 ? (
                   <motion.div key="posts" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-4 md:space-y-6">
                     {generatedPosts.map((url, index) => (
@@ -257,8 +299,13 @@ export default function GeneratePostPage() {
                     ))}
                   </motion.div>
                 ) : (
-                  <motion.div key="placeholder" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex items-center justify-center h-full min-h-[400px] bg-gray-100 dark:bg-gray-700/50 rounded-lg">
-                    <p className="text-gray-500 dark:text-gray-400 text-center px-4">{postData.images.length > 0 ? 'Click "Generate Post" to see your preview' : 'Fill in the details and upload images to begin'}</p>
+                  <motion.div key="placeholder" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex min-h-[420px] items-center justify-center rounded-3xl border border-dashed border-slate-200 bg-slate-50/80 px-6 dark:border-slate-800 dark:bg-slate-950/60">
+                    <div className="max-w-sm text-center">
+                      <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-white text-[#003366] shadow-sm dark:bg-slate-900">
+                        <ImageIcon className="h-5 w-5" />
+                      </div>
+                      <p className="text-sm leading-6 text-slate-500 dark:text-slate-400">{postData.images.length > 0 ? 'Click "Generate Post" to preview the result.' : 'Fill in the details and upload images to begin.'}</p>
+                    </div>
                   </motion.div>
                 )}
               </AnimatePresence>

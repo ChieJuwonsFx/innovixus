@@ -8,25 +8,25 @@ interface PostPreviewProps {
 
 export default function PostPreview({ imageUrl, pageNumber, onDownload }: PostPreviewProps) {
   return (
-    <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
-      <div className="bg-gray-100 dark:bg-gray-700 px-4 py-2 flex justify-between items-center">
-        <span className="font-medium text-gray-700 dark:text-gray-300">
+    <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+      <div className="flex items-center justify-between border-b border-slate-200 bg-slate-50 px-4 py-3 dark:border-slate-800 dark:bg-slate-950">
+        <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
           Page {pageNumber} {pageNumber === 1 && '(Cover)'}
         </span>
         <button
           onClick={onDownload}
-          className="text-sm bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded transition-colors"
+          className="rounded-full border border-slate-900 bg-slate-900 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-slate-800 dark:border-white dark:bg-white dark:text-slate-950 dark:hover:bg-slate-200"
         >
           Download
         </button>
       </div>
-      <div className="p-2 bg-white dark:bg-gray-800">
+      <div className="bg-white p-3 dark:bg-slate-900">
         <div className="relative w-full aspect-square">
           <Image
             src={imageUrl}
             alt={`Generated post page ${pageNumber}`}
             fill
-            className="rounded border border-gray-200 dark:border-gray-700 object-contain"
+            className="rounded-2xl border border-slate-200 object-contain dark:border-slate-700"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
         </div>

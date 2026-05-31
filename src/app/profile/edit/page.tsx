@@ -9,7 +9,7 @@ const SubmitButton = ({ children }: { children: React.ReactNode }) => {
     return (
         <button 
             type="submit" 
-            className="w-full flex justify-center items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition-colors duration-300 focus:outline-none focus:ring-4 focus:ring-blue-500/50"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-slate-900 bg-slate-900 px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-[#003366] focus:ring-offset-2 dark:border-white dark:bg-white dark:text-slate-950 dark:hover:bg-slate-200"
         >
             <Save className="w-5 h-5" />
             <span>{children}</span>
@@ -67,27 +67,27 @@ export default async function EditProfilePage() {
     const profile = profileData as Profile;
 
     return (
-        <div className="min-h-screen pt-28 pb-12 px-4">
-            <div className="max-w-3xl mx-auto bg-white dark:bg-gray-800 rounded-2xl shadow-2xl overflow-hidden p-8">
-                <div className="border-b border-gray-200 dark:border-gray-700 pb-4 mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div className="min-h-screen px-4 pb-12 pt-28">
+            <div className="mx-auto max-w-3xl overflow-hidden rounded-3xl border border-slate-200 bg-white p-8 dark:border-slate-800 dark:bg-slate-900">
+                <div className="mb-6 flex flex-col gap-4 border-b border-slate-200 pb-4 sm:flex-row sm:items-center sm:justify-between dark:border-slate-800">
                     <div>
-                        <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white">
+                        <h2 className="text-3xl font-semibold tracking-tight text-slate-900 dark:text-white">
                             Edit Profile
                         </h2>
-                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                             Update your account information
                         </p>
                     </div>
                     <Link 
                         href="/profile"
-                        className="flex items-center gap-1 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors font-medium px-4 py-2 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                        className="flex items-center gap-1 rounded-full border border-slate-200 px-4 py-2 font-medium text-slate-600 transition-colors hover:bg-slate-50 hover:text-[#003366] dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
                     >
                         <ChevronLeft className="w-5 h-5" />
                         <span>Back to Profile</span>
                     </Link>
                 </div>
                 
-                <div className="flex flex-col items-center mb-8 p-6 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
+                <div className="mb-8 flex flex-col items-center rounded-2xl border border-slate-200 bg-slate-50 p-6 dark:border-slate-800 dark:bg-slate-950">
                     <div className="relative mb-4">
                         {profile.avatar ? (
                             <Image
@@ -95,20 +95,20 @@ export default async function EditProfilePage() {
                                 alt="User Avatar"
                                 width={128}
                                 height={128}
-                                className="w-32 h-32 rounded-full object-cover border-4 border-blue-500/50 shadow-lg"
+                                className="h-32 w-32 rounded-full border-4 border-white object-cover shadow-sm dark:border-slate-900"
                             />
                         ) : (
-                            <div className="w-32 h-32 rounded-full bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center border-4 border-blue-500/50 shadow-lg">
-                                <span className="text-5xl font-bold text-blue-600 dark:text-blue-300">
+                            <div className="flex h-32 w-32 items-center justify-center rounded-full border-4 border-white bg-[#003366] shadow-sm dark:border-slate-900">
+                                <span className="text-5xl font-semibold text-white">
                                     {profile.name?.charAt(0).toUpperCase() || profile.email?.charAt(0).toUpperCase()}
                                 </span>
                             </div>
                         )}
                     </div>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 text-center">
+                    <p className="text-sm text-slate-600 dark:text-slate-400 text-center">
                         {profile.email}
                     </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                    <p className="mt-1 text-xs text-slate-500 dark:text-slate-500">
                         {profile.role.charAt(0).toUpperCase() + profile.role.slice(1)}
                     </p>
                 </div>
@@ -124,10 +124,10 @@ export default async function EditProfilePage() {
                             name="name"
                             defaultValue={profile.name}
                             required
-                            className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-all"
+                            className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-slate-900 shadow-sm outline-none transition-colors focus:border-[#003366] focus:ring-2 focus:ring-[#003366]/20 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
                             placeholder="Enter your full name"
                         />
-                        <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                        <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
                             This is how your name will appear on the platform
                         </p>
                     </div>
@@ -139,8 +139,8 @@ export default async function EditProfilePage() {
                     </div>
                 </form>
 
-                <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg">
-                    <p className="text-sm text-blue-800 dark:text-blue-300">
+                <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-950">
+                    <p className="text-sm text-slate-600 dark:text-slate-400">
                         <strong>Note:</strong> Email address cannot be changed. Please contact support if you need assistance.
                     </p>
                 </div>

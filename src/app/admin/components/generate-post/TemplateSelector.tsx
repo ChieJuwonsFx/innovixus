@@ -11,34 +11,48 @@ export default function TemplateSelector({
 }: TemplateSelectorProps) {
   return (
     <div>
-      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+      <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">
         Template
       </label>
-      <div className="flex gap-4">
+      <div className="grid gap-3 sm:grid-cols-2">
         <button
           type="button"
           onClick={() => onTemplateChange('blue')}
-          className={`flex-1 p-4 rounded-lg border-2 transition-colors ${
+          className={`rounded-2xl border p-4 text-left transition-colors ${
             selectedTemplate === 'blue'
-              ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20'
-              : 'border-gray-300 dark:border-gray-600 hover:border-blue-500'
+              ? 'border-[#003366] bg-slate-50 shadow-sm dark:bg-slate-950'
+              : 'border-slate-200 bg-white hover:border-slate-300 dark:border-slate-700 dark:bg-slate-950 dark:hover:border-slate-600'
           }`}
         >
-          <div className="h-8 rounded bg-[#100C56] mb-2"></div>
-          <div className="text-sm text-center text-gray-600 dark:text-white font-medium">Blue Theme</div>
+          <div className="mb-3 flex items-center justify-between">
+            <div>
+              <div className="text-sm font-medium text-slate-900 dark:text-white">Blue Theme</div>
+              <div className="text-xs text-slate-500 dark:text-slate-400">White badge, blue canvas</div>
+            </div>
+            <div className="h-3 w-3 rounded-full bg-[#003366]"></div>
+          </div>
+          <div className="h-10 rounded-2xl bg-[#003366] p-3">
+          </div>
         </button>
         
         <button
           type="button"
           onClick={() => onTemplateChange('white')}
-          className={`flex-1 p-4 rounded-lg border-2 transition-colors ${
+          className={`rounded-2xl border p-4 text-left transition-colors ${
             selectedTemplate === 'white'
-              ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20'
-              : 'border-gray-300 dark:border-gray-600 hover:border-blue-500'
+              ? 'border-[#003366] bg-slate-50 shadow-sm dark:bg-slate-950'
+              : 'border-slate-200 bg-white hover:border-slate-300 dark:border-slate-700 dark:bg-slate-950 dark:hover:border-slate-600'
           }`}
         >
-          <div className="h-8 rounded bg-white border border-gray-300 mb-2"></div>
-          <div className="text-sm text-center text-gray-600 dark:text-white font-medium">White Theme</div>
+          <div className="mb-3 flex items-center justify-between">
+            <div>
+              <div className="text-sm font-medium text-slate-900 dark:text-white">White Theme</div>
+              <div className="text-xs text-slate-500 dark:text-slate-400">Blue badge, white canvas</div>
+            </div>
+            <div className="h-3 w-3 rounded-full border border-[#003366] bg-white"></div>
+          </div>
+          <div className="h-10 rounded-2xl border border-slate-200 bg-white p-3 dark:border-slate-700 dark:bg-slate-900">
+          </div>
         </button>
       </div>
     </div>

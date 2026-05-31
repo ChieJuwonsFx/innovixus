@@ -42,18 +42,18 @@ function SortableImage({ file, index, onRemove, isMain }: {
     <div
       ref={setNodeRef}
       style={style}
-      className={`flex items-center p-2 rounded-md mb-2 ${
+      className={`mb-2 flex items-center rounded-2xl border p-2.5 transition-colors ${
         isMain 
-          ? 'border-2 border-blue-500 bg-blue-50 dark:bg-blue-900/20' 
-          : 'border border-gray-200 dark:border-gray-700'
-      } ${isDragging ? 'shadow-lg' : ''}`}
+          ? 'border-[#003366] bg-slate-50 dark:bg-slate-950' 
+          : 'border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900'
+      } ${isDragging ? 'shadow-sm' : ''}`}
     >
       <div 
-        className="p-1 mr-2 cursor-grab hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
+        className="mr-2 cursor-grab rounded-lg p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800"
         {...attributes}
         {...listeners}
       >
-        <GripVertical className="h-4 w-4 text-gray-500" />
+        <GripVertical className="h-4 w-4 text-slate-400" />
       </div>
       
       {preview && (
@@ -68,9 +68,9 @@ function SortableImage({ file, index, onRemove, isMain }: {
         </div>
       )}
       
-      <div className="flex-grow truncate text-sm text-gray-700 dark:text-gray-300">
+      <div className="flex-grow truncate text-sm text-slate-700 dark:text-slate-300">
         {isMain && (
-          <span className="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-xs px-2 py-1 rounded mr-2">
+          <span className="mr-2 rounded-full bg-[#003366] px-2 py-1 text-xs text-white">
             Main
           </span>
         )}
@@ -79,7 +79,7 @@ function SortableImage({ file, index, onRemove, isMain }: {
       
       <button
         onClick={() => onRemove(index)}
-        className="p-1 text-red-500 hover:text-red-700 dark:hover:text-red-400 ml-2"
+        className="ml-2 rounded-lg p-1 text-red-500 transition-colors hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-900/20 dark:hover:text-red-300"
         title="Remove"
       >
         <X className="h-5 w-5" />
@@ -120,20 +120,20 @@ export default function ImageUploader({
 
   return (
     <div>
-      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+      <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">
         Upload Images (First image will be used on cover)
       </label>
       
       <div
         {...getRootProps()}
-        className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-md p-6 text-center cursor-pointer hover:border-blue-500 transition-colors mb-4"
+        className="mb-4 cursor-pointer rounded-3xl border-2 border-dashed border-slate-200 bg-slate-50/70 p-6 text-center transition-colors hover:border-[#003366] hover:bg-white dark:border-slate-700 dark:bg-slate-950/60 dark:hover:bg-slate-900"
       >
         <input {...getInputProps()} />
-        <Upload className="mx-auto h-10 w-10 text-gray-400 mb-2" />
-        <p className="text-sm text-gray-600 dark:text-gray-400">
+        <Upload className="mx-auto mb-2 h-10 w-10 text-[#003366]" />
+        <p className="text-sm text-slate-600 dark:text-slate-400">
           Drag & drop images here, or click to select
         </p>
-        <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+        <p className="mt-1 text-xs text-slate-500 dark:text-slate-500">
           Recommended: 1080x1350px (PNG or JPG)
         </p>
       </div>

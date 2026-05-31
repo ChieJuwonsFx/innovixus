@@ -3,17 +3,17 @@ export const POST_TEMPLATES = {
     main: '/templates/main-blue.png',
     content: '/templates/content-blue.png',
     textColor: '#FFFFFF', 
-    categoryBg: '#2563EB', 
-    categoryText: '#FFFFFF',
+    categoryBg: '#FFFFFF',
+    categoryText: '#003366',
     borderColor: '#FFFFFF'
   },
   white: {
     main: '/templates/main-white.png',
     content: '/templates/content-white.png',
-    textColor: '#100C56', 
-    categoryBg: '#100C56', 
+    textColor: '#003366', 
+    categoryBg: '#003366',
     categoryText: '#FFFFFF', 
-    borderColor: '#100C56'
+    borderColor: '#003366'
   }
 };
 

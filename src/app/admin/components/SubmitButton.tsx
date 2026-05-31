@@ -10,11 +10,11 @@ export default function SubmitButton({ label, loadingLabel }: { label: string, l
     <button
       type="submit"
       disabled={pending}
-      className="w-full md:w-auto px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition-colors duration-200 shadow disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center"
+      className="inline-flex w-full items-center justify-center rounded-full border border-slate-900 bg-slate-900 px-6 py-3 font-medium text-white transition-colors duration-200 hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-70 md:w-auto dark:border-white dark:bg-white dark:text-slate-950 dark:hover:bg-slate-200"
     >
       {pending ? (
         <>
-          <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
           {loadingLabel}
         </>
       ) : (

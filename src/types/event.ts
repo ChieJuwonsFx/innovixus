@@ -24,18 +24,18 @@ export const POST_TEMPLATES = {
   blue: {
     main: '/templates/blue-main.png',
     content: '/templates/blue-content.png',
-    textColor: '#1e40af',
-    categoryBg: '#dbeafe',
-    categoryText: '#1e3a8a',
-    borderColor: '#3b82f6'
+    textColor: '#FFFFFF',
+    categoryBg: '#FFFFFF',
+    categoryText: '#003366',
+    borderColor: '#FFFFFF'
   },
   white: {
     main: '/templates/white-main.png',
     content: '/templates/white-content.png',
-    textColor: '#1f2937',
-    categoryBg: '#f3f4f6',
-    categoryText: '#374151',
-    borderColor: '#9ca3af'
+    textColor: '#003366',
+    categoryBg: '#003366',
+    categoryText: '#FFFFFF',
+    borderColor: '#003366'
   },
   red: {
     main: '/templates/red-main.png',
