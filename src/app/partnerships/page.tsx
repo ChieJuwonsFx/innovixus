@@ -5,7 +5,7 @@ import { PricingCard } from '../components/partnerships/PricingCard';
 import { FaqSection } from '../components/partnerships/Faq';
 
 export default async function PartnershipPage() {
-  const supabase = createClient();
+  const supabase = await createClient();
   const [packagesResult, partnershipsResult] = await Promise.all([
     supabase
       .from('packages')

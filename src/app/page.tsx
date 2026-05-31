@@ -17,7 +17,6 @@ export default function Home() {
       <Features />
       <About />
       <Partnership router={router} />
-      <Final router={router} />
     </main>
   );
 }

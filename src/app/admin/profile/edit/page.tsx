@@ -1,10 +1,9 @@
 import { redirect } from 'next/navigation';
-import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
-import { cookies } from "next/headers";
 import Image from 'next/image';
 import Link from 'next/link';
 import { ChevronLeft, Save, Shield } from 'lucide-react'; 
 import { Profile } from '@/types/profile'; 
+import { createClient } from '@/lib/supabase/server';
 
 const SubmitButton = ({ children }: { children: React.ReactNode }) => {
     return (
@@ -20,8 +19,7 @@ const SubmitButton = ({ children }: { children: React.ReactNode }) => {
 
 async function updateProfile(formData: FormData): Promise<void> { 
     'use server';
-    const cookieStore = cookies();
-    const supabase = createServerComponentClient({ cookies: () => cookieStore });
+    const supabase = await createClient();
 
     const { data: { user } } = await supabase.auth.getUser();
 
@@ -47,8 +45,7 @@ async function updateProfile(formData: FormData): Promise<void> {
 }
 
 export default async function AdminEditProfilePage() {
-    const cookieStore = cookies();
-    const supabase = createServerComponentClient({ cookies: () => cookieStore });
+    const supabase = await createClient();
 
     const { data: { user } } = await supabase.auth.getUser();
 

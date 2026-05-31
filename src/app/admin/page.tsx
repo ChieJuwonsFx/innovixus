@@ -27,25 +27,25 @@ interface StatsCardProps {
 
 function StatsCard({ title, value, icon, trend, trendUp, link }: StatsCardProps) {
   const content = (
-    <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 p-6 hover:shadow-xl transition-all duration-200">
-      <div className="flex items-center justify-between">
-        <div className="flex-1">
-          <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-1">
+    <div className="rounded-2xl border border-slate-200 bg-white p-5 transition-colors hover:border-slate-300 dark:border-slate-800 dark:bg-slate-900 dark:hover:border-slate-700">
+      <div className="flex items-start justify-between gap-4">
+        <div className="min-w-0 flex-1">
+          <p className="text-xs font-medium uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">
             {title}
           </p>
-          <p className="text-3xl font-bold text-slate-900 dark:text-white">
+          <p className="mt-3 text-3xl font-semibold text-slate-900 dark:text-white">
             {value}
           </p>
           {trend && (
-            <p className={`text-sm mt-2 flex items-center gap-1 ${
-              trendUp ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
+            <p className={`mt-2 flex items-center gap-1 text-sm ${
+              trendUp ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'
             }`}>
               <TrendingUp size={14} className={trendUp ? '' : 'rotate-180'} />
               {trend}
             </p>
           )}
         </div>
-        <div className="w-14 h-14 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center flex-shrink-0">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-slate-50 text-slate-700 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-300">
           {icon}
         </div>
       </div>
@@ -68,20 +68,20 @@ interface StatusCardProps {
 
 function StatusCard({ label, count, color, icon }: StatusCardProps) {
   const colorClasses = {
-    green: 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300',
-    yellow: 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300',
-    red: 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300',
-    blue: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300',
+    green: 'border-emerald-200 text-emerald-700 dark:border-emerald-900/60 dark:text-emerald-300',
+    yellow: 'border-amber-200 text-amber-700 dark:border-amber-900/60 dark:text-amber-300',
+    red: 'border-rose-200 text-rose-700 dark:border-rose-900/60 dark:text-rose-300',
+    blue: 'border-sky-200 text-sky-700 dark:border-sky-900/60 dark:text-sky-300',
   };
 
   return (
-    <div className={`rounded-lg p-4 ${colorClasses[color]}`}>
-      <div className="flex items-center justify-between">
+    <div className={`rounded-2xl border p-4 ${colorClasses[color]}`}>
+      <div className="flex items-center justify-between gap-4">
         <div>
-          <p className="text-sm font-medium opacity-80">{label}</p>
-          <p className="text-2xl font-bold mt-1">{count}</p>
+          <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{label}</p>
+          <p className="mt-1 text-2xl font-semibold text-slate-900 dark:text-white">{count}</p>
         </div>
-        <div className="opacity-60">{icon}</div>
+        <div className="text-current opacity-70">{icon}</div>
       </div>
     </div>
   );
@@ -98,17 +98,17 @@ interface RecentEvent {
 function RecentEventsList({ events }: { events: RecentEvent[] }) {
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'Success': return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300';
-      case 'Pending': return 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300';
-      case 'Canceled': return 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300';
-      default: return 'bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-300';
+      case 'Success': return 'border-emerald-200 text-emerald-700 dark:border-emerald-900/60 dark:text-emerald-300';
+      case 'Pending': return 'border-amber-200 text-amber-700 dark:border-amber-900/60 dark:text-amber-300';
+      case 'Canceled': return 'border-rose-200 text-rose-700 dark:border-rose-900/60 dark:text-rose-300';
+      default: return 'border-slate-200 text-slate-600 dark:border-slate-700 dark:text-slate-400';
     }
   };
 
   return (
-    <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 p-6">
-      <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
-        <Activity className="w-5 h-5 text-blue-600" />
+    <div className="rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
+      <h3 className="mb-4 flex items-center gap-2 text-sm font-medium uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">
+        <Activity className="w-4 h-4" />
         Recent Events
       </h3>
       <div className="space-y-3">
@@ -117,23 +117,23 @@ function RecentEventsList({ events }: { events: RecentEvent[] }) {
             <Link
               key={event.id}
               href={`/admin/events/${event.id}`}
-              className="flex items-center justify-between p-3 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors border border-slate-200 dark:border-slate-700"
+              className="flex items-center justify-between rounded-xl border border-slate-200 p-3 transition-colors hover:border-slate-300 hover:bg-slate-50 dark:border-slate-800 dark:hover:border-slate-700 dark:hover:bg-slate-950"
             >
               <div className="flex-1 min-w-0">
-                <p className="font-semibold text-slate-900 dark:text-white truncate">
+                <p className="truncate font-medium text-slate-900 dark:text-white">
                   {event.title}
                 </p>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
                   {event.kategori} • {new Date(event.created_at).toLocaleDateString('id-ID')}
                 </p>
               </div>
-              <span className={`px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap ml-3 ${getStatusColor(event.status)}`}>
+              <span className={`ml-3 whitespace-nowrap rounded-full border px-3 py-1 text-xs font-medium ${getStatusColor(event.status)}`}>
                 {event.status}
               </span>
             </Link>
           ))
         ) : (
-          <p className="text-center text-slate-500 dark:text-slate-400 py-8">
+          <p className="py-8 text-center text-slate-500 dark:text-slate-400">
             No recent events
           </p>
         )}
@@ -177,15 +177,20 @@ export default async function AdminDashboard() {
   const activePackages = packages?.filter(p => p.is_active).length || 0;
 
   return (
-    <div className="space-y-8">
-      <div className="bg-gradient-to-r from-blue-600 to-blue-900 rounded-2xl shadow-xl p-8 text-white">
-        <h1 className="text-3xl font-bold mb-2">Admin Dashboard</h1>
-        <p className="text-blue-100">
-          Welcome back!!.
+    <div className="space-y-6">
+      <div className="rounded-3xl border border-slate-200 bg-white px-6 py-8 dark:border-slate-800 dark:bg-slate-900 sm:px-8">
+        <p className="text-xs font-medium uppercase tracking-[0.24em] text-slate-500 dark:text-slate-400">
+          Admin dashboard
+        </p>
+        <h1 className="mt-3 text-3xl font-semibold tracking-tight text-slate-900 dark:text-white">
+          Ringkasan singkat aktivitas platform.
+        </h1>
+        <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600 dark:text-slate-400">
+          Semua angka penting ditampilkan secara padat agar halaman tetap fokus dan mudah dibaca.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatsCard
           title="Total Events"
           value={totalEvents || 0}
@@ -210,11 +215,11 @@ export default async function AdminDashboard() {
         />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 p-6">
-          <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
-            <Award className="w-5 h-5 text-blue-600" />
-            Event Status Overview
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <div className="rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
+          <h3 className="mb-4 flex items-center gap-2 text-sm font-medium uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">
+            <Award className="w-4 h-4" />
+            Event status
           </h3>
           <div className="grid grid-cols-1 gap-4">
             <StatusCard
@@ -238,10 +243,10 @@ export default async function AdminDashboard() {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 p-6">
-          <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
-            <DollarSign className="w-5 h-5 text-blue-600" />
-            Partnership Payment Status
+        <div className="rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
+          <h3 className="mb-4 flex items-center gap-2 text-sm font-medium uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">
+            <DollarSign className="w-4 h-4" />
+            Partnership payment
           </h3>
           <div className="grid grid-cols-1 gap-4">
             <StatusCard
@@ -266,39 +271,39 @@ export default async function AdminDashboard() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 p-6">
-          <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
-            <Package className="w-5 h-5 text-blue-600" />
-            Package Overview
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <div className="rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
+          <h3 className="mb-4 flex items-center gap-2 text-sm font-medium uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">
+            <Package className="w-4 h-4" />
+            Package overview
           </h3>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between p-4 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-lg">
+          <div className="space-y-3">
+            <div className="flex items-center justify-between rounded-xl border border-slate-200 p-4 dark:border-slate-800">
               <div>
-                <p className="text-sm text-slate-600 dark:text-slate-400">Total Packages</p>
-                <p className="text-2xl font-bold text-slate-900 dark:text-white">
+                <p className="text-sm text-slate-500 dark:text-slate-400">Total packages</p>
+                <p className="mt-1 text-2xl font-semibold text-slate-900 dark:text-white">
                   {packages?.length || 0}
                 </p>
               </div>
-              <Package className="w-10 h-10 text-blue-600" />
+              <Package className="w-8 h-8 text-slate-500" />
             </div>
-            <div className="flex items-center justify-between p-4 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg">
+            <div className="flex items-center justify-between rounded-xl border border-slate-200 p-4 dark:border-slate-800">
               <div>
-                <p className="text-sm text-slate-600 dark:text-slate-400">Active Packages</p>
-                <p className="text-2xl font-bold text-slate-900 dark:text-white">
+                <p className="text-sm text-slate-500 dark:text-slate-400">Active packages</p>
+                <p className="mt-1 text-2xl font-semibold text-slate-900 dark:text-white">
                   {activePackages}
                 </p>
               </div>
-              <CheckCircle className="w-10 h-10 text-green-600" />
+              <CheckCircle className="w-8 h-8 text-slate-500" />
             </div>
-            <div className="flex items-center justify-between p-4 bg-gradient-to-r from-orange-50 to-yellow-50 dark:from-orange-900/20 dark:to-yellow-900/20 rounded-lg">
+            <div className="flex items-center justify-between rounded-xl border border-slate-200 p-4 dark:border-slate-800">
               <div>
-                <p className="text-sm text-slate-600 dark:text-slate-400">Total Revenue Potential</p>
-                <p className="text-2xl font-bold text-slate-900 dark:text-white">
+                <p className="text-sm text-slate-500 dark:text-slate-400">Revenue potential</p>
+                <p className="mt-1 text-2xl font-semibold text-slate-900 dark:text-white">
                   Rp {totalRevenue.toLocaleString('id-ID')}
                 </p>
               </div>
-              <DollarSign className="w-10 h-10 text-orange-600" />
+              <DollarSign className="w-8 h-8 text-slate-500" />
             </div>
           </div>
         </div>

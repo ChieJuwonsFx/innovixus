@@ -1,5 +1,4 @@
-import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
+import { createClient } from '@/lib/supabase/server';
 import AdminPageHeader from '../../components/AdminPageHeader';
 import EventForm, { type EventWithRelations } from '../../components/events/EventForm';
 import { Database } from '@/types/database';
@@ -13,7 +12,7 @@ type EditEventPageProps = {
 export default async function EditEventPage({ params }: EditEventPageProps) {
   const { id } = await params;
 
-  const supabase = createServerComponentClient<Database>({ cookies });
+  const supabase = await createClient();
 
   const { data: event } = await supabase
     .from('events')

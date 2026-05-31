@@ -5,13 +5,6 @@
   --font-mono: var(--font-geist-mono);
 }
 
-
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700&display=swap');
-
-body {
-  font-family: 'Montserrat', sans-serif;
-}
-
 @custom-variant dark (&:where(.dark, .dark *));
 
 input:-webkit-autofill,

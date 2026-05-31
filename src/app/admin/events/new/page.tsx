@@ -1,12 +1,11 @@
-import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
+import { createClient } from '@/lib/supabase/server';
 import AdminPageHeader from '../../components/AdminPageHeader';
 import EventForm from '../../components/events/EventForm';
 import { Database } from '@/types/database';
 import { CircleArrowLeft } from "lucide-react";
 
 export default async function NewEventPage() {
-  const supabase = createServerComponentClient<Database>({ cookies });
+  const supabase = await createClient();
 
   const { data: organizers } = await supabase.from('organizers').select('*');
   const { data: levels } = await supabase.from('levels').select('*');

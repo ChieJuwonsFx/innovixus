@@ -1,12 +1,10 @@
-import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
+import { createClient } from '@/lib/supabase/server';
 import AdminPageHeader from '../components/AdminPageHeader';
 import AdminEventCard from '../components/events/AdminEventCard';
 import { CirclePlus } from "lucide-react";
 
 export default async function EventsPage() {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const supabase = createServerComponentClient<any>({ cookies });
+  const supabase = await createClient();
   
   const { data: events, error } = await supabase
     .from('events')

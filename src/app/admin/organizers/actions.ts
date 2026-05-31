@@ -1,13 +1,11 @@
 'use server'
 
-import { createServerActionClient } from '@supabase/auth-helpers-nextjs'
-import { cookies } from 'next/headers'
+import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 
 export async function createOrganizer(formData: FormData) {
   try {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const supabase = createServerActionClient<any>({ cookies })
+    const supabase = await createClient()
     
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) {
@@ -45,8 +43,7 @@ export async function createOrganizer(formData: FormData) {
 
 export async function updateOrganizer(id: string, formData: FormData) {
   try {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const supabase = createServerActionClient<any>({ cookies })
+    const supabase = await createClient()
 
     const name = formData.get('name') as string
     const instagram = formData.get('instagram') as string
@@ -77,8 +74,7 @@ export async function updateOrganizer(id: string, formData: FormData) {
 
 export async function deleteOrganizer(id: string) {
   try {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const supabase = createServerActionClient<any>({ cookies })
+    const supabase = await createClient()
     
     const { data: events, error: checkError } = await supabase
       .from('events')
@@ -113,8 +109,7 @@ export async function deleteOrganizer(id: string) {
 }
 
 export async function getOrganizer(id: string) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const supabase = createServerActionClient<any>({ cookies })
+  const supabase = await createClient()
   
   const { data, error } = await supabase
     .from('organizers')
@@ -131,8 +126,7 @@ export async function getOrganizer(id: string) {
 }
 
 export async function getOrganizers() {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const supabase = createServerActionClient<any>({ cookies })
+  const supabase = await createClient()
   
   const { data, error } = await supabase
     .from('organizers')

@@ -1,6 +1,6 @@
 import './globals.css'
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'; 
+import { Montserrat } from 'next/font/google'
 import Navbar from './components/navbar/Navbar'
 import FooterLayout from './components/footer/FooterLayout'
 import { Toaster } from 'react-hot-toast';
@@ -8,9 +8,9 @@ import { Providers } from './providers'
 
 export const dynamic = 'force-dynamic';
 
-const inter = Inter({ 
+const montserrat = Montserrat({
   subsets: ['latin'],
-  display: 'swap', 
+  display: 'swap',
 });
 
 export const metadata: Metadata = {
@@ -54,7 +54,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className={inter.className}>
+      <body className={montserrat.className}>
         <Providers>
           <Toaster
           position="bottom-right"
