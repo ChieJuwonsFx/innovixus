@@ -272,23 +272,6 @@ export default function ReelsPostPage() {
               Reset
             </button>
           </div>
-
-          <div className="mt-4 text-sm text-slate-500 dark:text-slate-400">
-            For best results, keep the text short and centered.
-          </div>
-
-          <div className="mt-5 rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-4 text-sm text-slate-600 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-400">
-            <p className="font-medium text-slate-900 dark:text-white">Area teks yang dipakai</p>
-            <p className="mt-2">x: {TEXT_BOX.x}px, y: {TEXT_BOX.y}px</p>
-            <p>width: {TEXT_BOX.width}px, height: {TEXT_BOX.height}px</p>
-            <p className="mt-2">
-              Safe padding: {TEXT_PADDING_X}px kiri-kanan, {TEXT_PADDING_Y}px atas-bawah.
-            </p>
-            <p>Safe Y range: {SAFE_TOP}px - {SAFE_BOTTOM}px</p>
-            <p className="mt-2 text-xs text-slate-500 dark:text-slate-500">
-              Letakkan logo, icon, atau elemen visual Anda di atas template image. Text hanya dirender di dalam area ini.
-            </p>
-          </div>
         </div>
 
         <div className="rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
