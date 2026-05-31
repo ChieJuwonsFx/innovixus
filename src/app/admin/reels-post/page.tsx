@@ -224,9 +224,6 @@ export default function ReelsPostPage() {
         <h1 className="mt-3 text-3xl font-semibold tracking-tight text-slate-900 dark:text-white">
           Reels text post generator
         </h1>
-        <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600 dark:text-slate-400">
-          Template yang dipakai adalah <span className="font-medium text-slate-900 dark:text-white">template_reels.png</span>. Teks pendek akan naik sedikit, tapi tetap dijaga di area aman atas dan bawah.
-        </p>
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
@@ -239,7 +236,7 @@ export default function ReelsPostPage() {
             onChange={(event) => setText(event.target.value)}
             rows={12}
             className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus:border-slate-300 dark:border-slate-800 dark:bg-slate-950 dark:text-white dark:focus:border-slate-700"
-            placeholder="Tulis teks post di sini.\nGunakan enter untuk baris baru."
+            placeholder="Tulis teks post di sini. Gunakan enter untuk baris baru."
           />
 
           <div className="mt-4 flex flex-wrap gap-3">
