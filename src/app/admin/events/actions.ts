@@ -160,12 +160,7 @@ export async function updateEvent(id: string, prevState: FormState, formData: Fo
     guidelink: (formData.get('guidelink') as string) || null,
     registerlink: (formData.get('registerlink') as string) || null,
     open_date: (formData.get('open_date') as string) || new Date().toISOString().split('T')[0],
-    close_date: (formData.get('close_date') as string) || (() => {
-      const base = (formData.get('open_date') as string) || new Date().toISOString().split('T')[0];
-      const d = new Date(base);
-      d.setDate(d.getDate() + 30);
-      return d.toISOString().split('T')[0];
-    })(),
+    close_date: (formData.get('close_date') as string) || null,
     kategori: formData.get('kategori') as 'Info Lomba' | 'Info Magang' | 'Info Loker',
     is_online: formData.get('is_online') as 'Online' | 'Offline' | 'Online & Offline',
     location: formData.get('location') as string,
