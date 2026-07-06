@@ -26,14 +26,30 @@ export default async function EventsPage() {
       />
      
       {events && events.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {events.map((event) => (
-            <AdminEventCard key={event.id} event={event} />
-          ))}
+        <div className="border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900">
+          <table className="min-w-full divide-y divide-slate-100 dark:divide-slate-800">
+            <thead>
+              <tr className="text-left text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                <th className="px-4 py-3 w-16"></th>
+                <th className="px-4 py-3">Event</th>
+                <th className="hidden px-4 py-3 md:table-cell">Kategori</th>
+                <th className="hidden px-4 py-3 lg:table-cell">Organizer</th>
+                <th className="hidden px-4 py-3 sm:table-cell">Batas</th>
+                <th className="hidden px-4 py-3 sm:table-cell">Lokasi</th>
+                <th className="px-4 py-3">Status</th>
+                <th className="px-4 py-3 w-12"></th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+              {events.map((event) => (
+                <AdminEventCard key={event.id} event={event} />
+              ))}
+            </tbody>
+          </table>
         </div>
       ) : (
-        <div className="text-center py-16 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-lg">
-          <p className="text-slate-500">Belum ada event yang ditambahkan.</p>
+        <div className="py-12 text-center">
+          <p className="text-sm text-slate-400">Belum ada event.</p>
         </div>
       )}
     </div>

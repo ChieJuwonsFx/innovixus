@@ -2,7 +2,7 @@
 
 import { useState, useId, useEffect, useRef, useCallback } from 'react';
 import Image from 'next/image';
-import { UploadCloud, X, Image as ImageIcon, CheckCircle2, GripVertical } from 'lucide-react';
+import { UploadCloud, X, Image as ImageIcon, GripVertical } from 'lucide-react';
 import {
   DndContext,
   closestCenter,
@@ -118,7 +118,7 @@ function SortableImageItem({
     <div
       ref={setNodeRef}
       style={style}
-      className={`relative group bg-gray-100 dark:bg-gray-800 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-200 ${
+      className={`relative group overflow-hidden rounded-xl bg-slate-100 shadow-sm transition-shadow hover:shadow-md dark:bg-slate-800 ${
         isDragging ? 'scale-105 ring-4 ring-blue-500' : ''
       }`}
     >
@@ -145,20 +145,9 @@ function SortableImageItem({
           />
         </div>
 
-        <div className="hidden md:block absolute top-2 left-2 bg-white/95 dark:bg-gray-800/95 rounded-lg p-2 shadow-lg z-20 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-          <GripVertical className="w-4 h-4 text-gray-700 dark:text-gray-300" />
+        <div className="md:block absolute top-2 left-2 hidden rounded-lg bg-white/95 p-2 opacity-0 shadow-sm transition-opacity group-hover:opacity-100 dark:bg-slate-800/95">
+          <GripVertical className="h-4 w-4 text-slate-600 dark:text-slate-300" />
         </div>
-
-        {preview.isExisting ? (
-          <div className="absolute top-2 right-14 md:right-16 bg-green-500 text-white text-xs font-semibold px-2 py-1 rounded-full flex items-center gap-1 shadow-lg z-20">
-            <CheckCircle2 className="w-3 h-3" />
-            <span>Saved</span>
-          </div>
-        ) : (
-          <div className="absolute top-2 right-14 md:right-16 bg-blue-500 text-white text-xs font-semibold px-2 py-1 rounded-full shadow-lg z-20">
-            Baru
-          </div>
-        )}
 
         <button
           type="button"
@@ -166,18 +155,18 @@ function SortableImageItem({
             e.stopPropagation();
             onRemove(preview.key);
           }}
-          className="absolute top-2 right-2 p-2 bg-red-600/95 hover:bg-red-600 text-white rounded-full shadow-lg transition-colors z-30"
+          className="absolute right-2 top-2 z-30 rounded-full bg-red-600/95 p-2 text-white shadow-sm transition-colors hover:bg-red-600"
           title="Hapus gambar"
         >
           <X size={16} />
         </button>
 
-        <div className="hidden md:block absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent text-white p-3 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-20">
+        <div className="md:block absolute bottom-0 left-0 right-0 hidden bg-gradient-to-t from-black/80 to-transparent p-3 opacity-0 transition-opacity group-hover:opacity-100 dark:to-black/80 md:block">
           <p className="text-xs font-medium truncate">
             {preview.file?.name || 'Uploaded image'}
           </p>
           {preview.file && (
-            <p className="text-xs text-gray-300">
+            <p className="text-xs text-slate-300">
               {(preview.file.size / 1024 / 1024).toFixed(1)} MB
             </p>
           )}
@@ -357,14 +346,14 @@ export default function ImageUploader({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <label className="block text-lg font-semibold text-gray-700 dark:text-gray-300">
+        <label className="block text-lg font-semibold text-slate-700 dark:text-slate-300">
           Poster Event <span className="text-red-500">*</span>
         </label>
         <div className="flex items-center gap-3 flex-wrap">
           {totalImages > 0 && (
-            <span className="text-sm text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-full">
+            <span className="text-sm text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-full">
               {totalImages} gambar
             </span>
           )}
@@ -414,7 +403,7 @@ export default function ImageUploader({
         className={`relative rounded-xl border-2 border-dashed transition-all duration-300 ${
           isDragOver
             ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 scale-[1.02] shadow-lg'
-            : 'border-gray-300 dark:border-gray-600 hover:border-blue-400 dark:hover:border-blue-500 hover:bg-gray-50 dark:hover:bg-gray-800'
+            : 'border-slate-300 dark:border-slate-600 hover:border-blue-400 dark:hover:border-blue-500 hover:bg-slate-50 dark:hover:bg-slate-800'
         }`}
       >
         <label
@@ -425,21 +414,21 @@ export default function ImageUploader({
             className={`mb-3 p-4 md:p-5 rounded-full transition-all duration-300 ${
               isDragOver
                 ? 'bg-blue-500 text-white shadow-xl scale-110'
-                : 'bg-gray-100 dark:bg-gray-800 text-gray-400 group-hover:bg-blue-100 dark:group-hover:bg-blue-900/30 group-hover:text-blue-500 group-hover:scale-110'
+                : 'bg-slate-100 dark:bg-slate-800 text-slate-400 group-hover:bg-blue-100 dark:group-hover:bg-blue-900/30 group-hover:text-blue-500 group-hover:scale-110'
             }`}
           >
             {isDragOver ? <ImageIcon className="w-10 h-10 md:w-12 md:h-12" /> : <UploadCloud className="w-10 h-10 md:w-12 md:h-12" />}
           </div>
 
           <div className="text-center">
-            <div className="text-base md:text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2 md:mb-3">
+            <div className="text-base md:text-lg font-semibold text-slate-700 dark:text-slate-300 mb-2 md:mb-3">
               {isDragOver ? 'Lepaskan file di sini' : 'Upload poster event'}
             </div>
-            <div className="text-sm md:text-md text-gray-600 dark:text-gray-400 mb-2">
+            <div className="text-sm md:text-md text-slate-600 dark:text-slate-400 mb-2">
               <span className="font-semibold text-blue-600 dark:text-blue-400">Klik untuk browse</span>
               {!isDragOver && <span className="hidden sm:inline"> atau drag & drop file</span>}
             </div>
-            <p className="text-xs md:text-sm text-gray-500 dark:text-gray-500">
+            <p className="text-xs md:text-sm text-slate-500 dark:text-slate-500">
               PNG, JPG, WEBP • Max: 10MB • Multiple files
             </p>
           </div>
@@ -463,7 +452,7 @@ export default function ImageUploader({
           <div className="relative w-full h-full flex items-center justify-center">
             <button
               onClick={closePreview}
-              className="absolute top-4 right-4 text-white hover:text-gray-300 transition-colors bg-black/50 hover:bg-black/70 rounded-full p-3 z-10 backdrop-blur-sm"
+              className="absolute top-4 right-4 text-white hover:text-slate-300 transition-colors bg-black/50 hover:bg-black/70 rounded-full p-3 z-10 backdrop-blur-sm"
               title="Tutup preview"
             >
               <X size={24} />

@@ -78,16 +78,16 @@ export default function Step3_Review({ organizer, event, onBack, onSubmit, isLoa
           <dl className="divide-y divide-slate-200 dark:divide-slate-700">
             <InfoRow icon={<Ticket size={16} />} label="Judul Event">{event.title}</InfoRow>
             <InfoRow icon={<Tag size={16} />} label="Kategori"><Badge text={event.kategori} color="purple" /></InfoRow>
-            <InfoRow icon={<DollarSign size={16} />} label="Biaya">{event.is_free ? <Badge text="Gratis" color="green" /> : 'Berbayar'}</InfoRow>
+            <InfoRow icon={<DollarSign size={16} />} label="Biaya">{event.is_free === null ? '-' : event.is_free ? <Badge text="Gratis" color="green" /> : 'Berbayar'}</InfoRow>
             <InfoRow icon={<Globe size={16} />} label="Platform"><Badge text={event.is_online} color="blue" /></InfoRow>
             <InfoRow icon={<MapPin size={16} />} label="Lokasi">{event.location || '-'}</InfoRow>
             <InfoRow icon={<Calendar size={16} />} label="Buka Pendaftaran">{formatDate(event.open_date)}</InfoRow>
             <InfoRow icon={<Clock size={16} />} label="Tutup Pendaftaran">{formatDate(event.close_date)}</InfoRow>
             <InfoRow icon={<ExternalLink size={16} />} label="Link Pendaftaran">
-              <a href={event.registerlink} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">Lihat Link</a>
+              {event.registerlink ? <a href={event.registerlink} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">Lihat Link</a> : '-'}
             </InfoRow>
             <InfoRow icon={<ExternalLink size={16} />} label="Link Panduan">
-              <a href={event.guidelink} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">Lihat Link</a>
+              {event.guidelink ? <a href={event.guidelink} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">Lihat Link</a> : '-'}
             </InfoRow>
              <InfoRow icon={<ImageIcon size={16} />} label="Poster">
               {posterUrl ? (

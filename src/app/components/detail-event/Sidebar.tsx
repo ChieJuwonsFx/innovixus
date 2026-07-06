@@ -63,7 +63,7 @@ export default function Sidebar({
             </p>
           </div>
           
-          {statusInfo.status !== 'closed' ? (
+          {statusInfo.status !== 'closed' && event.registerlink ? (
             <Link 
               href={event.registerlink} 
               target="_blank" 
@@ -108,7 +108,7 @@ export default function Sidebar({
               {event.is_online === 'online' ? 'Online' : event.is_online === 'offline' ? 'Offline' : 'Hybrid'}
             </span>
           </div>
-          {kategori === 'info-lomba' && (
+          {kategori === 'info-lomba' && event.is_free !== null && (
             <div className="flex items-center justify-between py-2">
               <span className="text-slate-600 dark:text-slate-400 text-sm">Biaya</span>
               <span className="text-slate-900 dark:text-white text-sm font-medium">

@@ -6,14 +6,14 @@ const StatusBadge = ({ type, status }: { type: 'payment' | 'event', status: stri
         'Pending': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300',
         'Unpaid': 'bg-orange-100 text-orange-800 dark:bg-orange-900/50 dark:text-orange-300',
         'Canceled': 'bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300',
-        'default': 'bg-gray-100 text-gray-800 dark:bg-slate-700 dark:text-slate-200',
+        'default': 'bg-slate-100 text-slate-800 dark:bg-slate-700 dark:text-slate-200',
     };
 
     const eventStyles: { [key: string]: string } = {
         'Success': 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300',
         'Pending': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300',
         'Canceled': 'bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300',
-        'default': 'bg-gray-100 text-gray-800 dark:bg-slate-700 dark:text-slate-200',
+        'default': 'bg-slate-100 text-slate-800 dark:bg-slate-700 dark:text-slate-200',
     };
     
     const styles = type === 'payment' ? paymentStyles : eventStyles;

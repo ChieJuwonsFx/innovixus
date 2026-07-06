@@ -27,25 +27,25 @@ interface StatsCardProps {
 
 function StatsCard({ title, value, icon, trend, trendUp, link }: StatsCardProps) {
   const content = (
-    <div className="rounded-2xl border border-slate-200 bg-white p-5 transition-colors hover:border-slate-300 dark:border-slate-800 dark:bg-slate-900 dark:hover:border-slate-700">
+    <div className="rounded-xl border border-slate-200 bg-white p-4 transition-colors hover:border-slate-300 dark:border-slate-800 dark:bg-slate-900 dark:hover:border-slate-700">
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0 flex-1">
-          <p className="text-xs font-medium uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">
+          <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
             {title}
           </p>
-          <p className="mt-3 text-3xl font-semibold text-slate-900 dark:text-white">
+          <p className="mt-2 text-2xl font-semibold text-slate-900 dark:text-white">
             {value}
           </p>
           {trend && (
-            <p className={`mt-2 flex items-center gap-1 text-sm ${
-              trendUp ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'
+            <p className={`mt-1 flex items-center gap-1 text-xs ${
+              trendUp ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
             }`}>
-              <TrendingUp size={14} className={trendUp ? '' : 'rotate-180'} />
+              <TrendingUp size={12} className={trendUp ? '' : 'rotate-180'} />
               {trend}
             </p>
           )}
         </div>
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-slate-50 text-slate-700 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-300">
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-slate-50 text-slate-500 dark:border-slate-700 dark:bg-slate-950">
           {icon}
         </div>
       </div>
@@ -67,21 +67,29 @@ interface StatusCardProps {
 }
 
 function StatusCard({ label, count, color, icon }: StatusCardProps) {
-  const colorClasses = {
-    green: 'border-emerald-200 text-emerald-700 dark:border-emerald-900/60 dark:text-emerald-300',
-    yellow: 'border-amber-200 text-amber-700 dark:border-amber-900/60 dark:text-amber-300',
-    red: 'border-rose-200 text-rose-700 dark:border-rose-900/60 dark:text-rose-300',
-    blue: 'border-sky-200 text-sky-700 dark:border-sky-900/60 dark:text-sky-300',
+  const accentClasses = {
+    green: 'border-l-green-500',
+    yellow: 'border-l-yellow-500',
+    red: 'border-l-red-500',
+    blue: 'border-l-blue-500',
+  };
+  const iconClasses = {
+    green: 'text-green-600 dark:text-green-400',
+    yellow: 'text-yellow-600 dark:text-yellow-400',
+    red: 'text-red-600 dark:text-red-400',
+    blue: 'text-blue-600 dark:text-blue-400',
   };
 
   return (
-    <div className={`rounded-2xl border p-4 ${colorClasses[color]}`}>
-      <div className="flex items-center justify-between gap-4">
+    <div className="flex items-center justify-between rounded-lg border border-slate-200 bg-white p-3 dark:border-slate-800 dark:bg-slate-900">
+      <div className="flex items-center gap-3">
+        <span className={`flex h-8 w-8 items-center justify-center rounded-lg ${iconClasses[color]}`}>
+          {icon}
+        </span>
         <div>
-          <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{label}</p>
-          <p className="mt-1 text-2xl font-semibold text-slate-900 dark:text-white">{count}</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400">{label}</p>
+          <p className="text-lg font-semibold text-slate-900 dark:text-white">{count}</p>
         </div>
-        <div className="text-current opacity-70">{icon}</div>
       </div>
     </div>
   );
@@ -98,44 +106,42 @@ interface RecentEvent {
 function RecentEventsList({ events }: { events: RecentEvent[] }) {
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'Success': return 'border-emerald-200 text-emerald-700 dark:border-emerald-900/60 dark:text-emerald-300';
-      case 'Pending': return 'border-amber-200 text-amber-700 dark:border-amber-900/60 dark:text-amber-300';
-      case 'Canceled': return 'border-rose-200 text-rose-700 dark:border-rose-900/60 dark:text-rose-300';
-      default: return 'border-slate-200 text-slate-600 dark:border-slate-700 dark:text-slate-400';
+      case 'Success': return 'text-green-600 dark:text-green-400';
+      case 'Pending': return 'text-yellow-600 dark:text-yellow-400';
+      case 'Canceled': return 'text-red-600 dark:text-red-400';
+      default: return 'text-slate-500 dark:text-slate-400';
     }
   };
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
-      <h3 className="mb-4 flex items-center gap-2 text-sm font-medium uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">
-        <Activity className="w-4 h-4" />
-        Recent Events
+    <div className="rounded-xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900">
+      <h3 className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+        <Activity className="h-3.5 w-3.5" />
+        Event Terbaru
       </h3>
-      <div className="space-y-3">
+      <div className="space-y-1">
         {events.length > 0 ? (
           events.map((event) => (
             <Link
               key={event.id}
               href={`/admin/events/${event.id}`}
-              className="flex items-center justify-between rounded-xl border border-slate-200 p-3 transition-colors hover:border-slate-300 hover:bg-slate-50 dark:border-slate-800 dark:hover:border-slate-700 dark:hover:bg-slate-950"
+              className="flex items-center justify-between rounded-lg px-3 py-2 text-sm transition-colors hover:bg-slate-50 dark:hover:bg-slate-800"
             >
-              <div className="flex-1 min-w-0">
-                <p className="truncate font-medium text-slate-900 dark:text-white">
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-slate-900 dark:text-white">
                   {event.title}
                 </p>
-                <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                <p className="text-xs text-slate-400 dark:text-slate-500">
                   {event.kategori} • {new Date(event.created_at).toLocaleDateString('id-ID')}
                 </p>
               </div>
-              <span className={`ml-3 whitespace-nowrap rounded-full border px-3 py-1 text-xs font-medium ${getStatusColor(event.status)}`}>
+              <span className={`ml-3 whitespace-nowrap text-xs font-semibold ${getStatusColor(event.status)}`}>
                 {event.status}
               </span>
             </Link>
           ))
         ) : (
-          <p className="py-8 text-center text-slate-500 dark:text-slate-400">
-            No recent events
-          </p>
+          <p className="py-6 text-center text-xs text-slate-400">Belum ada event.</p>
         )}
       </div>
     </div>
@@ -177,133 +183,67 @@ export default async function AdminDashboard() {
   const activePackages = packages?.filter(p => p.is_active).length || 0;
 
   return (
-    <div className="space-y-6">
-      <div className="rounded-3xl border border-slate-200 bg-white px-6 py-8 dark:border-slate-800 dark:bg-slate-900 sm:px-8">
-        <p className="text-xs font-medium uppercase tracking-[0.24em] text-slate-500 dark:text-slate-400">
-          Admin dashboard
-        </p>
-        <h1 className="mt-3 text-3xl font-semibold tracking-tight text-slate-900 dark:text-white">
-          Ringkasan singkat aktivitas platform.
+    <div className="space-y-5">
+      <div className="rounded-xl border border-slate-200 bg-white px-6 py-5 dark:border-slate-800 dark:bg-slate-900">
+        <h1 className="text-lg font-semibold text-slate-900 dark:text-white">
+          Dashboard
         </h1>
-        <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600 dark:text-slate-400">
-          Semua angka penting ditampilkan secara padat agar halaman tetap fokus dan mudah dibaca.
+        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+          Ringkasan aktivitas platform.
         </p>
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <StatsCard
-          title="Total Events"
-          value={totalEvents || 0}
-          icon={<Calendar className="w-7 h-7 text-blue-600 dark:text-blue-400" />}
-          link="/admin/events"
-        />
-        <StatsCard
-          title="Total Users"
-          value={totalUsers || 0}
-          icon={<Users className="w-7 h-7 text-green-600 dark:text-green-400" />}
-        />
-        <StatsCard
-          title="Partnerships"
-          value={totalPartnerships || 0}
-          icon={<Briefcase className="w-7 h-7 text-purple-600 dark:text-purple-400" />}
-          link="/admin/partnerships"
-        />
-        <StatsCard
-          title="Blog Posts"
-          value={totalBlogs || 0}
-          icon={<FileText className="w-7 h-7 text-orange-600 dark:text-orange-400" />}
-        />
+        <StatsCard title="Total Event" value={totalEvents || 0} icon={<Calendar className="h-5 w-5" />} link="/admin/events" />
+        <StatsCard title="Total Users" value={totalUsers || 0} icon={<Users className="h-5 w-5" />} />
+        <StatsCard title="Partnerships" value={totalPartnerships || 0} icon={<Briefcase className="h-5 w-5" />} link="/admin/partnerships" />
+        <StatsCard title="Blog Posts" value={totalBlogs || 0} icon={<FileText className="h-5 w-5" />} />
       </div>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
-          <h3 className="mb-4 flex items-center gap-2 text-sm font-medium uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">
-            <Award className="w-4 h-4" />
-            Event status
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+        <div className="rounded-xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900">
+          <h3 className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+            <Award className="h-3.5 w-3.5" />
+            Status Event
           </h3>
-          <div className="grid grid-cols-1 gap-4">
-            <StatusCard
-              label="Success"
-              count={successEvents || 0}
-              color="green"
-              icon={<CheckCircle size={24} />}
-            />
-            <StatusCard
-              label="Pending Review"
-              count={pendingEvents || 0}
-              color="yellow"
-              icon={<Clock size={24} />}
-            />
-            <StatusCard
-              label="Canceled"
-              count={canceledEvents || 0}
-              color="red"
-              icon={<XCircle size={24} />}
-            />
+          <div className="grid grid-cols-1 gap-3">
+            <StatusCard label="Sukses" count={successEvents || 0} color="green" icon={<CheckCircle size={20} />} />
+            <StatusCard label="Menunggu" count={pendingEvents || 0} color="yellow" icon={<Clock size={20} />} />
+            <StatusCard label="Dibatalkan" count={canceledEvents || 0} color="red" icon={<XCircle size={20} />} />
           </div>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
-          <h3 className="mb-4 flex items-center gap-2 text-sm font-medium uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">
-            <DollarSign className="w-4 h-4" />
-            Partnership payment
+        <div className="rounded-xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900">
+          <h3 className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+            <DollarSign className="h-3.5 w-3.5" />
+            Pembayaran Partnership
           </h3>
-          <div className="grid grid-cols-1 gap-4">
-            <StatusCard
-              label="Paid"
-              count={paidPartnerships || 0}
-              color="green"
-              icon={<CheckCircle size={24} />}
-            />
-            <StatusCard
-              label="Pending Payment"
-              count={pendingPartnerships || 0}
-              color="yellow"
-              icon={<AlertCircle size={24} />}
-            />
-            <StatusCard
-              label="Unpaid"
-              count={unpaidPartnerships || 0}
-              color="red"
-              icon={<XCircle size={24} />}
-            />
+          <div className="grid grid-cols-1 gap-3">
+            <StatusCard label="Lunas" count={paidPartnerships || 0} color="green" icon={<CheckCircle size={20} />} />
+            <StatusCard label="Menunggu" count={pendingPartnerships || 0} color="yellow" icon={<AlertCircle size={20} />} />
+            <StatusCard label="Belum Dibayar" count={unpaidPartnerships || 0} color="red" icon={<XCircle size={20} />} />
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
-          <h3 className="mb-4 flex items-center gap-2 text-sm font-medium uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">
-            <Package className="w-4 h-4" />
-            Package overview
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+        <div className="rounded-xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900">
+          <h3 className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+            <Package className="h-3.5 w-3.5" />
+            Package
           </h3>
-          <div className="space-y-3">
-            <div className="flex items-center justify-between rounded-xl border border-slate-200 p-4 dark:border-slate-800">
-              <div>
-                <p className="text-sm text-slate-500 dark:text-slate-400">Total packages</p>
-                <p className="mt-1 text-2xl font-semibold text-slate-900 dark:text-white">
-                  {packages?.length || 0}
-                </p>
-              </div>
-              <Package className="w-8 h-8 text-slate-500" />
+          <div className="divide-y divide-slate-100 dark:divide-slate-800">
+            <div className="flex items-center justify-between py-3">
+              <span className="text-sm text-slate-500 dark:text-slate-400">Total package</span>
+              <span className="text-lg font-semibold text-slate-900 dark:text-white">{packages?.length || 0}</span>
             </div>
-            <div className="flex items-center justify-between rounded-xl border border-slate-200 p-4 dark:border-slate-800">
-              <div>
-                <p className="text-sm text-slate-500 dark:text-slate-400">Active packages</p>
-                <p className="mt-1 text-2xl font-semibold text-slate-900 dark:text-white">
-                  {activePackages}
-                </p>
-              </div>
-              <CheckCircle className="w-8 h-8 text-slate-500" />
+            <div className="flex items-center justify-between py-3">
+              <span className="text-sm text-slate-500 dark:text-slate-400">Aktif</span>
+              <span className="text-lg font-semibold text-slate-900 dark:text-white">{activePackages}</span>
             </div>
-            <div className="flex items-center justify-between rounded-xl border border-slate-200 p-4 dark:border-slate-800">
-              <div>
-                <p className="text-sm text-slate-500 dark:text-slate-400">Revenue potential</p>
-                <p className="mt-1 text-2xl font-semibold text-slate-900 dark:text-white">
-                  Rp {totalRevenue.toLocaleString('id-ID')}
-                </p>
-              </div>
-              <DollarSign className="w-8 h-8 text-slate-500" />
+            <div className="flex items-center justify-between py-3">
+              <span className="text-sm text-slate-500 dark:text-slate-400">Total nilai package</span>
+              <span className="text-lg font-semibold text-slate-900 dark:text-white">Rp {totalRevenue.toLocaleString('id-ID')}</span>
             </div>
           </div>
         </div>

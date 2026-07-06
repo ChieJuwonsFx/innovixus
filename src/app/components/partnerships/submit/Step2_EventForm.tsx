@@ -18,7 +18,7 @@ interface Step2Props {
   onBack: () => void;
   selectedPackage: Package;
   initialData: EventData | null;
-  organizers: Pick<Organizer, 'id' | 'instagram'>[];
+  organizers: Pick<Organizer, 'id' | 'name' | 'instagram'>[];
   levels: Level[];
   fields: Field[];
   preselectedOrganizerId: string;
@@ -36,17 +36,20 @@ export default function Step2_EventForm({ onNext, onBack, initialData, ...eventF
         return;
     }
 
+    const isFreeRaw = formData.get('is_free');
+    const isFreeVal = isFreeRaw !== null ? isFreeRaw === 'true' : null;
+
     const eventData: EventData = {
       title: title,
       caption: formData.get('caption') as string,
-      guidelink: formData.get('guidelink') as string,
-      registerlink: formData.get('registerlink') as string,
-      open_date: formData.get('open_date') as string,
+      guidelink: (formData.get('guidelink') as string) || null,
+      registerlink: (formData.get('registerlink') as string) || null,
+      open_date: (formData.get('open_date') as string) || null,
       close_date: (formData.get('close_date') as string) || null,
       kategori: formData.get('kategori') as KategoriEnum,
       is_online: formData.get('is_online') as IsOnlineEnum,
       location: formData.get('location') as string,
-      is_free: formData.get('is_free') === 'true',
+      is_free: isFreeVal,
       poster: JSON.parse(formData.get('poster_json') as string || '[]'),
     };
     

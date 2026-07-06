@@ -121,18 +121,18 @@ export type Database = {
           close_date: string | null
           created_at: string
           extend_date: string | null
-          guidelink: string
+          guidelink: string | null
           id: string
-          is_free: boolean
+          is_free: boolean | null
           is_online: string
           kategori: string
           location: string
           only_lomba: boolean
-          open_date: string
+          open_date: string | null
           organizer_id: string
           partnership_id: string | null
           poster: Json
-          registerlink: string
+          registerlink: string | null
           status: string
           title: string
           updated_at: string
@@ -143,18 +143,18 @@ export type Database = {
           close_date?: string | null
           created_at?: string
           extend_date?: string | null
-          guidelink: string
+          guidelink?: string | null
           id?: string
-          is_free?: boolean
+          is_free?: boolean | null
           is_online: string
           kategori: string
           location: string
           only_lomba?: boolean
-          open_date: string
+          open_date?: string | null
           organizer_id: string
           partnership_id?: string | null
           poster: Json
-          registerlink: string
+          registerlink?: string | null
           status?: string
           title: string
           updated_at?: string
@@ -255,14 +255,14 @@ export type Database = {
         Row: {
           created_at: string
           id: string
-          instagram: string
+          instagram: string | null
           name: string
           updated_at: string
         }
         Insert: {
           created_at?: string
           id?: string
-          instagram: string
+          instagram?: string | null
           name: string
           updated_at?: string
         }

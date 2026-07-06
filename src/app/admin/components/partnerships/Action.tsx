@@ -103,7 +103,7 @@ export default function Action({ partnership, event, packageData, approveAction,
     <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg p-6 border border-slate-200 dark:border-slate-700 sticky top-24">
       <div className="flex items-center gap-3 mb-4">
         <ShieldAlert className="h-6 w-6 text-slate-400"/>
-        <h2 className="text-xl font-bold text-gray-900 dark:text-white">Tindakan & Status</h2>
+        <h2 className="text-xl font-bold text-slate-900 dark:text-white">Tindakan & Status</h2>
       </div>
       
       {renderActionButtons()}

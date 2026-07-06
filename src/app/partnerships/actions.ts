@@ -1,11 +1,17 @@
 'use server';
 
-import { createServerActionClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
+import { createClient } from '@supabase/supabase-js';
+
+function adminClient() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
+}
 
 type OrganizerData = {
   name: string;
-  instagram: string;
+  instagram: string | null;
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -19,13 +25,15 @@ interface FullPartnershipData {
 
 export async function checkAndCreateOrganizer(data: OrganizerData) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const supabase = createServerActionClient<any>({ cookies });
+  const supabase = adminClient();
 
-  const { data: existing, error } = await supabase
-    .from('organizers')
-    .select('*')
-    .or(`name.eq.${data.name},instagram.eq.${data.instagram}`)
-    .limit(1);
+  let query = supabase.from('organizers').select('*').eq('name', data.name);
+  if (data.instagram) {
+    query = query.eq('instagram', data.instagram);
+  } else {
+    query = query.is('instagram', null);
+  }
+  const { data: existing, error } = await query.limit(1);
 
   if (error) {
     return { status: 'error', message: error.message, data: null };
@@ -54,7 +62,7 @@ export async function checkAndCreateOrganizer(data: OrganizerData) {
 
 export async function submitFullPartnership(data: FullPartnershipData) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const supabase = createServerActionClient<any>({ cookies });
+  const supabase = adminClient();
   
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {

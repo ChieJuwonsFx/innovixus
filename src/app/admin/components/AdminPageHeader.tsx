@@ -30,7 +30,7 @@ export default function AdminPageHeader({
       {buttonHref && buttonLabel && (
         <Link
           href={buttonHref}
-          className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-slate-900 bg-slate-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-[#003366] focus:ring-offset-2 sm:w-auto dark:border-white dark:bg-white dark:text-slate-950 dark:hover:bg-slate-200"
+          className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-slate-900 bg-slate-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-brand focus:ring-offset-2 sm:w-auto dark:border-white dark:bg-white dark:text-slate-950 dark:hover:bg-slate-200"
         >
           {Icon && <Icon className="w-5 h-5" />}
           <span>{buttonLabel}</span>

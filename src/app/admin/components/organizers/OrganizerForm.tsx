@@ -39,14 +39,14 @@ export default function OrganizerForm({ organizer, isViewMode = false }: Organiz
   }
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-      <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">
+    <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md p-6">
+      <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-6">
         {isViewMode ? 'Detail Organizer' : isEdit ? 'Edit Organizer' : 'Buat Organizer Baru'}
       </h2>
       
       <form action={handleSubmit} className="space-y-4">
         <div>
-          <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label htmlFor="name" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
             Nama Organizer *
           </label>
           <input
@@ -56,28 +56,27 @@ export default function OrganizerForm({ organizer, isViewMode = false }: Organiz
             defaultValue={organizer?.name}
             disabled={isViewMode}
             required
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:text-white disabled:opacity-50 disabled:cursor-not-allowed"
             placeholder="Masukkan nama organizer"
           />
         </div>
 
         <div>
-          <label htmlFor="instagram" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Instagram Handle *
+          <label htmlFor="instagram" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+            Instagram Handle <span className="text-slate-400 font-normal">(Opsional)</span>
           </label>
           <div className="relative">
-            <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400">
+            <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-500 dark:text-slate-400">
               @
             </span>
             <input
               type="text"
               id="instagram"
               name="instagram"
-              defaultValue={organizer?.instagram}
+              defaultValue={organizer?.instagram ?? ''}
               disabled={isViewMode}
-              required
-              className="w-full pl-8 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white disabled:opacity-50 disabled:cursor-not-allowed"
-              placeholder="contoh: kraloka"
+              className="w-full pl-8 pr-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-700 dark:text-white disabled:opacity-50 disabled:cursor-not-allowed"
+              placeholder="contoh: kraloka (kosongkan jika tidak ada)"
             />
           </div>
         </div>
@@ -85,25 +84,25 @@ export default function OrganizerForm({ organizer, isViewMode = false }: Organiz
         {organizer && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                 Dibuat Pada
               </label>
               <input
                 type="text"
                 value={new Date(organizer.created_at).toLocaleString()}
                 disabled
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 dark:text-gray-300"
+                className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-700 dark:text-slate-300"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                 Terakhir Diperbarui
               </label>
               <input
                 type="text"
                 value={new Date(organizer.updated_at).toLocaleString()}
                 disabled
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 dark:text-gray-300"
+                className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-700 dark:text-slate-300"
               />
             </div>
           </div>
@@ -114,7 +113,7 @@ export default function OrganizerForm({ organizer, isViewMode = false }: Organiz
             <button
               type="button"
               onClick={() => router.back()}
-              className="px-4 py-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
+              className="px-4 py-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg"
             >
               Batal
             </button>

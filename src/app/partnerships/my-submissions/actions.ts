@@ -1,17 +1,34 @@
 'use server';
 
-import { createServerActionClient } from '@supabase/auth-helpers-nextjs';
 import { revalidatePath } from 'next/cache';
-import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
+import { createClient } from '@supabase/supabase-js';
+import { cookies } from 'next/headers';
+import { decode } from 'next-auth/jwt';
+
+function adminClient() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
+}
 
 export async function cancelSubmission(partnershipId: string, eventId: string | null) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const supabase = createServerActionClient<any>({ cookies });
+  const supabase = adminClient();
 
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) {
+  const cookieStore = await cookies();
+  const tokenCookie = cookieStore.get('next-auth.session-token')?.value;
+  if (!tokenCookie) {
     return { success: false, message: 'Anda harus login untuk melakukan aksi ini.' };
+  }
+  const decoded = await decode({ token: tokenCookie, secret: process.env.NEXTAUTH_SECRET! });
+  const email = decoded?.email as string | undefined;
+  if (!email) {
+    return { success: false, message: 'Anda harus login untuk melakukan aksi ini.' };
+  }
+  const { data: user } = await supabase.from('users').select('id').eq('email', email).single();
+  if (!user) {
+    return { success: false, message: 'Pengguna tidak ditemukan.' };
   }
 
   try {

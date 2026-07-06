@@ -44,7 +44,7 @@ function SortableImage({ file, index, onRemove, isMain }: {
       style={style}
       className={`mb-2 flex items-center rounded-2xl border p-2.5 transition-colors ${
         isMain 
-          ? 'border-[#003366] bg-slate-50 dark:bg-slate-950' 
+          ? 'border-brand bg-slate-50 dark:bg-slate-950' 
           : 'border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900'
       } ${isDragging ? 'shadow-sm' : ''}`}
     >
@@ -70,7 +70,7 @@ function SortableImage({ file, index, onRemove, isMain }: {
       
       <div className="flex-grow truncate text-sm text-slate-700 dark:text-slate-300">
         {isMain && (
-          <span className="mr-2 rounded-full bg-[#003366] px-2 py-1 text-xs text-white">
+          <span className="mr-2 rounded-full bg-brand px-2 py-1 text-xs text-white">
             Main
           </span>
         )}
@@ -126,10 +126,10 @@ export default function ImageUploader({
       
       <div
         {...getRootProps()}
-        className="mb-4 cursor-pointer rounded-3xl border-2 border-dashed border-slate-200 bg-slate-50/70 p-6 text-center transition-colors hover:border-[#003366] hover:bg-white dark:border-slate-700 dark:bg-slate-950/60 dark:hover:bg-slate-900"
+        className="mb-4 cursor-pointer rounded-3xl border-2 border-dashed border-slate-200 bg-slate-50/70 p-6 text-center transition-colors hover:border-brand hover:bg-white dark:border-slate-700 dark:bg-slate-950/60 dark:hover:bg-slate-900"
       >
         <input {...getInputProps()} />
-        <Upload className="mx-auto mb-2 h-10 w-10 text-[#003366]" />
+        <Upload className="mx-auto mb-2 h-10 w-10 text-brand" />
         <p className="text-sm text-slate-600 dark:text-slate-400">
           Drag & drop images here, or click to select
         </p>

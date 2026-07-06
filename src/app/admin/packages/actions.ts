@@ -1,8 +1,14 @@
 'use server'
 
-import { createServerActionClient } from '@supabase/auth-helpers-nextjs'
-import { cookies } from 'next/headers'
+import { createClient } from '@supabase/supabase-js'
 import { revalidatePath } from 'next/cache'
+
+function adminClient() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
+}
 
 interface ActionResponse {
   success: boolean;
@@ -11,7 +17,7 @@ interface ActionResponse {
 
 export async function createPackage(formData: FormData): Promise<ActionResponse> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const supabase = createServerActionClient<any>({ cookies })
+  const supabase = adminClient()
 
   const name = formData.get('name') as string
   const description = formData.get('description') as string
@@ -36,7 +42,7 @@ export async function createPackage(formData: FormData): Promise<ActionResponse>
 
 export async function updatePackage(formData: FormData): Promise<ActionResponse> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const supabase = createServerActionClient<any>({ cookies })
+  const supabase = adminClient()
 
   const id = formData.get('id') as string
   const name = formData.get('name') as string
@@ -63,7 +69,7 @@ export async function updatePackage(formData: FormData): Promise<ActionResponse>
 
 export async function deletePackage(formData: FormData) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const supabase = createServerActionClient<any>({ cookies })
+  const supabase = adminClient()
   const id = formData.get('id') as string
 
   if (!id) {
@@ -108,7 +114,7 @@ export async function deletePackage(formData: FormData) {
 
 export async function togglePackageStatus(formData: FormData) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const supabase = createServerActionClient<any>({ cookies })
+  const supabase = adminClient()
 
   const id = formData.get('id') as string
   const currentStatus = formData.get('currentStatus') === 'true'

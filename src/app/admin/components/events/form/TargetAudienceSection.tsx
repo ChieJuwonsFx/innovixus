@@ -70,16 +70,16 @@ export default function TargetAudienceSection({ event, initialLevels, initialFie
   
   return (
     <div className="space-y-6">
-      <h2 className="text-xl font-semibold text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-700 pb-3">
+      <h2 className="text-sm font-semibold text-brand">
         Target Peserta
       </h2>
       
       {Array.from(selectedFields).map(id => <input key={`field-hidden-${id}`} type="hidden" name="field_ids" value={id} />)}
       {Array.from(selectedLevels).map(id => <input key={`level-hidden-${id}`} type="hidden" name="level_ids" value={id} />)}
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div className="space-y-3">
-          <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">Bidang</label>
+          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">Bidang</label>
           <MultiSelectWithCreate
             items={filteredFields}
             selectedItems={selectedFields}
@@ -93,7 +93,7 @@ export default function TargetAudienceSection({ event, initialLevels, initialFie
         </div>
         
         <div className="space-y-3">
-          <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">Level</label>
+          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">Level</label>
           <MultiSelectWithCreate
             items={levels}
             selectedItems={selectedLevels}

@@ -20,13 +20,13 @@ export default function BasicInfoSection({
 }: BasicInfoSectionProps) {
   return (
     <div className="space-y-6">
-      <h2 className="text-xl font-semibold text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-700 pb-3">
+      <h2 className="text-sm font-semibold text-brand">
         Informasi Dasar
       </h2>
       
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div>
-          <label htmlFor="title" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+          <label htmlFor="title" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
             Judul Event <span className="text-red-500">*</span>
           </label>
           <input
@@ -35,13 +35,13 @@ export default function BasicInfoSection({
             id="title"
             defaultValue={event?.title ?? ''}
             required
-            className={`${formInputStyle} px-4 py-3 text-base`}
+            className={formInputStyle}
             placeholder="Masukkan judul event"
           />
         </div>
         
         <div>
-          <label htmlFor="kategori" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+          <label htmlFor="kategori" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
             Kategori <span className="text-red-500">*</span>
           </label>
           <select
@@ -61,7 +61,7 @@ export default function BasicInfoSection({
       </div>
       
       <div>
-        <label htmlFor="caption" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+        <label htmlFor="caption" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
           Deskripsi/Caption <span className="text-red-500">*</span>
         </label>
         <textarea
@@ -75,34 +75,32 @@ export default function BasicInfoSection({
         />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div>
-          <label htmlFor="guidelink" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-            Link Panduan <span className="text-red-500">*</span>
+          <label htmlFor="guidelink" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+            Link Panduan
           </label>
           <input
             type="url"
             name="guidelink"
             id="guidelink"
             defaultValue={event?.guidelink ?? ''}
-            required
-            className={`${formInputStyle} px-4 py-3 text-base`}
-            placeholder="https://..."
+            className={formInputStyle}
+            placeholder="https://... (kosongkan jika tidak ada)"
           />
         </div>
         
         <div>
-          <label htmlFor="registerlink" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-            Link Pendaftaran <span className="text-red-500">*</span>
+          <label htmlFor="registerlink" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+            Link Pendaftaran
           </label>
           <input
             type="url"
             name="registerlink"
             id="registerlink"
             defaultValue={event?.registerlink ?? ''}
-            required
-            className={`${formInputStyle} px-4 py-3 text-base`}
-            placeholder="https://..."
+            className={formInputStyle}
+            placeholder="https://... (kosongkan jika tidak ada)"
           />
         </div>
       </div>

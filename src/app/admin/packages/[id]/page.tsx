@@ -35,13 +35,11 @@ export default async function EditPackagePage({ params }: Props) {
         buttonLabel="Back to Packages"
       />
 
-      <div className="bg-white dark:bg-slate-800 rounded-lg shadow">
-        <div className="px-6 py-4 border-b border-gray-200 dark:border-slate-700">
-          <h3 className="text-lg font-medium text-gray-900 dark:text-slate-100">Package Information</h3>
+      <div className="rounded-lg border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-800">
+        <div className="border-b border-slate-200 px-6 py-4 dark:border-slate-700">
+          <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Package Information</h3>
           {partnershipCount > 0 && (
-            <p className="mt-1 text-sm text-amber-600">
-              This package is currently used by {partnershipCount} partnership(s). Deactivating is recommended over deleting.
-            </p>
+            <p className="mt-1 text-sm text-amber-600">This package is currently used by {partnershipCount} partnership(s).</p>
           )}
         </div>
         <div className="p-6">
@@ -49,29 +47,23 @@ export default async function EditPackagePage({ params }: Props) {
         </div>
       </div>
 
-      <div className="bg-white dark:bg-slate-800 rounded-lg shadow">
-        <div className="px-6 py-4 border-b border-gray-200 dark:border-slate-700">
-          <h3 className="text-lg font-medium text-gray-900 dark:text-slate-100">Usage Statistics</h3>
+      <div className="rounded-lg border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-800">
+        <div className="border-b border-slate-200 px-6 py-4 dark:border-slate-700">
+          <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Usage Statistics</h3>
         </div>
         <div className="p-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
             <div className="text-center">
-              <div className="text-2xl font-bold text-gray-900 dark:text-slate-100">
-                {partnershipCount}
-              </div>
-              <div className="text-sm text-gray-500 dark:text-slate-400">Total Partnerships</div>
+              <div className="text-2xl font-bold text-slate-900 dark:text-white">{partnershipCount}</div>
+              <div className="text-sm text-slate-500 dark:text-slate-400">Total Partnerships</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-gray-900 dark:text-slate-100">
-                {packageData.is_active ? 'Active' : 'Inactive'}
-              </div>
-              <div className="text-sm text-gray-500 dark:text-slate-400">Current Status</div>
+              <div className="text-2xl font-bold text-slate-900 dark:text-white">{packageData.is_active ? 'Active' : 'Inactive'}</div>
+              <div className="text-sm text-slate-500 dark:text-slate-400">Current Status</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-gray-900 dark:text-slate-100">
-                {packageData.price === 0 ? 'Free' : `Rp ${packageData.price.toLocaleString('id-ID')}`}
-              </div>
-              <div className="text-sm text-gray-500 dark:text-slate-400">Package Price</div>
+              <div className="text-2xl font-bold text-slate-900 dark:text-white">{packageData.price === 0 ? 'Free' : `Rp ${packageData.price.toLocaleString('id-ID')}`}</div>
+              <div className="text-sm text-slate-500 dark:text-slate-400">Package Price</div>
             </div>
           </div>
         </div>

@@ -25,6 +25,14 @@ export default function Card({ event, kategori, variant = 'grid' }: CardProps) {
   const posterArray = event.poster as Poster[] | null;
   const posterUrl = posterArray?.[0]?.url || '/placeholder.png'; 
 
+  const effectiveCloseDate = event.close_date || (() => {
+    const base = event.open_date || event.created_at;
+    if (!base) return null;
+    const d = new Date(base);
+    d.setDate(d.getDate() + 30);
+    return d.toISOString();
+  })();
+
   const formatDate = (dateString: string | null) => {
     if (!dateString) return 'N/A';
     const date = new Date(dateString);
@@ -48,8 +56,8 @@ export default function Card({ event, kategori, variant = 'grid' }: CardProps) {
   };
 
   const getStatusColor = () => {
-    if (!event.close_date) return 'text-slate-500';
-    const closeDate = new Date(event.close_date);
+    if (!effectiveCloseDate) return 'text-slate-500';
+    const closeDate = new Date(effectiveCloseDate);
     const now = new Date();
     const diffDays = Math.ceil((closeDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
 
@@ -79,7 +87,7 @@ export default function Card({ event, kategori, variant = 'grid' }: CardProps) {
     return `${title}<br />&nbsp;`;
   };
 
-  const closeDateText = formatDateWithTime(event.close_date);
+  const closeDateText = formatDateWithTime(effectiveCloseDate);
 
   const SliderCardContent = (
     <div className="group relative bg-white dark:bg-slate-900 rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-slate-200 dark:border-slate-700 h-full hover:-translate-y-1">
@@ -103,7 +111,7 @@ export default function Card({ event, kategori, variant = 'grid' }: CardProps) {
           </div>
         )}
         
-        {kategori === 'info-lomba' && event.is_free && (
+        {kategori === 'info-lomba' && event.is_free === true && (
           <div className="absolute bottom-3 left-3 z-20">
             <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-gradient-to-r from-emerald-500 to-green-500 text-white rounded-full text-xs font-semibold shadow-lg">
               <Sparkles className="w-3 h-3" />
@@ -127,7 +135,7 @@ export default function Card({ event, kategori, variant = 'grid' }: CardProps) {
               <Calendar className="w-3 h-3 text-blue-600 dark:text-blue-400" />
             </div>
             <span className="text-slate-900 dark:text-white font-semibold text-xs truncate">
-              {formatDate(event.close_date)}
+              {formatDate(effectiveCloseDate)}
             </span>
           </div>
           
@@ -182,7 +190,7 @@ export default function Card({ event, kategori, variant = 'grid' }: CardProps) {
           </div>
         )}
         
-        {kategori === 'info-lomba' && event.is_free && (
+        {kategori === 'info-lomba' && event.is_free === true && (
           <div className="absolute bottom-4 left-4 z-20">
             <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-emerald-500 to-green-500 text-white rounded-full text-xs font-semibold shadow-lg">
               <Sparkles className="w-3.5 h-3.5" />
@@ -206,7 +214,7 @@ export default function Card({ event, kategori, variant = 'grid' }: CardProps) {
               <Calendar className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
             </div>
             <span className="text-slate-900 dark:text-white font-semibold truncate">
-              {formatDate(event.close_date)}
+              {formatDate(effectiveCloseDate)}
             </span>
           </div>
           

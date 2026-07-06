@@ -24,6 +24,14 @@ interface Props {
 export default function EventDetailsCard({ event }: Props) {
   const posterUrl = getPosterUrl(event.poster);
 
+  const effectiveCloseDate = event.close_date || (() => {
+    const base = event.open_date || event.created_at;
+    if (!base) return null;
+    const d = new Date(base);
+    d.setDate(d.getDate() + 30);
+    return d.toISOString();
+  })();
+
   const getModeStyle = (mode: string | null) => {
     switch(mode) {
       case 'Online': return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
@@ -33,10 +41,10 @@ export default function EventDetailsCard({ event }: Props) {
   }
 
   return (
-    <div className="bg-gray-50 dark:bg-slate-700/50 rounded-lg p-6 border dark:border-slate-700 space-y-6">
+    <div className="bg-slate-50 dark:bg-slate-700/50 rounded-lg p-6 border dark:border-slate-700 space-y-6">
       <div className="flex items-center gap-3">
         <Calendar className="h-6 w-6 text-green-600" />
-        <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+        <h2 className="text-xl font-semibold text-slate-900 dark:text-white">
           Detail Event
         </h2>
       </div>
@@ -61,8 +69,8 @@ export default function EventDetailsCard({ event }: Props) {
         <div className="grid md:grid-cols-2 gap-6">
           <DetailItem icon={<MapPin size={16} />} label="Lokasi" value={event.location || 'N/A'} />
           <DetailItem icon={<Globe size={16} />} label="Mode" value={<span className={`px-2 py-0.5 rounded text-sm font-medium ${getModeStyle(event.is_online)}`}>{event.is_online}</span>} />
-          <DetailItem icon={<Calendar size={16} />} label="Tanggal Buka" value={new Date(event.open_date).toLocaleDateString('id-ID', { dateStyle: 'long' })} />
-          <DetailItem icon={<Calendar size={16} />} label="Tanggal Tutup" value={event.close_date ? new Date(event.close_date).toLocaleDateString('id-ID', { dateStyle: 'long' }) : 'Tidak ditentukan'} />
+          <DetailItem icon={<Calendar size={16} />} label="Tanggal Buka" value={event.open_date ? new Date(event.open_date).toLocaleDateString('id-ID', { dateStyle: 'long' }) : 'Tidak ditentukan'} />
+          <DetailItem icon={<Calendar size={16} />} label="Tanggal Tutup" value={effectiveCloseDate ? new Date(effectiveCloseDate).toLocaleDateString('id-ID', { dateStyle: 'long' }) : 'Tidak ditentukan'} />
         </div>
       </div>
 
@@ -79,10 +87,10 @@ export default function EventDetailsCard({ event }: Props) {
 
 const DetailItem = ({ icon, label, value }: { icon: React.ReactNode, label: string, value: string | React.ReactNode }) => (
   <div className="flex items-start gap-3">
-    <div className="text-gray-400 mt-0.5">{icon}</div>
+    <div className="text-slate-400 mt-0.5">{icon}</div>
     <div>
-      <p className="text-sm font-medium text-gray-500 dark:text-gray-400">{label}</p>
-      <div className="font-semibold text-gray-900 dark:text-white">{value}</div>
+      <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{label}</p>
+      <div className="font-semibold text-slate-900 dark:text-white">{value}</div>
     </div>
   </div>
 );

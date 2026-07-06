@@ -137,18 +137,18 @@ export default function MultiSelectWithCreate<T extends Item>({
         width: `${dropdownPosition.width}px`,
         zIndex: 9999
       }}
-      className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-xl max-h-96 flex flex-col"
+      className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-lg shadow-xl max-h-96 flex flex-col"
     >
-      <div className="p-3 border-b border-gray-200 dark:border-gray-600">
+      <div className="p-3 border-b border-slate-200 dark:border-slate-600">
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" />
           <input
             ref={searchInputRef}
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder={`Cari ${itemName}...`}
-            className="block w-full pl-10 pr-4 py-2.5 text-base rounded-lg shadow-sm transition-colors bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="block w-full pl-10 pr-4 py-2.5 text-base rounded-lg shadow-sm transition-colors bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           />
         </div>
       </div>
@@ -165,26 +165,26 @@ export default function MultiSelectWithCreate<T extends Item>({
                     onChange={() => onSelectionChange(item.id)}
                     className="peer sr-only"
                   />
-                  <div className="w-5 h-5 border-2 border-gray-300 dark:border-gray-500 rounded-md bg-white dark:bg-gray-700 peer-checked:bg-blue-600 peer-checked:border-blue-600 peer-focus:ring-2 peer-focus:ring-offset-2 dark:peer-focus:ring-offset-gray-800 peer-focus:ring-blue-500 transition-all duration-200 flex items-center justify-center">
+                  <div className="w-5 h-5 border-2 border-slate-300 dark:border-slate-500 rounded-md bg-white dark:bg-slate-700 peer-checked:bg-blue-600 peer-checked:border-blue-600 peer-focus:ring-2 peer-focus:ring-offset-2 dark:peer-focus:ring-offset-slate-800 peer-focus:ring-blue-500 transition-all duration-200 flex items-center justify-center">
                     <svg className="w-3 h-3 text-white opacity-0 peer-checked:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"/>
                     </svg>
                   </div>
                 </div>
-                <span className="ml-4 text-sm font-medium text-gray-700 dark:text-gray-300 group-hover:text-blue-600 dark:group-hover:text-blue-400">
+                <span className="ml-4 text-sm font-medium text-slate-700 dark:text-slate-300 group-hover:text-blue-600 dark:group-hover:text-blue-400">
                   {item.name}
                 </span>
               </label>
             </li>
           ))
         ) : (
-          <li className="p-4 text-center text-sm text-gray-500 dark:text-gray-400">
+          <li className="p-4 text-center text-sm text-slate-500 dark:text-slate-400">
             Tidak ada {itemName} yang ditemukan
           </li>
         )}
       </ul>
 
-      <div className="p-3 border-t border-gray-200 dark:border-gray-600">
+      <div className="p-3 border-t border-slate-200 dark:border-slate-600">
         <div className="flex items-start space-x-3">
           <div className="flex-grow">
             <input
@@ -194,7 +194,7 @@ export default function MultiSelectWithCreate<T extends Item>({
               onChange={handleInputChange}
               onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddItem())}
               placeholder={`Tambah ${itemName} baru...`}
-              className="block w-full text-base rounded-lg shadow-sm transition-colors bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 px-4 py-2.5"
+              className="block w-full text-base rounded-lg shadow-sm transition-colors bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 px-4 py-2.5"
             />
             {error && <p className="mt-1.5 text-xs text-red-600 dark:text-red-400">{error}</p>}
           </div>
@@ -217,12 +217,12 @@ export default function MultiSelectWithCreate<T extends Item>({
         ref={buttonRef}
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="block w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors px-4 py-3 text-base text-left flex justify-between items-center"
+        className="block w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors px-4 py-3 text-base text-left flex justify-between items-center"
       >
-        <span className={`truncate ${selectedItemsText ? 'text-gray-900 dark:text-white' : 'text-gray-400 dark:text-gray-500'}`}>
+        <span className={`truncate ${selectedItemsText ? 'text-slate-900 dark:text-white' : 'text-slate-400 dark:text-slate-500'}`}>
           {selectedItemsText || placeholder}
         </span>
-        <ChevronDown className={`w-5 h-5 text-gray-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+        <ChevronDown className={`w-5 h-5 text-slate-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
       </button>
 
       {typeof document !== 'undefined' && createPortal(dropdownContent, document.body)}

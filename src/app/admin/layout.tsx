@@ -4,7 +4,6 @@ import { ReactNode, useState, useEffect, useCallback, ElementType, useRef } from
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { useSession } from 'next-auth/react'; 
 import {
   LayoutDashboard,
@@ -67,7 +66,7 @@ function UserNav({ profile, onSignOut }: { profile: Profile | null, onSignOut: (
             src={profile.avatar} alt="User profile" width={36} height={36}
           />
         ) : (
-          <div className="w-9 h-9 rounded-full flex items-center justify-center bg-[#003366] text-white font-semibold text-sm border border-slate-200 dark:border-slate-700">
+          <div className="w-9 h-9 rounded-full flex items-center justify-center bg-brand text-white font-semibold text-sm border border-slate-200 dark:border-slate-700">
             {profile.name?.charAt(0).toUpperCase()}
           </div>
         )}
@@ -92,7 +91,7 @@ function UserNav({ profile, onSignOut }: { profile: Profile | null, onSignOut: (
             <Link 
               href={profilePath} 
               onClick={() => setIsOpen(false)} 
-              className="block px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-[#003366] transition-colors"
+              className="block px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-brand transition-colors"
             >
               Your Profile
             </Link>
@@ -124,11 +123,11 @@ function NavItem({ href, icon: Icon, children, onLinkClick }: NavItemProps) {
       <Link href={href} onClick={onLinkClick} className={clsx(
         "flex items-center gap-3 rounded-xl p-3 text-sm transition-colors duration-200",
         isActive
-          ? "bg-slate-100 text-[#003366] dark:bg-slate-800 dark:text-white font-semibold"
+          ? "bg-slate-100 text-brand dark:bg-slate-800 dark:text-white font-semibold"
           : "text-slate-600 hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-slate-800 font-medium"
       )}>
-        {isActive && <motion.div layoutId="active-pill" className="absolute left-0 top-2 bottom-2 w-1 bg-[#003366] rounded-r-full" />}
-        <Icon className={clsx("w-5 h-5 ml-2 z-10", isActive ? "text-[#003366] dark:text-white" : "text-slate-500 dark:text-slate-500")} />
+        {isActive && <motion.div layoutId="active-pill" className="absolute left-0 top-2 bottom-2 w-1 bg-brand rounded-r-full" />}
+        <Icon className={clsx("w-5 h-5 ml-2 z-10", isActive ? "text-brand dark:text-white" : "text-slate-500 dark:text-slate-500")} />
         <span className="z-10">{children}</span>
       </Link>
     </li>
@@ -141,16 +140,25 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const pathname = usePathname();
   const router = useRouter();
-  const supabase = createClientComponentClient();
+  const [supabase, setSupabase] = useState<any>(null);
   const { data: nextAuthSession, status } = useSession();
 
   useEffect(() => {
+    import('@supabase/auth-helpers-nextjs').then(({ createClientComponentClient }) => {
+      setSupabase(createClientComponentClient());
+    });
+  }, []);
+
+  useEffect(() => {
+    const sb = supabase;
+    if (!sb) return;
+
     const getProfileData = async () => {
       try {
-        const { data: { session: supabaseSession } } = await supabase.auth.getSession();
+        const { data: { session: supabaseSession } } = await sb.auth.getSession();
         
         if (supabaseSession?.user) {
-          const { data: userProfile, error } = await supabase
+          const { data: userProfile, error } = await sb
             .from('users')
             .select('*')
             .eq('id', supabaseSession.user.id)
@@ -174,7 +182,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
         }
 
         if (status === 'authenticated' && nextAuthSession?.user?.email) {
-          const { data: userProfile, error } = await supabase
+          const { data: userProfile, error } = await sb
             .from('users')
             .select('*')
             .eq('email', nextAuthSession.user.email)
@@ -196,7 +204,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     
     getProfileData();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = sb.auth.onAuthStateChange((_event: string, session: { user?: unknown } | null) => {
       if (session?.user) {
         getProfileData();
       } else if (status === 'unauthenticated') {
@@ -244,7 +252,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
 
   const handleSignOut = async () => {
     try {
-      await supabase.auth.signOut();
+      await supabase?.auth.signOut();
       
       const { signOut } = await import('next-auth/react');
       await signOut({ redirect: false });

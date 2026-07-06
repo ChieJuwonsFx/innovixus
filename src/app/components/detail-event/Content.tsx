@@ -45,6 +45,14 @@ export default function Content({
   categoryConfig,
   onImageClick
 }: ContentProps) {
+  const effectiveCloseDate = event.close_date || (() => {
+    const base = event.open_date || event.created_at;
+    if (!base) return null;
+    const d = new Date(base);
+    d.setDate(d.getDate() + 30);
+    return d.toISOString();
+  })();
+
   const formatDate = (dateString: string | null) => {
     if (!dateString) return 'N/A';
     return new Date(dateString).toLocaleDateString('id-ID', {
@@ -64,7 +72,7 @@ export default function Content({
             title={event.title} 
             onImageClick={onImageClick}
           />
-          {kategori === 'info-lomba' && event.is_free && (
+          {kategori === 'info-lomba' && event.is_free === true && (
             <div className="absolute bottom-4 left-4">
               <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-emerald-500 to-green-500 text-white rounded-full text-sm font-semibold shadow-lg">
                 <Sparkles className="w-3.5 h-3.5" />
@@ -109,7 +117,7 @@ export default function Content({
               </div>
               <div className="min-w-0">
                 <h3 className="font-semibold text-slate-900 dark:text-white">Batas Pendaftaran</h3>
-                <p className="text-slate-600 dark:text-slate-400 text-sm">{formatDate(event.close_date)}</p>
+                <p className="text-slate-600 dark:text-slate-400 text-sm">{formatDate(effectiveCloseDate)}</p>
               </div>
             </div>
             

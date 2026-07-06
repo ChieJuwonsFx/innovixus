@@ -29,7 +29,7 @@ interface PosterImage { id?: string; url: string; file?: File; }
 
 interface EventFormProps {
   event?: EventWithRelations;
-  organizers: Pick<Organizer, 'id' | 'instagram'>[];
+  organizers: Pick<Organizer, 'id' | 'name' | 'instagram'>[];
   levels: Level[];
   fields: Field[];
   asChild?: boolean;
@@ -40,7 +40,7 @@ function isPosterImageArray(poster: unknown): poster is PosterImage[] {
   return poster.every(item => typeof item === 'object' && item !== null && 'url' in item && typeof item.url === 'string');
 }
 
-const formInputStyle = "block w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors";
+const formInputStyle = "block w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors px-3 py-2.5 text-sm";
 
 export default function EventForm({ event, organizers, levels, fields, asChild = false }: EventFormProps) {
   const router = useRouter();
@@ -138,12 +138,12 @@ export default function EventForm({ event, organizers, levels, fields, asChild =
   const FormContent = (
     <>
       {state && !state.success && (
-        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+        <div className="rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-900/20">
           <FormMessage type="error" message={state.message} />
         </div>
       )}
       {dateError && (
-        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+        <div className="rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-900/20">
           <p className="text-red-600 dark:text-red-400 text-sm">{dateError}</p>
         </div>
       )}
@@ -164,7 +164,8 @@ export default function EventForm({ event, organizers, levels, fields, asChild =
       <EventDetailsSection 
         event={event} 
         organizers={organizers} 
-        formInputStyle={formInputStyle} 
+        formInputStyle={formInputStyle}
+        selectedKategori={selectedKategori}
       />
       {!asChild && (
         <PublicationStatusSection 
@@ -172,8 +173,8 @@ export default function EventForm({ event, organizers, levels, fields, asChild =
           formInputStyle={formInputStyle} 
         />
       )}
-      <div className="space-y-6">
-        <h2 className="text-xl font-semibold text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-700 pb-3">
+      <div className="space-y-4">
+        <h2 className="text-sm font-semibold text-brand">
           Media Event
         </h2>
         <ImageUploader 
@@ -189,7 +190,7 @@ export default function EventForm({ event, organizers, levels, fields, asChild =
         selectedKategori={selectedKategori}
       />
       {!asChild && (
-        <div className="flex justify-end pt-6 border-t border-gray-200 dark:border-gray-700">
+        <div className="flex justify-end pt-6 border-t border-slate-200 dark:border-slate-700">
           <SubmitButton 
             label={event ? 'Perbarui Event' : 'Buat Event'}
             loadingLabel={event ? 'Memperbarui...' : 'Membuat...'} 
@@ -205,10 +206,10 @@ export default function EventForm({ event, organizers, levels, fields, asChild =
   }
 
   return (
-    <div className="bg-white dark:bg-gray-800 shadow-xl rounded-2xl overflow-hidden">
+    <div className="overflow-hidden rounded-xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800">
       <form 
         onSubmit={handleSubmit}
-        className="p-8 space-y-8"
+        className="space-y-6 p-6"
       >
         {FormContent}
       </form>

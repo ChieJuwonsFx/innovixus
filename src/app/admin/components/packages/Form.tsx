@@ -20,7 +20,7 @@ interface Props {
   initialData?: Package;
 }
 
-const formInputStyle = "block w-full rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors px-4 py-2.5";
+const formInputStyle = "block w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors px-4 py-2.5";
 
 export default function PackageForm({ initialData }: Props) {
   const router = useRouter(); // ✨ Inisialisasi router
@@ -64,7 +64,7 @@ export default function PackageForm({ initialData }: Props) {
       {isEditing && <input type="hidden" name="id" value={initialData.id} />}      
       <div className="space-y-6">
         <div>
-          <label htmlFor="name" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">
+          <label htmlFor="name" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
             Package Name *
           </label>
           <input
@@ -79,7 +79,7 @@ export default function PackageForm({ initialData }: Props) {
           />
         </div>
         <div>
-          <label htmlFor="description" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">
+          <label htmlFor="description" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
             Description *
           </label>
           <textarea
@@ -94,13 +94,13 @@ export default function PackageForm({ initialData }: Props) {
           />
         </div>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start pt-6 border-t border-gray-200 dark:border-slate-700">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start pt-6 border-t border-slate-200 dark:border-slate-700">
         <div>
-          <label htmlFor="price" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">
+          <label htmlFor="price" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
             Price (Rp)
           </label>
           <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-500">Rp</div>
+            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-500">Rp</div>
             <input
               type="number"
               id="price"
@@ -112,12 +112,12 @@ export default function PackageForm({ initialData }: Props) {
               placeholder="0"
             />
           </div>
-          <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+          <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
             Set to 0 for a free package.
           </p>
         </div>
         <div>
-          <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
             Package Status
           </label>
           <label htmlFor="is_active" className="inline-flex items-center cursor-pointer">
@@ -129,21 +129,21 @@ export default function PackageForm({ initialData }: Props) {
               onChange={(e) => setIsActive(e.target.checked)}
               className="sr-only peer"
             />
-            <div className="relative w-11 h-6 bg-gray-200 dark:bg-slate-600 rounded-full peer peer-focus:ring-2 peer-focus:ring-blue-500 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-            <span className="ml-3 text-sm font-medium text-gray-900 dark:text-gray-200">
+            <div className="relative w-11 h-6 bg-slate-200 dark:bg-slate-600 rounded-full peer peer-focus:ring-2 peer-focus:ring-blue-500 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+            <span className="ml-3 text-sm font-medium text-slate-900 dark:text-slate-200">
               Active
             </span>
           </label>
-          <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+          <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
             Inactive packages won&apos;t be visible to users.
           </p>
         </div>
       </div>
 
-      <div className="flex justify-end items-center pt-6 border-t border-gray-200 dark:border-slate-700 space-x-4">
+      <div className="flex justify-end items-center pt-6 border-t border-slate-200 dark:border-slate-700 space-x-4">
         <Link
           href="/admin/packages"
-          className="px-6 py-2.5 border border-gray-300 dark:border-slate-600 rounded-lg shadow-sm text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-slate-700 hover:bg-gray-50 dark:hover:bg-slate-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+          className="px-6 py-2.5 border border-slate-300 dark:border-slate-600 rounded-lg shadow-sm text-sm font-medium text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
         >
           Cancel
         </Link>

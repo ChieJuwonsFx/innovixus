@@ -436,7 +436,7 @@ export default function SubmissionDetailPage({
                         <Badge text={events.kategori} color="purple" />
                       </InfoRow>
                       <InfoRow icon={<DollarSign size={16} />} label="Biaya">
-                        {events.is_free ? (
+                        {events.is_free === null ? '-' : events.is_free ? (
                           <Badge text="Gratis" color="green" />
                         ) : (
                           "Berbayar"
@@ -464,6 +464,7 @@ export default function SubmissionDetailPage({
                         icon={<ExternalLink size={16} />}
                         label="Link Pendaftaran"
                       >
+                        {events.registerlink ? (
                         <a
                           href={events.registerlink}
                           target="_blank"
@@ -472,6 +473,7 @@ export default function SubmissionDetailPage({
                         >
                           Lihat Link
                         </a>
+                        ) : '-'}
                       </InfoRow>
                       <InfoRow icon={<ImageIcon size={16} />} label="Poster">
                         {posterUrl ? (

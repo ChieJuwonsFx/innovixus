@@ -1,22 +1,24 @@
 'use server'
 
-import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { createClient } from '@supabase/supabase-js'
+
+function adminClient() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
+}
 
 export async function createOrganizer(formData: FormData) {
   try {
-    const supabase = await createClient()
+    const supabase = adminClient()
     
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) {
-      throw new Error('Authentication failed. Please log in again.')
-    }
-
     const name = formData.get('name') as string
     const instagram = formData.get('instagram') as string
     
-    if (!name || !instagram) {
-      throw new Error('Name and Instagram are required')
+    if (!name) {
+      throw new Error('Nama organizer wajib diisi')
     }
 
     const { error } = await supabase
@@ -24,14 +26,14 @@ export async function createOrganizer(formData: FormData) {
       .insert({
         id: crypto.randomUUID(), 
         name: name.trim(),
-        instagram: instagram.trim(),
+        instagram: instagram?.trim() || null,
         created_at: new Date().toISOString(), 
         updated_at: new Date().toISOString(), 
       })
 
     if (error) {
       console.error('Error creating organizer:', error)
-      throw new Error(`Failed to create organizer: ${error.message}`)
+      throw new Error(`Gagal membuat organizer: ${error.message}`)
     }
 
     revalidatePath('/admin/organizers')
@@ -43,26 +45,26 @@ export async function createOrganizer(formData: FormData) {
 
 export async function updateOrganizer(id: string, formData: FormData) {
   try {
-    const supabase = await createClient()
+    const supabase = adminClient()
 
     const name = formData.get('name') as string
     const instagram = formData.get('instagram') as string
     
-    if (!name || !instagram) {
-      throw new Error('Name and Instagram are required')
+    if (!name) {
+      throw new Error('Nama organizer wajib diisi')
     }
 
     const { error } = await supabase
       .from('organizers')
       .update({
         name: name.trim(),
-        instagram: instagram.trim(),
+        instagram: instagram?.trim() || null,
       })
       .eq('id', id)
 
     if (error) {
       console.error('Error updating organizer:', error)
-      throw new Error(`Failed to update organizer: ${error.message}`)
+      throw new Error(`Gagal memperbarui organizer: ${error.message}`)
     }
 
     revalidatePath('/admin/organizers')
@@ -74,7 +76,7 @@ export async function updateOrganizer(id: string, formData: FormData) {
 
 export async function deleteOrganizer(id: string) {
   try {
-    const supabase = await createClient()
+    const supabase = adminClient()
     
     const { data: events, error: checkError } = await supabase
       .from('events')
@@ -108,8 +110,26 @@ export async function deleteOrganizer(id: string) {
   }
 }
 
+export async function quickCreateOrganizer(name: string, instagram: string | null) {
+  const supabase = adminClient()
+
+  if (!name) {
+    throw new Error('Nama wajib diisi')
+  }
+
+  const id = crypto.randomUUID()
+  const { error } = await supabase
+    .from('organizers')
+    .insert({ id, name: name.trim(), instagram: instagram?.trim() || null, created_at: new Date().toISOString(), updated_at: new Date().toISOString() })
+
+  if (error) throw new Error(`Gagal membuat organizer: ${error.message}`)
+
+  revalidatePath('/admin/organizers')
+  return { id, name: name.trim(), instagram: instagram?.trim() || null }
+}
+
 export async function getOrganizer(id: string) {
-  const supabase = await createClient()
+  const supabase = adminClient()
   
   const { data, error } = await supabase
     .from('organizers')
@@ -126,7 +146,7 @@ export async function getOrganizer(id: string) {
 }
 
 export async function getOrganizers() {
-  const supabase = await createClient()
+  const supabase = adminClient()
   
   const { data, error } = await supabase
     .from('organizers')

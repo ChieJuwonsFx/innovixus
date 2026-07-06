@@ -10,12 +10,12 @@ interface PublicationStatusSectionProps {
 export default function PublicationStatusSection({ event, formInputStyle }: PublicationStatusSectionProps) {
   return (
         <div className="space-y-6">
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-700 pb-3">
+          <h2 className="text-sm font-semibold text-brand">
             Status Publikasi
           </h2>
           
           <div className="space-y-3 max-w-md">
-            <label htmlFor="status" className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
+            <label htmlFor="status" className="block text-sm font-semibold text-slate-700 dark:text-slate-300">
               Status <span className="text-red-500">*</span>
             </label>
             <select

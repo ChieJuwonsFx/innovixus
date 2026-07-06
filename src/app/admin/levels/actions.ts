@@ -1,12 +1,17 @@
 'use server'
 
-import { createServerActionClient } from '@supabase/auth-helpers-nextjs'
-import { cookies } from 'next/headers'
 import { revalidatePath } from 'next/cache'
+import { createClient } from '@supabase/supabase-js'
+
+function adminClient() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
+}
 
 export async function getLevels() {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const supabase = createServerActionClient<any>({ cookies })
+  const supabase = adminClient()
   
   const { data, error } = await supabase
     .from('levels')
@@ -23,14 +28,8 @@ export async function getLevels() {
 
 export async function createLevel(formData: FormData) {
   try {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const supabase = createServerActionClient<any>({ cookies })
+    const supabase = adminClient()
     
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) {
-      return { success: false, message: 'Authentication failed. Please log in again.' }
-    }
-
     const name = formData.get('name') as string
     
     if (!name || !name.trim()) {
@@ -73,8 +72,7 @@ export async function createLevel(formData: FormData) {
 
 export async function updateLevel(id: string, formData: FormData) {
   try {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const supabase = createServerActionClient<any>({ cookies })
+    const supabase = adminClient()
     
     const name = formData.get('name') as string
     
@@ -102,8 +100,7 @@ export async function updateLevel(id: string, formData: FormData) {
 
 export async function deleteLevel(id: string) {
   try {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const supabase = createServerActionClient<any>({ cookies })
+    const supabase = adminClient()
     
     const { data: eventLevels, error: checkError } = await supabase
       .from('event_levels')

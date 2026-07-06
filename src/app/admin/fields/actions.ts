@@ -1,12 +1,18 @@
 'use server'
 
-import { createServerActionClient } from '@supabase/auth-helpers-nextjs'
-import { cookies } from 'next/headers'
 import { revalidatePath } from 'next/cache'
+import { createClient } from '@supabase/supabase-js'
+
+function adminClient() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
+}
 
 export async function getFields() {
   try {
-    const supabase = createServerActionClient({ cookies })
+    const supabase = adminClient()
     
     const { data, error } = await supabase
       .from('fields')
@@ -27,7 +33,7 @@ export async function getFields() {
 
 export async function getFieldsForCategory(kategori?: string) {
   try {
-    const supabase = createServerActionClient({ cookies })
+    const supabase = adminClient()
     
     let query = supabase
       .from('fields')
@@ -54,12 +60,7 @@ export async function getFieldsForCategory(kategori?: string) {
 
 export async function createField(formData: FormData) {
   try {
-    const supabase = createServerActionClient({ cookies })
-
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) {
-      return { success: false, message: 'Authentication failed. Please log in again.' }
-    }
+    const supabase = adminClient()
     
     const name = formData.get('name') as string
     const only_lomba = formData.get('only_lomba') === 'true'
@@ -106,7 +107,7 @@ export async function createField(formData: FormData) {
 
 export async function updateField(id: string, formData: FormData) {
   try {
-    const supabase = createServerActionClient({ cookies })
+    const supabase = adminClient()
     
     const name = formData.get('name') as string
     const only_lomba = formData.get('only_lomba') === 'true'
@@ -136,7 +137,7 @@ export async function updateField(id: string, formData: FormData) {
 
 export async function deleteField(id: string) {
   try {
-    const supabase = createServerActionClient({ cookies })
+    const supabase = adminClient()
     
     const { data: eventFields, error: checkError } = await supabase
       .from('event_fields')

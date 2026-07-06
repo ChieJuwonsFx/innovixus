@@ -3,7 +3,7 @@ export type PostTemplate = 'blue' | 'red' | 'green' | 'purple' | 'orange' | 'tea
 export type PostCategory = 
   | 'Info Lomba'
   | 'Info Magang' 
-  | 'Info Workshop'
+  | 'Info Loker'
   | 'Info Seminar'
   | string; 
 

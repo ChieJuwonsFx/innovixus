@@ -1,9 +1,15 @@
 'use server';
 
-import { createServerActionClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
+import { createClient } from '@supabase/supabase-js';
+
+function adminClient() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
+}
 
 export async function approveFreePartnership(partnershipId: string, eventId: string | null) {
   if (!eventId) {
@@ -11,7 +17,7 @@ export async function approveFreePartnership(partnershipId: string, eventId: str
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const supabase = createServerActionClient<any>({ cookies });
+  const supabase = adminClient();
 
   const { error: eventError } = await supabase
     .from('events')
@@ -35,7 +41,7 @@ export async function approveFreePartnership(partnershipId: string, eventId: str
 
 export async function verifyPayment(partnershipId: string) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const supabase = createServerActionClient<any>({ cookies });
+  const supabase = adminClient();
 
   const { error } = await supabase
     .from('partnerships')
@@ -58,7 +64,7 @@ export async function publishEvent(eventId: string | null) {
   }
   
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const supabase = createServerActionClient<any>({ cookies });
+  const supabase = adminClient();
 
   const { error } = await supabase
     .from('events')
@@ -76,7 +82,7 @@ export async function publishEvent(eventId: string | null) {
 
 export async function rejectPartnership(partnershipId: string, eventId: string | null) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const supabase = createServerActionClient<any>({ cookies });
+  const supabase = adminClient();
 
   if (eventId) {
     const { error: eventError } = await supabase

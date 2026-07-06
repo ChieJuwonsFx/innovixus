@@ -44,14 +44,14 @@ export default function DateInfoSection({ event, onDateError, formInputStyle }: 
 
   return (
         <div className="space-y-6">
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-700 pb-3">
+          <h2 className="text-sm font-semibold text-brand">
             Informasi Tanggal
           </h2>
           
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <div className="space-y-3">
-              <label htmlFor="open_date" className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                Tanggal Buka <span className="text-red-500">*</span>
+              <label htmlFor="open_date" className="block text-sm font-semibold text-slate-700 dark:text-slate-300">
+                Tanggal Buka <span className="text-slate-400 text-xs">(Opsional)</span>
               </label>
               <input
                 type="date"
@@ -60,16 +60,15 @@ export default function DateInfoSection({ event, onDateError, formInputStyle }: 
                 value={openDate}
                 onChange={handleOpenDateChange}
                 max={closeDate || undefined}
-                required
                 lang="id-ID"
-                className={`${formInputStyle} px-4 py-3 text-base [color-scheme:light] dark:[color-scheme:dark] ${!openDate ? 'text-gray-400 dark:text-gray-500' : ''}`}
+                className={`${formInputStyle} [color-scheme:light] dark:[color-scheme:dark] ${!openDate ? 'text-slate-400 dark:text-slate-500' : ''}`}
                 placeholder="dd/mm/yyyy"
               />
             </div>
             
             <div className="space-y-3">
-              <label htmlFor="close_date" className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                Tanggal Tutup <span className="text-gray-400 text-xs">(Opsional)</span>
+              <label htmlFor="close_date" className="block text-sm font-semibold text-slate-700 dark:text-slate-300">
+                Tanggal Tutup <span className="text-slate-400 text-xs">(Opsional)</span>
               </label>
               <input
                 type="date"
@@ -79,7 +78,7 @@ export default function DateInfoSection({ event, onDateError, formInputStyle }: 
                 onChange={handleCloseDateChange}
                 min={openDate || undefined}
                 lang="id-ID"
-                className={`${formInputStyle} px-4 py-3 text-base [color-scheme:light] dark:[color-scheme:dark] ${!closeDate ? 'text-gray-400 dark:text-gray-500' : ''}`}
+                className={`${formInputStyle} [color-scheme:light] dark:[color-scheme:dark] ${!closeDate ? 'text-slate-400 dark:text-slate-500' : ''}`}
                 placeholder="dd/mm/yyyy"
               />
             </div>
@@ -87,7 +86,7 @@ export default function DateInfoSection({ event, onDateError, formInputStyle }: 
 
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300">
+              <h3 className="text-lg font-semibold text-slate-700 dark:text-slate-300">
                 Perpanjangan Tanggal
               </h3>
               <button
@@ -117,7 +116,7 @@ export default function DateInfoSection({ event, onDateError, formInputStyle }: 
                     onChange={(e) => setExtendDate(e.target.value)}
                     min={closeDate || openDate || undefined}
                     lang="id-ID"
-                    className={`${formInputStyle} px-4 py-3 text-base [color-scheme:light] dark:[color-scheme:dark] ${!extendDate ? 'text-gray-400 dark:text-gray-500' : ''}`}
+                    className={`${formInputStyle} [color-scheme:light] dark:[color-scheme:dark] ${!extendDate ? 'text-slate-400 dark:text-slate-500' : ''}`}
                     placeholder="dd/mm/yyyy"
                   />
                   <p className="text-xs text-blue-600 dark:text-blue-400">

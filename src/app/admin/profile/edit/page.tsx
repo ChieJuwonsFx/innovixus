@@ -9,7 +9,7 @@ const SubmitButton = ({ children }: { children: React.ReactNode }) => {
     return (
         <button 
             type="submit" 
-            className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-slate-900 bg-slate-900 px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-[#003366] focus:ring-offset-2 dark:border-white dark:bg-white dark:text-slate-950 dark:hover:bg-slate-200"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-slate-900 bg-slate-900 px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-brand focus:ring-offset-2 dark:border-white dark:bg-white dark:text-slate-950 dark:hover:bg-slate-200"
         >
             <Save className="w-5 h-5" />
             <span>{children}</span>
@@ -72,7 +72,7 @@ export default async function AdminEditProfilePage() {
                 <div className="mb-6 flex items-center justify-between border-b border-slate-200 pb-4 dark:border-slate-800">
                     <div>
                         <h2 className="flex items-center gap-2 text-3xl font-semibold tracking-tight text-slate-900 dark:text-white">
-                            <Shield className="w-7 h-7 text-[#003366]" />
+                            <Shield className="w-7 h-7 text-brand" />
                             Edit Admin Profile
                         </h2>
                         <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
@@ -81,7 +81,7 @@ export default async function AdminEditProfilePage() {
                     </div>
                     <Link 
                         href="/admin/profile"
-                        className="flex items-center gap-1 rounded-full border border-slate-200 px-4 py-2 font-medium text-slate-600 transition-colors hover:bg-slate-50 hover:text-[#003366] dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+                        className="flex items-center gap-1 rounded-full border border-slate-200 px-4 py-2 font-medium text-slate-600 transition-colors hover:bg-slate-50 hover:text-brand dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
                     >
                         <ChevronLeft className="w-5 h-5" />
                         <span>Back</span>
@@ -99,18 +99,18 @@ export default async function AdminEditProfilePage() {
                                 className="h-32 w-32 rounded-full border-4 border-white object-cover shadow-sm dark:border-slate-900"
                             />
                         ) : (
-                            <div className="flex h-32 w-32 items-center justify-center rounded-full border-4 border-white bg-[#003366] shadow-sm dark:border-slate-900">
+                            <div className="flex h-32 w-32 items-center justify-center rounded-full border-4 border-white bg-brand shadow-sm dark:border-slate-900">
                                 <span className="text-5xl font-semibold text-white">
                                     {profile.name?.charAt(0).toUpperCase() || profile.email?.charAt(0).toUpperCase()}
                                 </span>
                             </div>
                         )}
-                        <div className="absolute -bottom-2 -right-2 flex h-10 w-10 items-center justify-center rounded-full border-4 border-white bg-[#003366] shadow-sm dark:border-slate-900">
+                        <div className="absolute -bottom-2 -right-2 flex h-10 w-10 items-center justify-center rounded-full border-4 border-white bg-brand shadow-sm dark:border-slate-900">
                             <Shield className="w-5 h-5 text-white" />
                         </div>
                     </div>
                     <div className="text-center">
-                        <p className="flex items-center justify-center gap-1 text-sm font-medium text-[#003366] dark:text-white">
+                        <p className="flex items-center justify-center gap-1 text-sm font-medium text-brand dark:text-white">
                             <Shield className="w-4 h-4" />
                             Administrator
                         </p>
@@ -122,7 +122,7 @@ export default async function AdminEditProfilePage() {
 
                 <form action={updateProfile} className="space-y-6">
                     <div>
-                        <label htmlFor="name" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                        <label htmlFor="name" className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
                             Full Name *
                         </label>
                         <input
@@ -131,7 +131,7 @@ export default async function AdminEditProfilePage() {
                             name="name"
                             defaultValue={profile.name}
                             required
-                            className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-slate-900 shadow-sm outline-none transition-colors focus:border-[#003366] focus:ring-2 focus:ring-[#003366]/20 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+                            className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-slate-900 shadow-sm outline-none transition-colors focus:border-brand focus:ring-2 focus:ring-brand/20 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
                             placeholder="Enter your full name"
                         />
                         <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
