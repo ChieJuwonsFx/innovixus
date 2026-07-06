@@ -25,16 +25,8 @@ export default function Card({ event, kategori, variant = 'grid' }: CardProps) {
   const posterArray = event.poster as Poster[] | null;
   const posterUrl = posterArray?.[0]?.url || '/placeholder.png'; 
 
-  const effectiveCloseDate = event.close_date || (() => {
-    const base = event.open_date || event.created_at;
-    if (!base) return null;
-    const d = new Date(base);
-    d.setDate(d.getDate() + 30);
-    return d.toISOString();
-  })();
-
   const formatDate = (dateString: string | null) => {
-    if (!dateString) return 'N/A';
+    if (!dateString) return null;
     const date = new Date(dateString);
     return date.toLocaleDateString('id-ID', {
       day: 'numeric', month: 'short', year: 'numeric',
@@ -56,8 +48,8 @@ export default function Card({ event, kategori, variant = 'grid' }: CardProps) {
   };
 
   const getStatusColor = () => {
-    if (!effectiveCloseDate) return 'text-slate-500';
-    const closeDate = new Date(effectiveCloseDate);
+    if (!event.close_date) return 'text-slate-500';
+    const closeDate = new Date(event.close_date);
     const now = new Date();
     const diffDays = Math.ceil((closeDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
 
@@ -87,7 +79,7 @@ export default function Card({ event, kategori, variant = 'grid' }: CardProps) {
     return `${title}<br />&nbsp;`;
   };
 
-  const closeDateText = formatDateWithTime(effectiveCloseDate);
+  const closeDateText = formatDateWithTime(event.close_date);
 
   const SliderCardContent = (
     <div className="group relative bg-white dark:bg-slate-900 rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-slate-200 dark:border-slate-700 h-full hover:-translate-y-1">
@@ -135,7 +127,7 @@ export default function Card({ event, kategori, variant = 'grid' }: CardProps) {
               <Calendar className="w-3 h-3 text-blue-600 dark:text-blue-400" />
             </div>
             <span className="text-slate-900 dark:text-white font-semibold text-xs truncate">
-              {formatDate(effectiveCloseDate)}
+              {event.close_date ? formatDate(event.close_date) : 'Tidak ditentukan'}
             </span>
           </div>
           
@@ -214,7 +206,7 @@ export default function Card({ event, kategori, variant = 'grid' }: CardProps) {
               <Calendar className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
             </div>
             <span className="text-slate-900 dark:text-white font-semibold truncate">
-              {formatDate(effectiveCloseDate)}
+              {event.close_date ? formatDate(event.close_date) : 'Tidak ditentukan'}
             </span>
           </div>
           

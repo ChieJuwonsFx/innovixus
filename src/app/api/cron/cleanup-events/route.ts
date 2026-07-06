@@ -17,101 +17,85 @@ export async function GET(request: Request) {
   const authHeader = request.headers.get('authorization');
   
   if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-    return NextResponse.json(
-      { error: 'Unauthorized' },
-      { status: 401 }
-    );
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   try {
-    const sevenDaysAgo = new Date();
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-    const sevenDaysAgoStr = sevenDaysAgo.toISOString().split('T')[0];
+    const now = new Date();
+    const nowStr = now.toISOString();
+    const result = { closed: 0, closedNull: 0, deleted: 0, errors: [] as string[] };
 
-    console.log(`Cleaning up events closed before: ${sevenDaysAgoStr}`);
-
-    const { data: oldEvents, error: fetchError } = await supabase
+    const { data: toClose } = await supabase
       .from('events')
-      .select('id, poster, kategori, close_date, extend_date')
-      .not('close_date', 'is', null);
+      .select('id, close_date, extend_date')
+      .not('close_date', 'is', null)
+      .not('status', 'eq', 'Closed')
+      .lte('close_date', nowStr);
 
-    if (fetchError) {
-      console.error('Error fetching events:', fetchError);
-      return NextResponse.json(
-        { error: 'Failed to fetch events', details: fetchError.message },
-        { status: 500 }
-      );
-    }
-
-    const eventsToDelete = oldEvents?.filter(event => {
-      const finalCloseDate = event.extend_date || event.close_date;
-      if (!finalCloseDate) return false;
-      
-      const closeDate = new Date(finalCloseDate);
-      return closeDate < sevenDaysAgo;
-    }) || [];
-
-    if (eventsToDelete.length === 0) {
-      console.log('No old events to delete');
-      return NextResponse.json({
-        success: true,
-        message: 'No events to cleanup',
-        deleted: 0
-      });
-    }
-
-    console.log(`Found ${eventsToDelete.length} events to delete`);
-
-    let deletedCount = 0;
-    const errors = [];
-
-    for (const event of eventsToDelete) {
-      try {
-        if (event.poster && Array.isArray(event.poster)) {
-          const imageUrls = event.poster
-            .map((p: { url: string }) => p.url)
-            .filter(Boolean);
-          
-          if (imageUrls.length > 0) {
-            console.log(`Deleting ${imageUrls.length} images for event ${event.id}`);
-            await deleteMultipleCloudinaryImages(imageUrls);
-          }
+    if (toClose?.length) {
+      for (const ev of toClose) {
+        const final = ev.extend_date || ev.close_date;
+        if (final && new Date(final) <= now) {
+          const { error } = await supabase.from('events').update({ status: 'Closed', updated_at: nowStr }).eq('id', ev.id);
+          if (error) result.errors.push(`close ${ev.id}: ${error.message}`);
+          else result.closed++;
         }
-        
-        const { error: deleteError } = await supabase
-          .from('events')
-          .delete()
-          .eq('id', event.id);
-
-        if (deleteError) {
-          console.error(`Failed to delete event ${event.id}:`, deleteError);
-          errors.push({ eventId: event.id, error: deleteError.message });
-        } else {
-          deletedCount++;
-          console.log(`Successfully deleted event: ${event.id}`);
-        }
-      } catch (err) {
-        console.error(`Error processing event ${event.id}:`, err);
-        errors.push({ eventId: event.id, error: String(err) });
       }
     }
 
-    console.log(`Cleanup completed: ${deletedCount}/${eventsToDelete.length} events deleted`);
+    const { data: toCloseNull } = await supabase
+      .from('events')
+      .select('id, open_date, created_at')
+      .is('close_date', null)
+      .not('status', 'eq', 'Closed')
+      .not('open_date', 'is', null);
 
-    return NextResponse.json({
-      success: true,
-      message: `Cleanup completed`,
-      deleted: deletedCount,
-      total: eventsToDelete.length,
-      errors: errors.length > 0 ? errors : undefined
-    });
+    if (toCloseNull?.length) {
+      for (const ev of toCloseNull) {
+        const base = ev.open_date || ev.created_at;
+        if (!base) continue;
+        const limit = new Date(base);
+        limit.setDate(limit.getDate() + 30);
+        if (limit <= now) {
+          const { error } = await supabase.from('events').update({ status: 'Closed', updated_at: nowStr }).eq('id', ev.id);
+          if (error) result.errors.push(`closeNull ${ev.id}: ${error.message}`);
+          else result.closedNull++;
+        }
+      }
+    }
 
+    const thirtyDaysAgo = new Date(now);
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    const thirtyDaysAgoStr = thirtyDaysAgo.toISOString();
+
+    const { data: toDelete } = await supabase
+      .from('events')
+      .select('id, poster, kategori')
+      .eq('status', 'Closed')
+      .lte('updated_at', thirtyDaysAgoStr);
+
+    if (toDelete?.length) {
+      for (const ev of toDelete) {
+        try {
+          if (ev.poster && Array.isArray(ev.poster)) {
+            const urls = ev.poster.map((p: { url: string }) => p.url).filter(Boolean);
+            if (urls.length > 0) await deleteMultipleCloudinaryImages(urls);
+          }
+          const { error } = await supabase.from('events').delete().eq('id', ev.id);
+          if (error) result.errors.push(`delete ${ev.id}: ${error.message}`);
+          else result.deleted++;
+        } catch (err) {
+          result.errors.push(`delete ${ev.id}: ${String(err)}`);
+        }
+      }
+    }
+
+    console.log(`Cron done: closed=${result.closed}, closedNull=${result.closedNull}, deleted=${result.deleted}, errors=${result.errors.length}`);
+
+    return NextResponse.json({ success: true, ...result });
   } catch (error) {
-    console.error('Unexpected error during cleanup:', error);
-    return NextResponse.json(
-      { error: 'Internal server error', details: String(error) },
-      { status: 500 }
-    );
+    console.error('Cron error:', error);
+    return NextResponse.json({ error: String(error) }, { status: 500 });
   }
 }
 

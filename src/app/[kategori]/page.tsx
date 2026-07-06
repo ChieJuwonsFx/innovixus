@@ -41,6 +41,7 @@ type PageProps = {
 const categoryMap: { [key: string]: string } = {
   'info-lomba': 'Info Lomba',
   'info-magang': 'Info Magang',
+  'info-event': 'Info Event',
   'info-loker': 'Info Loker',
 };
 
@@ -69,7 +70,7 @@ export default async function KategoriPage({ params, searchParams }: PageProps) 
     .eq('kategori', dbCategory)
     .eq('status', 'Success')
     .filter('open_date', 'lte', 'now()')
-    .filter('close_date', 'gte', 'now()')
+    .or(`close_date.gte.${now},close_date.is.null`)
     .order('created_at', { ascending: false });
 
   if (resolvedSearchParams.q) {

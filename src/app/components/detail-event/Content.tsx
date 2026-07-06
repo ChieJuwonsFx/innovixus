@@ -45,14 +45,6 @@ export default function Content({
   categoryConfig,
   onImageClick
 }: ContentProps) {
-  const effectiveCloseDate = event.close_date || (() => {
-    const base = event.open_date || event.created_at;
-    if (!base) return null;
-    const d = new Date(base);
-    d.setDate(d.getDate() + 30);
-    return d.toISOString();
-  })();
-
   const formatDate = (dateString: string | null) => {
     if (!dateString) return 'N/A';
     return new Date(dateString).toLocaleDateString('id-ID', {
@@ -117,7 +109,10 @@ export default function Content({
               </div>
               <div className="min-w-0">
                 <h3 className="font-semibold text-slate-900 dark:text-white">Batas Pendaftaran</h3>
-                <p className="text-slate-600 dark:text-slate-400 text-sm">{formatDate(effectiveCloseDate)}</p>
+                <p className="text-slate-600 dark:text-slate-400 text-sm">
+                  {formatDate(event.close_date)}
+                  {!event.close_date && <span className="text-slate-400 italic">Pendaftaran dapat ditutup sewaktu-waktu</span>}
+                </p>
               </div>
             </div>
             
