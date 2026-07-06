@@ -180,7 +180,7 @@ export default function GeneratePostPage() {
           <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div className="max-w-2xl space-y-3">
               <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.24em] text-slate-500 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-400">
-                <Sparkles className="h-3.5 w-3.5 text-brand" />
+                <Sparkles className="h-3.5 w-3.5 text-[#003366]" />
                 Generate Post
               </div>
               <h1 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-white md:text-3xl">
@@ -198,7 +198,7 @@ export default function GeneratePostPage() {
                 { icon: Sparkles, label: 'Ready Export' }
               ].map(({ icon: Icon, label }) => (
                 <div key={label} className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-medium text-slate-600 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300">
-                  <Icon className="h-4 w-4 text-brand" />
+                  <Icon className="h-4 w-4 text-[#003366]" />
                   {label}
                 </div>
               ))}
@@ -229,16 +229,16 @@ export default function GeneratePostPage() {
             <div className="space-y-5">
               <motion.div>
                 <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">Title <span className="text-slate-500 text-xs">(Shift+Enter for line break)</span></label>
-                <textarea name="title" value={postData.title} onChange={handleInputChange} className="min-h-[112px] w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 shadow-sm outline-none transition-colors placeholder:text-slate-400 focus:border-brand focus:ring-2 focus:ring-brand/15 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-500" rows={4} placeholder="Example: Lomba UI/UX Design" required />
+                <textarea name="title" value={postData.title} onChange={handleInputChange} className="min-h-[112px] w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 shadow-sm outline-none transition-colors placeholder:text-slate-400 focus:border-[#003366] focus:ring-2 focus:ring-[#003366]/15 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-500" rows={4} placeholder="Example: Lomba UI/UX Design" required />
               </motion.div>
               <motion.div>
                 <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">Category</label>
                 <div className="mb-3 flex flex-wrap gap-2">
                   {DEFAULT_CATEGORIES.map((cat, index) => (
-                    <motion.button key={cat} type="button" onClick={() => handleCategoryChange(cat)} className={`rounded-full px-3 py-1.5 text-xs md:text-sm transition-colors ${postData.category === cat && !customCategory ? 'bg-brand text-white shadow-sm' : 'border border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-300 dark:hover:bg-slate-800'}`} whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.05 }}>{cat}</motion.button>
+                    <motion.button key={cat} type="button" onClick={() => handleCategoryChange(cat)} className={`rounded-full px-3 py-1.5 text-xs md:text-sm transition-colors ${postData.category === cat && !customCategory ? 'bg-[#003366] text-white shadow-sm' : 'border border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-300 dark:hover:bg-slate-800'}`} whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.05 }}>{cat}</motion.button>
                   ))}
                 </div>
-                <input type="text" value={customCategory} onChange={handleCustomCategoryChange} className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 shadow-sm outline-none transition-colors placeholder:text-slate-400 focus:border-brand focus:ring-2 focus:ring-brand/15 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-500" placeholder="Or enter a custom category" />
+                <input type="text" value={customCategory} onChange={handleCustomCategoryChange} className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 shadow-sm outline-none transition-colors placeholder:text-slate-400 focus:border-[#003366] focus:ring-2 focus:ring-[#003366]/15 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-500" placeholder="Or enter a custom category" />
               </motion.div>
               <TemplateSelector selectedTemplate={postData.template} onTemplateChange={handleTemplateChange} />
               
@@ -246,7 +246,7 @@ export default function GeneratePostPage() {
                 <motion.div 
                   initial={{ opacity: 0 }} 
                   animate={{ opacity: 1 }}
-                  className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-brand dark:border-slate-800 dark:bg-slate-950"
+                  className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-[#003366] dark:border-slate-800 dark:bg-slate-950"
                 >
                   <FiLoader className="animate-spin" />
                   <span>Loading images from event...</span>
@@ -256,7 +256,7 @@ export default function GeneratePostPage() {
               <ImageUploader images={postData.images} onImagesChange={handleImagesChange} onRemoveImage={handleRemoveImage} onReorder={handleReorder} />
               
               <AnimatePresence>{error && (<motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="flex items-center gap-2 rounded-2xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600 dark:border-red-900/40 dark:bg-red-900/20 dark:text-red-300"><FiAlertTriangle /><span>{error}</span></motion.div>)}</AnimatePresence>
-              <motion.button onClick={handleGenerate} disabled={isGenerating || isLoadingImages} className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-brand px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-[#00284d] disabled:cursor-not-allowed disabled:opacity-50" whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}>
+              <motion.button onClick={handleGenerate} disabled={isGenerating || isLoadingImages} className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#003366] px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-[#00284d] disabled:cursor-not-allowed disabled:opacity-50" whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}>
                 {isGenerating ? (<><FiLoader className="animate-spin" /> Generating...</>) : (<><FiDownload /> Generate Post</>)}
               </motion.button>
             </div>
@@ -289,7 +289,7 @@ export default function GeneratePostPage() {
             <div className="flex-1 overflow-y-auto p-4 md:p-6">
               <AnimatePresence mode="wait">
                 {isGenerating ? (
-                  <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex min-h-[420px] flex-col items-center justify-center text-slate-500 dark:text-slate-400"><FiLoader className="mb-4 animate-spin text-4xl text-brand" /><p>Generating your posts...</p></motion.div>
+                  <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex min-h-[420px] flex-col items-center justify-center text-slate-500 dark:text-slate-400"><FiLoader className="mb-4 animate-spin text-4xl text-[#003366]" /><p>Generating your posts...</p></motion.div>
                 ) : generatedPosts.length > 0 ? (
                   <motion.div key="posts" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-4 md:space-y-6">
                     {generatedPosts.map((url, index) => (
@@ -301,7 +301,7 @@ export default function GeneratePostPage() {
                 ) : (
                   <motion.div key="placeholder" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex min-h-[420px] items-center justify-center rounded-3xl border border-dashed border-slate-200 bg-slate-50/80 px-6 dark:border-slate-800 dark:bg-slate-950/60">
                     <div className="max-w-sm text-center">
-                      <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-white text-brand shadow-sm dark:bg-slate-900">
+                      <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-white text-[#003366] shadow-sm dark:bg-slate-900">
                         <ImageIcon className="h-5 w-5" />
                       </div>
                       <p className="text-sm leading-6 text-slate-500 dark:text-slate-400">{postData.images.length > 0 ? 'Click "Generate Post" to preview the result.' : 'Fill in the details and upload images to begin.'}</p>
