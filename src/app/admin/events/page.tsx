@@ -32,7 +32,7 @@ export default async function EventsPage() {
               <tr className="text-left text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                 <th className="px-4 py-3 w-16"></th>
                 <th className="px-4 py-3">Event</th>
-                <th className="hidden px-4 py-3 md:table-cell">Kategori</th>
+                <th className="px-4 py-3">Kategori</th>
                 <th className="hidden px-4 py-3 lg:table-cell">Organizer</th>
                 <th className="hidden px-4 py-3 sm:table-cell">Batas</th>
                 <th className="hidden px-4 py-3 sm:table-cell">Lokasi</th>

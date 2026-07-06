@@ -81,10 +81,10 @@ export default function AdminEventCard({ event }: { event: EventWithOrganizer })
       </td>
       <td className="px-4 py-3">
         <div className="flex items-center gap-2">
-          <span className="text-sm font-medium text-slate-900 dark:text-white">{event.title}</span>
+          <span className="line-clamp-2 text-sm font-medium text-slate-900 dark:text-white">{event.title}</span>
         </div>
       </td>
-      <td className="hidden whitespace-nowrap px-4 py-3 text-sm text-slate-500 md:table-cell dark:text-slate-400">
+      <td className="whitespace-nowrap px-4 py-3 text-sm text-slate-500 dark:text-slate-400">
         {event.kategori}
       </td>
       <td className="hidden whitespace-nowrap px-4 py-3 text-sm text-slate-500 lg:table-cell dark:text-slate-400">
