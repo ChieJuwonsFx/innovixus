@@ -17,9 +17,11 @@ interface TargetAudienceSectionProps {
   initialLevels: Level[];
   initialFields: Field[];
   selectedKategori: string;
+  autofillFieldIds?: string[];
+  autofillLevelIds?: string[];
 }
 
-export default function TargetAudienceSection({ event, initialLevels, initialFields, selectedKategori }: TargetAudienceSectionProps) {
+export default function TargetAudienceSection({ event, initialLevels, initialFields, selectedKategori, autofillFieldIds, autofillLevelIds }: TargetAudienceSectionProps) {
   const [levels, setLevels] = useState<Level[]>(initialLevels);
   const [fields, setFields] = useState<Field[]>(initialFields);
   const [filteredFields, setFilteredFields] = useState<Field[]>(initialFields);
@@ -35,6 +37,14 @@ export default function TargetAudienceSection({ event, initialLevels, initialFie
       setFilteredFields(sortedFields.filter(field => !field.only_lomba));
     }
   }, [selectedKategori, fields]);
+
+  useEffect(() => {
+    if (autofillFieldIds?.length) setSelectedFields(prev => new Set([...prev, ...autofillFieldIds]));
+  }, [JSON.stringify(autofillFieldIds)]);
+
+  useEffect(() => {
+    if (autofillLevelIds?.length) setSelectedLevels(prev => new Set([...prev, ...autofillLevelIds]));
+  }, [JSON.stringify(autofillLevelIds)]);
 
   const handleLevelSelectionChange = (levelId: string) => {
     setSelectedLevels(prev => {

@@ -1,6 +1,6 @@
 'use client';
 
-import { useActionState, useEffect, useState, useTransition } from 'react';
+import { useActionState, useEffect, useState, useTransition, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast'; 
 import { Database } from '@/types/database';
@@ -45,6 +45,7 @@ const formInputStyle = "block w-full rounded-lg border border-slate-300 dark:bor
 export default function EventForm({ event, organizers, levels, fields, asChild = false }: EventFormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  const formRef = useRef<HTMLFormElement>(null);
   
   const [newImageFiles, setNewImageFiles] = useState<File[]>([]);
   
@@ -56,6 +57,112 @@ export default function EventForm({ event, organizers, levels, fields, asChild =
   const [selectedKategori, setSelectedKategori] = useState(event?.kategori ?? '');
   const [dateError, setDateError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isAiLoading, setIsAiLoading] = useState(false);
+  const [autofillFieldIds, setAutofillFieldIds] = useState<string[]>([]);
+  const [autofillLevelIds, setAutofillLevelIds] = useState<string[]>([]);
+  const [autofillOrganizerId, setAutofillOrganizerId] = useState<string | null>(null);
+
+  const handleAutofill = useCallback(async (caption: string) => {
+    if (!caption.trim()) return;
+    setIsAiLoading(true);
+    setAutofillFieldIds([]);
+    setAutofillLevelIds([]);
+    try {
+      const res = await fetch('/api/ai/autofill', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ caption })
+      });
+      const json = await res.json();
+      if (!json.success) throw new Error(json.error);
+      const d = json.data;
+      const el = formRef.current?.elements as unknown as Record<string, HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>;
+      const set = (name: string, val: string | null) => {
+        const input = el[name];
+        if (input && val != null) {
+          if (input instanceof HTMLTextAreaElement || input instanceof HTMLInputElement) {
+            input.value = val;
+          } else if ('value' in input) {
+            (input as HTMLSelectElement).value = val;
+          }
+          input.dispatchEvent(new Event('input', { bubbles: true }));
+          input.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+      };
+      d.title && set('title', d.title);
+      d.kategori && set('kategori', d.kategori);
+      if (d.kategori) setSelectedKategori(d.kategori);
+      d.caption && set('caption', d.caption);
+      d.guidelink && set('guidelink', d.guidelink);
+      d.registerlink && set('registerlink', d.registerlink);
+      d.open_date && set('open_date', d.open_date);
+      d.close_date && set('close_date', d.close_date);
+      d.is_online && set('is_online', d.is_online);
+      d.location && set('location', d.location);
+      if (d.is_free != null) set('is_free', String(d.is_free));
+
+      if (d.organizer_name) {
+        const match = organizers.find(o => o.name?.toLowerCase() === d.organizer_name.toLowerCase() || o.instagram?.toLowerCase() === d.organizer_name.toLowerCase());
+        const orgId = match ? match.id : (await (await import('@/app/admin/organizers/actions')).quickCreateOrganizer(d.organizer_name, d.organizer_instagram || null)).id;
+        el['organizer_id'].value = orgId;
+        el['organizer_id'].dispatchEvent(new Event('change', { bubbles: true }));
+        setAutofillOrganizerId(orgId);
+      }
+
+      if (d.field_names?.length) {
+        const newIds: string[] = [];
+        for (const name of d.field_names) {
+          const existing = fields.find(f => f.name.toLowerCase() === name.toLowerCase());
+          if (existing) {
+            newIds.push(existing.id);
+          } else {
+            try {
+              const { createField } = await import('@/app/admin/fields/actions');
+              const formData = new FormData();
+              formData.append('name', name);
+              formData.append('only_lomba', String(d.kategori === 'Info Lomba'));
+              await createField(formData);
+              await new Promise(r => setTimeout(r, 200));
+              const { getFields } = await import('@/app/admin/fields/actions');
+              const updated = await getFields();
+              const created = updated.find((f: { name: string }) => f.name.toLowerCase() === name.toLowerCase());
+              if (created) newIds.push(created.id);
+            } catch {}
+          }
+        }
+        if (newIds.length) setAutofillFieldIds(newIds);
+      }
+
+      if (d.level_names?.length) {
+        const newIds: string[] = [];
+        for (const name of d.level_names) {
+          const existing = levels.find(l => l.name.toLowerCase() === name.toLowerCase());
+          if (existing) {
+            newIds.push(existing.id);
+          } else {
+            try {
+              const { createLevel } = await import('@/app/admin/levels/actions');
+              const formData = new FormData();
+              formData.append('name', name);
+              await createLevel(formData);
+              await new Promise(r => setTimeout(r, 200));
+              const { getLevels } = await import('@/app/admin/levels/actions');
+              const updated = await getLevels();
+              const created = updated.find((l: { name: string }) => l.name.toLowerCase() === name.toLowerCase());
+              if (created) newIds.push(created.id);
+            } catch {}
+          }
+        }
+        if (newIds.length) setAutofillLevelIds(newIds);
+      }
+
+      toast.success('Form terisi otomatis!');
+    } catch (e) {
+      toast.error('Gagal auto-fill: ' + (e instanceof Error ? e.message : 'Unknown'));
+    } finally {
+      setIsAiLoading(false);
+    }
+  }, [organizers, fields, levels]);
   
   const [state, formAction] = useActionState(event ? updateEvent.bind(null, event.id) : createEvent, null);
 
@@ -154,7 +261,9 @@ export default function EventForm({ event, organizers, levels, fields, asChild =
         event={event} 
         selectedKategori={selectedKategori} 
         onKategoriChange={setSelectedKategori} 
-        formInputStyle={formInputStyle} 
+        formInputStyle={formInputStyle}
+        onAutofill={handleAutofill}
+        isAiLoading={isAiLoading}
       />
       <DateInfoSection 
         event={event} 
@@ -166,6 +275,7 @@ export default function EventForm({ event, organizers, levels, fields, asChild =
         organizers={organizers} 
         formInputStyle={formInputStyle}
         selectedKategori={selectedKategori}
+        autofillOrganizerId={autofillOrganizerId}
       />
       {!asChild && (
         <PublicationStatusSection 
@@ -188,6 +298,8 @@ export default function EventForm({ event, organizers, levels, fields, asChild =
         initialFields={fields}
         initialLevels={levels}
         selectedKategori={selectedKategori}
+        autofillFieldIds={autofillFieldIds}
+        autofillLevelIds={autofillLevelIds}
       />
       {!asChild && (
         <div className="flex justify-end pt-6 border-t border-slate-200 dark:border-slate-700">
@@ -208,6 +320,7 @@ export default function EventForm({ event, organizers, levels, fields, asChild =
   return (
     <div className="overflow-hidden rounded-xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800">
       <form 
+        ref={formRef}
         onSubmit={handleSubmit}
         className="space-y-6 p-6"
       >

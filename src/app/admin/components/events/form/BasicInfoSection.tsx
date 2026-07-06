@@ -10,6 +10,8 @@ interface BasicInfoSectionProps {
   selectedKategori: string;
   onKategoriChange: (kategori: string) => void;
   formInputStyle: string;
+  onAutofill?: (caption: string) => Promise<void>;
+  isAiLoading?: boolean;
 }
 
 export default function BasicInfoSection({
@@ -17,6 +19,8 @@ export default function BasicInfoSection({
   selectedKategori,
   onKategoriChange,
   formInputStyle,
+  onAutofill,
+  isAiLoading,
 }: BasicInfoSectionProps) {
   return (
     <div className="space-y-6">
@@ -73,6 +77,24 @@ export default function BasicInfoSection({
           className={`${formInputStyle} px-4 py-3 resize-y text-base`}
           placeholder="Deskripsikan event secara detail..."
         />
+        {onAutofill && (
+          <button
+            type="button"
+            onClick={() => {
+              const captionEl = document.getElementById('caption') as HTMLTextAreaElement;
+              if (captionEl?.value) onAutofill(captionEl.value);
+            }}
+            disabled={isAiLoading}
+            className="mt-2 inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-600 transition-colors hover:bg-slate-50 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+          >
+            {isAiLoading ? (
+              <span className="inline-block h-3 w-3 animate-spin rounded-full border-2 border-slate-300 border-t-blue-600" />
+            ) : (
+              <span>✨</span>
+            )}
+            {isAiLoading ? 'Memproses...' : 'Auto-fill AI'}
+          </button>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">

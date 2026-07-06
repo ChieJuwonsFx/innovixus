@@ -17,9 +17,10 @@ interface EventDetailsSectionProps {
   organizers: Pick<Organizer, 'id' | 'name' | 'instagram'>[];
   formInputStyle: string;
   selectedKategori?: string;
+  autofillOrganizerId?: string | null;
 }
 
-export default function EventDetailsSection({ event, organizers: initialOrganizers, formInputStyle, selectedKategori }: EventDetailsSectionProps) {
+export default function EventDetailsSection({ event, organizers: initialOrganizers, formInputStyle, selectedKategori, autofillOrganizerId }: EventDetailsSectionProps) {
   const [organizers, setOrganizers] = useState(initialOrganizers);
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -43,6 +44,10 @@ export default function EventDetailsSection({ event, organizers: initialOrganize
   useEffect(() => {
     setOrganizers(initialOrganizers);
   }, [initialOrganizers]);
+
+  useEffect(() => {
+    if (autofillOrganizerId) setSelectedOrganizer(autofillOrganizerId);
+  }, [autofillOrganizerId]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
