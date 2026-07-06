@@ -26,7 +26,7 @@ export default async function EventsPage() {
       />
      
       {events && events.length > 0 ? (
-        <div className="border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900">
+        <div className="overflow-x-auto border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900">
           <table className="min-w-full divide-y divide-slate-100 dark:divide-slate-800">
             <thead>
               <tr className="text-left text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">

@@ -36,6 +36,28 @@ export default function GeneratePostPage() {
   const [customCategory, setCustomCategory] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isLoadingImages, setIsLoadingImages] = useState(false);
+  const [isPosting, setIsPosting] = useState(false);
+  const [postResult, setPostResult] = useState<string | null>(null);
+
+  const handlePostToInstagram = async () => {
+    if (!generatedPosts.length || !postData.title) return;
+    setIsPosting(true);
+    setPostResult(null);
+    try {
+      const res = await fetch('/api/instagram/post', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ imageDataUrl: generatedPosts[0], caption: postData.title }),
+      });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.error);
+      setPostResult('Berhasil dipost ke Instagram!');
+    } catch (e) {
+      setPostResult('Gagal: ' + (e instanceof Error ? e.message : 'Unknown'));
+    } finally {
+      setIsPosting(false);
+    }
+  };
 
   const urlToFile = async (url: string, filename: string): Promise<File> => {
     const response = await fetch(url);
@@ -279,9 +301,20 @@ export default function GeneratePostPage() {
               </div>
               <AnimatePresence>
                 {generatedPosts.length > 0 && (
-                  <motion.button onClick={handleDownloadAll} className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-medium text-emerald-700 transition-colors hover:bg-emerald-100 dark:border-emerald-900/40 dark:bg-emerald-900/20 dark:text-emerald-300" initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                    <FiDownload /> Download All
-                  </motion.button>
+                  <div className="flex gap-2">
+                    <motion.button onClick={handleDownloadAll} className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-medium text-emerald-700 transition-colors hover:bg-emerald-100 dark:border-emerald-900/40 dark:bg-emerald-900/20 dark:text-emerald-300" initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                      <FiDownload /> Download All
+                    </motion.button>
+                    <motion.button onClick={handlePostToInstagram} disabled={isPosting} className="inline-flex items-center gap-2 rounded-full bg-[#003366] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#00284d] disabled:opacity-50" initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                      {isPosting ? <FiLoader className="animate-spin" /> : <Wand2 className="h-4 w-4" />}
+                      {isPosting ? 'Posting...' : 'Post ke Instagram'}
+                    </motion.button>
+                  </div>
+                )}
+                {postResult && (
+                  <p className={`mt-2 text-xs ${postResult.startsWith('Berhasil') ? 'text-green-600' : 'text-red-600'}`}>
+                    {postResult}
+                  </p>
                 )}
               </AnimatePresence>
             </div>

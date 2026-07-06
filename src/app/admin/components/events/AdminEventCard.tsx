@@ -5,9 +5,10 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { 
   MoreVertical, Eye, Edit, FileImage, 
-  CalendarDays, Laptop, MapPin
+  CalendarDays, Laptop, MapPin, Send
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import toast from 'react-hot-toast';
 import { Database } from '@/types/database';
 import DeleteButton from '../DeleteButton';
 import { deleteEvent } from '../../events/actions';
@@ -24,6 +25,7 @@ type Poster = {
 
 export default function AdminEventCard({ event }: { event: EventWithOrganizer }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isPosting, setIsPosting] = useState(false);
   const [imageError, setImageError] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -60,6 +62,50 @@ export default function AdminEventCard({ event }: { event: EventWithOrganizer })
   const statusClass = event.status === 'Success' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300' :
     event.status === 'Pending' ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300' :
     'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300';
+
+  const handlePostToInstagram = async () => {
+    const posterArray = event.poster as Poster[] | null;
+    const images = posterArray?.map(p => p.url) || [];
+    const caption = `${event.title}\n\n${event.caption || ''}\n\n#${(event.kategori || '').replace(/\s+/g, '')} #kraloka`;
+
+    setIsPosting(true);
+    setIsMenuOpen(false);
+    try {
+      // Generate post image with blue template
+      const { generatePostImages } = await import('@/lib/imageGenerator');
+      const urlsToFiles = async (urls: string[]) =>
+        Promise.all(urls.map(async (url, i) => {
+          const res = await fetch(url);
+          const blob = await res.blob();
+          return new File([blob], `poster-${i}.jpg`, { type: blob.type });
+        }));
+
+      const fileImages = images.length > 0 ? await urlsToFiles(images) : [];
+
+      const generated = await generatePostImages({
+        title: event.title,
+        category: event.kategori || 'Info Lomba',
+        images: fileImages,
+        template: 'blue',
+      });
+
+      if (!generated.length) throw new Error('Gagal generate gambar');
+
+      // Post to Instagram via API
+      const res = await fetch('/api/instagram/post', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ imageDataUrl: generated[0].url, caption }),
+      });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.error);
+      toast.success('Berhasil dipost ke Instagram!');
+    } catch (e) {
+      toast.error('Gagal post: ' + (e instanceof Error ? e.message : 'Unknown'));
+    } finally {
+      setIsPosting(false);
+    }
+  };
 
   return (
     <tr className="border-b border-slate-100 bg-white transition-colors hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:hover:bg-slate-800/50">
@@ -139,6 +185,9 @@ export default function AdminEventCard({ event }: { event: EventWithOrganizer })
                 <Link href={generatePostUrl} className="flex items-center gap-2.5 px-3 py-2 text-xs text-slate-600 transition-colors hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-700" onClick={() => setIsMenuOpen(false)}>
                   <FileImage className="h-3.5 w-3.5" /> Buat Post IG
                 </Link>
+                <button onClick={handlePostToInstagram} disabled={isPosting} className="flex w-full items-center gap-2.5 px-3 py-2 text-xs text-slate-600 transition-colors hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-700 disabled:opacity-50">
+                  <Send className="h-3.5 w-3.5" /> {isPosting ? 'Posting...' : 'Post ke IG'}
+                </button>
                 <div className="my-1 border-t border-slate-100 dark:border-slate-700"></div>
                 <div className="px-1">
                   <DeleteButton action={handleDelete} itemLabel={event.title} />

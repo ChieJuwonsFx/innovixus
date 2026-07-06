@@ -20,7 +20,7 @@ Kembalikan data HANYA dalam format JSON dengan struktur persis seperti ini (jang
 {
   "title": "Judul event yang rapi dan jelas",
   "kategori": "Info Lomba atau Info Magang atau Info Loker",
-  "caption": "Buat caption Instagram gaya Kraloka dengan struktur WAJIB setiap bagian PISAH BARIS (line break). JANGAN gabung dalam satu paragraf. Semua konten harus dari teks asli (JANGAN placeholder/buatan). Format:
+  "caption": "Buat caption Instagram gaya Kraloka dengan struktur WAJIB setiap bagian PISAH BARIS (line break). JANGAN gabung dalam satu paragraf. Semua konten harus dari teks asli (JANGAN placeholder/buatan). Format, dengan hashtag: #kralokainfo #melangkahbarengkraloka #[hashtag_kategori_seperti_infoloker/infomagang] #[hashtag_dari_teks_asli]:
 
 🔥 [judul dari teks asli] 🔥
 
@@ -42,7 +42,7 @@ Halo Rekan Kraloka! 👋
 ⚠️ PANDUAN KEAMANAN KRALOKA:
 Rekan Kraloka, mohon selalu waspada saat mencari info. Ingat, rekrutmen resmi TIDAK PERNAH memungut biaya apa pun (GRATIS).
 
-#[hashtag] #[hashtag]",
+#kralokainfo #melangkahbarengkraloka #[hashtag_kategori] #[hashtag_dari_teks_asli]",
   "guidelink": "Link panduan jika ada di teks, jika tidak ada null",
   "registerlink": "Link pendaftaran jika ada, jika berbentuk email ubah ke mailto:email@domain.com?subject=JudulEvent",
   "open_date": "Tanggal buka format YYYY-MM-DD jika disebutkan, jika tidak null",
