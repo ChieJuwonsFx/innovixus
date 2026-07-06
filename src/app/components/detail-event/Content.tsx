@@ -46,7 +46,7 @@ export default function Content({
   onImageClick
 }: ContentProps) {
   const formatDate = (dateString: string | null) => {
-    if (!dateString) return 'N/A';
+    if (!dateString) return null;
     return new Date(dateString).toLocaleDateString('id-ID', {
       weekday: 'long', 
       day: 'numeric', 
@@ -110,8 +110,7 @@ export default function Content({
               <div className="min-w-0">
                 <h3 className="font-semibold text-slate-900 dark:text-white">Batas Pendaftaran</h3>
                 <p className="text-slate-600 dark:text-slate-400 text-sm">
-                  {formatDate(event.close_date)}
-                  {!event.close_date && <span className="text-slate-400 italic">Pendaftaran dapat ditutup sewaktu-waktu</span>}
+                  {event.close_date ? formatDate(event.close_date) : <span className="italic text-slate-400">Pendaftaran dapat ditutup sewaktu-waktu</span>}
                 </p>
               </div>
             </div>

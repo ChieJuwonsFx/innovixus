@@ -52,15 +52,8 @@ export default function AdminEventCard({ event }: { event: EventWithOrganizer })
     setIsMenuOpen(false);
   };
   
-  const effectiveClose = event.close_date || (() => {
-    const base = event.open_date || event.created_at;
-    if (!base) return null;
-    const d = new Date(base);
-    d.setDate(d.getDate() + 30);
-    return d.toISOString();
-  })();
-  const formattedDate = effectiveClose 
-    ? new Date(effectiveClose).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) 
+  const formattedDate = event.close_date 
+    ? new Date(event.close_date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) 
     : null;
   const isEventOnline = event.is_online.toLowerCase() === 'online';
 
