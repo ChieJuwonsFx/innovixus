@@ -16,7 +16,7 @@ export async function POST(req: Request) {
       'CRITICAL RULES:',
       '1. FORBIDDEN: wahai, kekasihku, permaisuri, dirimu, asmara, sanubari, rembulan, cintaku, pujaan, belahan jiwa',
       '2. TONE: Casual, modern, natural like a tweet or chat message.',
-      '3. SHORT: Max 1-2 sentences under 15 words total.',
+      '3. LENGTH VARIATION: Sometimes very short (2-5 words, powerful). Sometimes longer (3-4 sentences, deep). Mix it up randomly each generation.',
       '4. VARIETY: Mature love, quiet moments, growth.',
       '5. NO emojis, quotes, or hashtags in the quote text.',
       '',

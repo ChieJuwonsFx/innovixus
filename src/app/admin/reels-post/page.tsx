@@ -102,6 +102,8 @@ export default function ReelsPostPage() {
 
   const handleAiGenerate = async () => {
     setIsAiLoading(true);
+    setPreviewUrl(null);
+    setPostResult(null);
     try {
       const res = await fetch('/api/ai/reels', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -112,19 +114,12 @@ export default function ReelsPostPage() {
       setText(json.data.text);
       setCaption(json.data.caption);
       setHashtags(json.data.hashtags);
+
+      // Auto-generate preview
+      const canvas = await createFeedPost(json.data.text);
+      setPreviewUrl(canvas.toDataURL('image/png'));
     } catch (e) { toast.error('AI gagal: ' + (e instanceof Error ? e.message : '')); }
     finally { setIsAiLoading(false); }
-  };
-
-  const handleGenerate = async () => {
-    if (!text.trim()) return;
-    setIsGenerating(true);
-    setPostResult(null);
-    try {
-      const canvas = await createFeedPost(text);
-      setPreviewUrl(canvas.toDataURL('image/png'));
-    } catch (e) { toast.error('Gagal generate: ' + (e instanceof Error ? e.message : '')); }
-    finally { setIsGenerating(false); }
   };
 
   const handlePostToIG = async () => {
@@ -172,9 +167,14 @@ export default function ReelsPostPage() {
           </div>
 
           <div className="flex gap-2">
-            <button onClick={handleGenerate} disabled={isGenerating || !text.trim()} className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50">
+            <button onClick={() => {
+              if (!text.trim()) return;
+              setIsGenerating(true);
+              setPostResult(null);
+              createFeedPost(text).then(canvas => setPreviewUrl(canvas.toDataURL('image/png'))).catch(() => toast.error('Gagal generate')).finally(() => setIsGenerating(false));
+            }} disabled={isGenerating || !text.trim()} className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-xs font-medium text-white hover:bg-blue-700 disabled:opacity-50">
               {isGenerating ? <FiLoader className="animate-spin" /> : <Sparkles className="h-4 w-4" />}
-              {isGenerating ? 'Generate...' : 'Generate Preview'}
+              {isGenerating ? 'Generate...' : 'Regenerate'}
             </button>
           </div>
 
