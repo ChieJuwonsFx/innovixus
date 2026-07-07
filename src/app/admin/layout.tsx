@@ -333,7 +333,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                     <p className="px-3 mb-3 text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-400 dark:text-slate-500">
                       Tools
                     </p>
-                    <NavItem href="/admin/reels-post" icon={FileText} onLinkClick={closeSidebarOnMobile}>Create Reels Post</NavItem>
+                    <NavItem href="/admin/reels-post" icon={FileText} onLinkClick={closeSidebarOnMobile}>Feed Post Generator</NavItem>
                   </div>
             </ul>
           </nav>
