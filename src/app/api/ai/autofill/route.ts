@@ -20,7 +20,14 @@ Kembalikan data HANYA dalam format JSON dengan struktur persis seperti ini (jang
 {
   "title": "Judul event yang rapi dan jelas",
   "kategori": "Info Lomba atau Info Magang atau Info Loker",
-  "caption": "Buat caption Instagram gaya Kraloka dengan struktur WAJIB setiap bagian PISAH BARIS (line break). JANGAN gabung dalam satu paragraf. Semua konten harus dari teks asli (JANGAN placeholder/buatan). Format, dengan hashtag: #kralokainfo #melangkahbarengkraloka #[hashtag_kategori_seperti_infoloker/infomagang] #[hashtag_dari_teks_asli]:
+  "caption": "Buat caption Instagram gaya Kraloka dengan struktur WAJIB setiap bagian PISAH BARIS (line break). JANGAN gabung dalam satu paragraf. Semua konten harus dari teks asli (JANGAN placeholder/buatan). Sertakan field_names, level_names, location yang relevan dari teks.
+
+Hashtag wajib sesuai kategori:
+- Info Loker: #kralokainfo #melangkahbarengkraloka #infoloker #loker #lowongankerja #carikerja #[hashtag_dari_teks]
+- Info Magang: #kralokainfo #melangkahbarengkraloka #infomagang #magang #internship #carikerja #[hashtag_dari_teks]
+- Info Lomba: #kralokainfo #melangkahbarengkraloka #infolomba #lomba #kompetisi #[hashtag_dari_teks]
+
+Format:
 
 🔥 [judul dari teks asli] 🔥
 
@@ -42,18 +49,18 @@ Halo Rekan Kraloka! 👋
 ⚠️ PANDUAN KEAMANAN KRALOKA:
 Rekan Kraloka, mohon selalu waspada saat mencari info. Ingat, rekrutmen resmi TIDAK PERNAH memungut biaya apa pun (GRATIS).
 
-#kralokainfo #melangkahbarengkraloka #[hashtag_kategori] #[hashtag_dari_teks_asli]",
+#kralokainfo #melangkahbarengkraloka #infoloker #loker #lowongankerja #carikerja #[hashtag_dari_teks_asli]",
   "guidelink": "Link panduan jika ada di teks, jika tidak ada null",
   "registerlink": "Link pendaftaran jika ada, jika berbentuk email ubah ke mailto:email@domain.com?subject=JudulEvent",
   "open_date": "Tanggal buka format YYYY-MM-DD jika disebutkan, jika tidak null",
   "close_date": "Tanggal tutup format YYYY-MM-DD jika disebutkan, jika tidak null",
   "is_online": "Online atau Offline atau Online & Offline",
-  "location": "Lokasi penempatan kerja atau kegiatan",
+  "location": "Deteksi lokasi dari teks (kota/daerah). Jika tidak disebutkan sama sekali, isi null",
   "is_free": true atau false,
   "organizer_name": "Nama perusahaan/penyelenggara",
   "organizer_instagram": "Instagram handle perusahaan tanpa @ jika ada, jika tidak null",
-  "field_names": ["Array nama bidang yang relevan, misal Teknik, Bisnis, Manajemen, dll"],
-  "level_names": ["Array nama level yang relevan, misal Fresh Graduate, Profesional, Mahasiswa, dll"]
+  "field_names": ["Array nama bidang yang DIDETEKSI dari teks. Contoh: Hukum, Keuangan, Pemasaran, Teknik, Manajemen, Desain, Multimedia, IT, dan lainnya. Jangan dikosongkan"],
+  "level_names": ["Array nama level yang DIDETEKSI dari teks. Contoh: Fresh Graduate, Profesional (Maks. 2 tahun), Mahasiswa, Semua Jurusan, Siswa SMA/SMK, dan lainnya. Jangan dikosongkan"]
 }
 `;
 
