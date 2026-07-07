@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import Image from 'next/image';
 import Link from 'next/link';
 import { 
@@ -27,8 +28,12 @@ export default function AdminEventCard({ event }: { event: EventWithOrganizer })
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isPosting, setIsPosting] = useState(false);
   const [imageError, setImageError] = useState(false);
+  const [menuPos, setMenuPos] = useState({ top: 0, left: 0 });
+  const [mounted, setMounted] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => { setMounted(true); }, []);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -39,11 +44,21 @@ export default function AdminEventCard({ event }: { event: EventWithOrganizer })
         setIsMenuOpen(false);
       }
     };
-    document.addEventListener('mousedown', handleClickOutside);
+    if (isMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, []);
+  }, [isMenuOpen]);
+
+  const toggleMenu = () => {
+    if (!isMenuOpen && buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect();
+      setMenuPos({ top: rect.bottom + 4, left: rect.right - 176 });
+    }
+    setIsMenuOpen(!isMenuOpen);
+  };
 
   const posterArray = event.poster as Poster[] | null;
   const mainPosterUrl = posterArray?.[0]?.url;
@@ -91,11 +106,11 @@ export default function AdminEventCard({ event }: { event: EventWithOrganizer })
 
       if (!generated.length) throw new Error('Gagal generate gambar');
 
-      // Post to Instagram via API
+      // Post to Instagram via API (carousel jika >1 gambar)
       const res = await fetch('/api/instagram/post', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ imageDataUrl: generated[0].url, caption }),
+        body: JSON.stringify({ imageDataUrls: generated.map(g => g.url), caption }),
       });
       const data = await res.json();
       if (!data.success) throw new Error(data.error);
@@ -107,7 +122,7 @@ export default function AdminEventCard({ event }: { event: EventWithOrganizer })
     }
   };
 
-  return (
+  return (<>
     <tr className="border-b border-slate-100 bg-white transition-colors hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:hover:bg-slate-800/50">
       <td className="whitespace-nowrap px-4 py-3">
         <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-md bg-slate-100 dark:bg-slate-700">
@@ -156,47 +171,46 @@ export default function AdminEventCard({ event }: { event: EventWithOrganizer })
         </span>
       </td>
       <td className="px-4 py-3 text-right">
-        <div className="relative">
-          <button 
-            ref={buttonRef}
-            onClick={() => setIsMenuOpen(!isMenuOpen)} 
-            className="flex h-7 w-7 items-center justify-center rounded-md text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 dark:text-slate-500 dark:hover:bg-slate-700 dark:hover:text-slate-300"
-            aria-label="Menu"
-          >
-            <MoreVertical className="h-4 w-4" />
-          </button>
-
-          <AnimatePresence>
-            {isMenuOpen && (
-              <motion.div
-                ref={menuRef}
-                initial={{ opacity: 0, scale: 0.95, y: -4 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.95, y: -4 }}
-                transition={{ duration: 0.12 }}
-                className="absolute right-0 top-8 z-50 w-44 origin-top-right overflow-hidden rounded-lg border border-slate-200 bg-white py-1 shadow-lg dark:border-slate-700 dark:bg-slate-800"
-              >
-                <Link href={publicUrl} target="_blank" className="flex items-center gap-2.5 px-3 py-2 text-xs text-slate-600 transition-colors hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-700" onClick={() => setIsMenuOpen(false)}>
-                  <Eye className="h-3.5 w-3.5" /> Lihat Detail
-                </Link>
-                <Link href={`/admin/events/${event.id}`} className="flex items-center gap-2.5 px-3 py-2 text-xs text-slate-600 transition-colors hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-700" onClick={() => setIsMenuOpen(false)}>
-                  <Edit className="h-3.5 w-3.5" /> Edit Event
-                </Link>
-                <Link href={generatePostUrl} className="flex items-center gap-2.5 px-3 py-2 text-xs text-slate-600 transition-colors hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-700" onClick={() => setIsMenuOpen(false)}>
-                  <FileImage className="h-3.5 w-3.5" /> Buat Post IG
-                </Link>
-                <button onClick={handlePostToInstagram} disabled={isPosting} className="flex w-full items-center gap-2.5 px-3 py-2 text-xs text-slate-600 transition-colors hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-700 disabled:opacity-50">
-                  <Send className="h-3.5 w-3.5" /> {isPosting ? 'Posting...' : 'Post ke IG'}
-                </button>
-                <div className="my-1 border-t border-slate-100 dark:border-slate-700"></div>
-                <div className="px-1">
-                  <DeleteButton action={handleDelete} itemLabel={event.title} />
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
+        <button 
+          ref={buttonRef}
+          onClick={toggleMenu} 
+          className="flex h-7 w-7 items-center justify-center rounded-md text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 dark:text-slate-500 dark:hover:bg-slate-700 dark:hover:text-slate-300"
+          aria-label="Menu"
+        >
+          <MoreVertical className="h-4 w-4" />
+        </button>
       </td>
     </tr>
+
+      {mounted && isMenuOpen && createPortal(
+        <motion.div
+          ref={menuRef}
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.95 }}
+          transition={{ duration: 0.12 }}
+          style={{ position: 'fixed', top: menuPos.top, left: menuPos.left, zIndex: 9999 }}
+          className="w-44 origin-top-right overflow-hidden rounded-lg border border-slate-200 bg-white py-1 shadow-lg dark:border-slate-700 dark:bg-slate-800"
+        >
+          <Link href={publicUrl} target="_blank" className="flex items-center gap-2.5 px-3 py-2 text-xs text-slate-600 transition-colors hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-700" onClick={() => setIsMenuOpen(false)}>
+            <Eye className="h-3.5 w-3.5" /> Lihat Detail
+          </Link>
+          <Link href={`/admin/events/${event.id}`} className="flex items-center gap-2.5 px-3 py-2 text-xs text-slate-600 transition-colors hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-700" onClick={() => setIsMenuOpen(false)}>
+            <Edit className="h-3.5 w-3.5" /> Edit Event
+          </Link>
+          <Link href={generatePostUrl} className="flex items-center gap-2.5 px-3 py-2 text-xs text-slate-600 transition-colors hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-700" onClick={() => setIsMenuOpen(false)}>
+            <FileImage className="h-3.5 w-3.5" /> Buat Post IG
+          </Link>
+          <button onClick={handlePostToInstagram} disabled={isPosting} className="flex w-full items-center gap-2.5 px-3 py-2 text-xs text-slate-600 transition-colors hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-700 disabled:opacity-50">
+            <Send className="h-3.5 w-3.5" /> {isPosting ? 'Posting...' : 'Post ke IG'}
+          </button>
+          <div className="my-1 border-t border-slate-100 dark:border-slate-700"></div>
+          <div className="px-1">
+            <DeleteButton action={handleDelete} itemLabel={event.title} />
+          </div>
+        </motion.div>,
+        document.body
+      )}
+    </>
   );
 }

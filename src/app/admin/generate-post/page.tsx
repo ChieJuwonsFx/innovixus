@@ -47,7 +47,7 @@ export default function GeneratePostPage() {
       const res = await fetch('/api/instagram/post', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ imageDataUrl: generatedPosts[0], caption: postData.title }),
+        body: JSON.stringify({ imageDataUrls: generatedPosts, caption: postData.title }),
       });
       const data = await res.json();
       if (!data.success) throw new Error(data.error);

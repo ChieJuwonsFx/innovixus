@@ -23,59 +23,39 @@ export async function generatePostImages(postData: PostData): Promise<GeneratedP
   mainCtx.font = POST_DIMENSIONS.main.title.font;
   mainCtx.textBaseline = 'top';
   
-  const maxWidth = POST_DIMENSIONS.main.title.maxWidth;
   const fontSize = parseInt(POST_DIMENSIONS.main.title.font.match(/\d+/)?.[0] || '24');
-  const lineHeight = fontSize * 1; 
+  const lineHeight = fontSize * 1.35;
+  const titleX = POST_DIMENSIONS.main.title.x;
   let currentY = POST_DIMENSIONS.main.title.y;
+  const maxWidth = POST_DIMENSIONS.main.title.maxWidth;
   
-  console.log('Starting Y:', currentY);
-  console.log('Line height:', lineHeight);
-  console.log('Canvas height:', mainCanvas.height);
-  console.log('Max width:', maxWidth);
+  const words = postData.title.trim().split(/\s+/);
+  const mid = Math.ceil(words.length / 2);
+  const line1 = words.slice(0, mid).join(' ');
+  const line2 = words.slice(mid).join(' ') || ' ';
   
-  const paragraphs = postData.title.split('\n');
-  
-  for (let p = 0; p < paragraphs.length; p++) {
-    const paragraph = paragraphs[p];
-    
-    if (paragraph.trim() === '') {
-      currentY += lineHeight * 0.5; 
-      continue;
+  [line1, line2].forEach(text => {
+    if (!text.trim()) {
+      currentY += lineHeight;
+      return;
     }
-    
-    const words = paragraph.trim().split(' ');
+    const parts = text.split(' ');
     let line = '';
-    
-    for (let i = 0; i < words.length; i++) {
-      const testWord = words[i];
-      const testLine = line ? `${line} ${testWord}` : testWord;
-      const metrics = mainCtx.measureText(testLine);
-      
-      if (metrics.width > maxWidth && line !== '') {
-        console.log(`Drawing line at Y=${currentY}: "${line}"`);
-        mainCtx.fillText(line, POST_DIMENSIONS.main.title.x, currentY);
+    for (let i = 0; i < parts.length; i++) {
+      const testLine = line ? `${line} ${parts[i]}` : parts[i];
+      if (mainCtx.measureText(testLine).width > maxWidth && line) {
+        mainCtx.fillText(line, titleX, currentY);
         currentY += lineHeight;
-        line = testWord; 
+        line = parts[i];
       } else {
         line = testLine;
       }
-      
-      if (currentY + lineHeight > mainCanvas.height) {
-        console.warn('Text exceeds canvas height, truncating...');
-        break;
-      }
     }
-    
-    if (line && currentY + lineHeight <= mainCanvas.height) {
-      console.log(`Drawing final line at Y=${currentY}: "${line}"`);
-      mainCtx.fillText(line, POST_DIMENSIONS.main.title.x, currentY);
+    if (line) {
+      mainCtx.fillText(line, titleX, currentY);
       currentY += lineHeight;
     }
-    
-    if (p < paragraphs.length - 1) {
-      currentY += lineHeight * 0.3; 
-    }
-  }
+  });
   
   mainCtx.fillStyle = template.categoryBg;
   mainCtx.font = POST_DIMENSIONS.main.category.font;
