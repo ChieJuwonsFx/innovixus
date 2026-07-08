@@ -2,7 +2,8 @@
 
 import { useState, useId, useEffect, useRef, useCallback } from 'react';
 import Image from 'next/image';
-import { UploadCloud, X, Image as ImageIcon, GripVertical } from 'lucide-react';
+import { UploadCloud, X, Image as ImageIcon, GripVertical, Loader2 } from 'lucide-react';
+import toast from 'react-hot-toast';
 import {
   DndContext,
   closestCenter,
@@ -185,6 +186,7 @@ export default function ImageUploader({
   const dragCounter = useRef(0);
   const newFilesRef = useRef<FilePreview[]>([]);
   const [isDragOver, setIsDragOver] = useState(false);
+const [isAiLoading, setIsAiLoading] = useState(false);
   const [isDraggingItem, setIsDraggingItem] = useState(false);
   const [selectedImageKey, setSelectedImageKey] = useState<string | null>(null);
 
@@ -369,6 +371,56 @@ export default function ImageUploader({
             </>
           )}
         </div>
+      </div>
+
+      <div className="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-800/50">
+        <div className="shrink-0 text-xs font-medium text-slate-500 dark:text-slate-400">IG</div>
+        <input
+          type="url"
+          id="ig-link-input"
+          placeholder="https://www.instagram.com/p/..."
+          className="min-w-0 flex-1 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+        />
+        <button
+          type="button"
+          onClick={async () => {
+            const input = document.getElementById('ig-link-input') as HTMLInputElement;
+            const link = input?.value.trim();
+            if (!link) { toast.error('Paste link Instagram dulu'); return; }
+            setIsAiLoading(true);
+            try {
+              const res = await fetch('/api/instagram/fetch', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ url: link }),
+              });
+              const json = await res.json();
+              if (!json.success) throw new Error(json.error);
+
+              const newFiles: File[] = [];
+              for (const imgUrl of json.urls) {
+                try {
+                  const proxyRes = await fetch(`/api/proxy-image?url=${encodeURIComponent(imgUrl)}`);
+                  const blob = await proxyRes.blob();
+                  newFiles.push(new File([blob], `ig-${Date.now()}-${newFiles.length}.jpg`, { type: 'image/jpeg' }));
+                } catch {}
+              }
+              if (newFiles.length === 0) throw new Error('Gagal mendownload gambar');
+              setNewFiles(prev => [...prev, ...newFiles.map(f => ({
+                key: `ig-${Date.now()}-${Math.random()}`,
+                file: f,
+                previewUrl: URL.createObjectURL(f),
+              }))]);
+              toast.success(`${newFiles.length} gambar ditambahkan!`);
+            } catch (e) {
+              toast.error('Gagal: ' + (e instanceof Error ? e.message : ''));
+            } finally { setIsAiLoading(false); }
+          }}
+          disabled={isAiLoading}
+          className="inline-flex shrink-0 items-center gap-1.5 rounded-md bg-blue-600 px-4 py-2 text-xs font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+        >
+          {isAiLoading ? <Loader2 className="animate-spin h-3 w-3" /> : null}
+          {isAiLoading ? 'Mengambil...' : 'Ambil'}
+        </button>
       </div>
 
       {totalImages > 0 && (

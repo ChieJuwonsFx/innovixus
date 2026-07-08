@@ -290,7 +290,7 @@ export default function EventForm({ event, organizers, levels, fields, asChild =
         <ImageUploader 
           existingImages={existingImages}
           onFilesChange={setNewImageFiles}
-          onExistingImagesChange={setExistingImages}
+          onExistingImagesChange={useCallback((imgs: { url: string; id?: string }[]) => setExistingImages(prev => [...prev, ...imgs.map(img => ({ url: img.url, id: img.id }))]), [])}
         />
       </div>
       <TargetAudienceSection 
