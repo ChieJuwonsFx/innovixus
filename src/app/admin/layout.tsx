@@ -334,6 +334,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
                       Tools
                     </p>
                     <NavItem href="/admin/reels-post" icon={FileText} onLinkClick={closeSidebarOnMobile}>Feed Post Generator</NavItem>
+                    <NavItem href="/admin/reels-maker" icon={FileText} onLinkClick={closeSidebarOnMobile}>Reels Maker</NavItem>
                   </div>
             </ul>
           </nav>

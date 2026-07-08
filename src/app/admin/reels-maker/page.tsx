@@ -1,18 +1,18 @@
 'use client';
 
 import { useState } from 'react';
-import { Sparkles, Send, RotateCcw, Globe } from 'lucide-react';
+import { Sparkles, Globe, Download, Copy, RotateCcw } from 'lucide-react';
 import { FiLoader } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 
 const CANVAS_WIDTH = 1080;
-const CANVAS_HEIGHT = 1350;
-const TEMPLATE_PATH = '/templates/template_feed.png';
-const TEXT_BOX = { x: 90, y: 300, width: 900, height: 750 };
+const CANVAS_HEIGHT = 1920;
+const TEMPLATE_PATH = '/templates/template_reels.png';
+const TEXT_BOX = { x: 90, y: 400, width: 900, height: 1000 };
 const TEXT_PADDING_X = 90;
 const TEXT_PADDING_Y = 90;
-const SAFE_TOP = 280;
-const SAFE_BOTTOM = 1200;
+const SAFE_TOP = 360;
+const SAFE_BOTTOM = 1600;
 
 type TextLine = { text: string; blank: boolean };
 
@@ -51,7 +51,7 @@ function loadImage(src: string) {
   });
 }
 
-async function createFeedPost(text: string) {
+async function createReelsCanvas(text: string) {
   const canvas = document.createElement('canvas');
   canvas.width = CANVAS_WIDTH; canvas.height = CANVAS_HEIGHT;
   const ctx = canvas.getContext('2d')!;
@@ -89,21 +89,17 @@ async function createFeedPost(text: string) {
   return canvas;
 }
 
-export default function ReelsPostPage() {
+export default function ReelsMakerPage() {
   const [text, setText] = useState('');
-  const [caption, setCaption] = useState('');
-  const [hashtags, setHashtags] = useState('#kralokainfo #melangkahbarengkraloka #lovequotes');
+  const [combinedCaption, setCombinedCaption] = useState('');
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isAiLoading, setIsAiLoading] = useState(false);
-  const [isPosting, setIsPosting] = useState(false);
   const [language, setLanguage] = useState<'id' | 'en'>('id');
-  const [postResult, setPostResult] = useState<string | null>(null);
 
   const handleAiGenerate = async () => {
     setIsAiLoading(true);
     setPreviewUrl(null);
-    setPostResult(null);
     try {
       const res = await fetch('/api/ai/reels', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -112,40 +108,44 @@ export default function ReelsPostPage() {
       const json = await res.json();
       if (!json.success) throw new Error(json.error);
       setText(json.data.text);
-      setCaption(json.data.caption);
-      setHashtags(json.data.hashtags);
-
-      // Auto-generate preview
-      const canvas = await createFeedPost(json.data.text);
+      setCombinedCaption(`${json.data.caption}\n\n${json.data.hashtags}`);
+      const canvas = await createReelsCanvas(json.data.text);
       setPreviewUrl(canvas.toDataURL('image/png'));
     } catch (e) { toast.error('AI gagal: ' + (e instanceof Error ? e.message : '')); }
     finally { setIsAiLoading(false); }
   };
 
-  const handlePostToIG = async () => {
-    if (!previewUrl) { toast.error('Generate preview dulu'); return; }
-    if (!caption.trim()) { toast.error('Caption masih kosong'); return; }
-    setIsPosting(true);
-    setPostResult(null);
+  const handleGenerate = async () => {
+    if (!text.trim()) return;
+    setIsGenerating(true);
     try {
-      const res = await fetch('/api/instagram/post', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ mediaType: 'IMAGE', imageDataUrls: [previewUrl], caption: caption + '\n\n' + hashtags, account: 'kinetics' }),
-      });
-      const json = await res.json();
-      if (!json.success) throw new Error(json.error);
-      setPostResult('Berhasil dipost!');
-      toast.success('Post berhasil!');
-    } catch (e) { toast.error('Gagal post: ' + (e instanceof Error ? e.message : '')); }
-    finally { setIsPosting(false); }
+      const canvas = await createReelsCanvas(text);
+      setPreviewUrl(canvas.toDataURL('image/png'));
+    } catch (e) { toast.error('Gagal generate: ' + (e instanceof Error ? e.message : '')); }
+    finally { setIsGenerating(false); }
   };
 
-  const handleReset = () => { setText(''); setPreviewUrl(null); setCaption(''); setPostResult(null); };
+  const handleCopy = async () => {
+    try { await navigator.clipboard.writeText(combinedCaption); toast.success('Caption disalin!'); }
+    catch { toast.error('Gagal menyalin'); }
+  };
+
+  const handleDownload = () => {
+    if (!previewUrl) return;
+    const link = document.createElement('a');
+    link.href = previewUrl;
+    link.download = `reels-maker-${Date.now()}.png`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleReset = () => { setText(''); setPreviewUrl(null); setCombinedCaption(''); };
 
   return (
     <div className="mx-auto max-w-5xl space-y-6">
       <div className="rounded-xl border border-slate-200 bg-white p-6 dark:border-slate-700 dark:bg-slate-800">
-        <h1 className="text-lg font-semibold text-slate-900 dark:text-white">Feed Post Generator</h1>
+        <h1 className="text-lg font-semibold text-slate-900 dark:text-white">Reels Maker</h1>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
@@ -161,40 +161,31 @@ export default function ReelsPostPage() {
           </div>
 
           <div>
-            <label className="mb-1 flex items-center justify-between text-xs font-medium text-slate-500 dark:text-slate-400">
-              <span>Teks Post</span>
-              <span className="text-slate-400">{text.length}/50</span>
-            </label>
-            <textarea value={text} onChange={(e) => setText(e.target.value)} maxLength={50} rows={3} className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-slate-600 dark:bg-slate-700 dark:text-white" placeholder="Love quote text..." />
+            <label className="mb-1 block text-xs font-medium text-slate-500 dark:text-slate-400">Teks Reels</label>
+            <textarea value={text} onChange={(e) => setText(e.target.value)} rows={3} className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-slate-600 dark:bg-slate-700 dark:text-white" placeholder="Love quote text..." />
           </div>
 
           <div className="flex gap-2">
-            <button onClick={() => {
-              if (!text.trim()) return;
-              setIsGenerating(true);
-              setPostResult(null);
-              createFeedPost(text).then(canvas => setPreviewUrl(canvas.toDataURL('image/png'))).catch(() => toast.error('Gagal generate')).finally(() => setIsGenerating(false));
-            }} disabled={isGenerating || !text.trim()} className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-xs font-medium text-white hover:bg-blue-700 disabled:opacity-50">
+            <button onClick={handleGenerate} disabled={isGenerating || !text.trim()} className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-xs font-medium text-white hover:bg-blue-700 disabled:opacity-50">
               {isGenerating ? <FiLoader className="animate-spin" /> : <Sparkles className="h-4 w-4" />}
-              {isGenerating ? 'Generate...' : 'Regenerate'}
+              {isGenerating ? 'Generate...' : 'Generate Preview'}
             </button>
           </div>
 
           {previewUrl && (
             <>
               <div>
-                <label className="mb-1 block text-xs font-medium text-slate-500 dark:text-slate-400">Caption</label>
-                <textarea value={caption} onChange={(e) => setCaption(e.target.value)} rows={3} className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-slate-600 dark:bg-slate-700 dark:text-white" />
+                <label className="mb-1 block text-xs font-medium text-slate-500 dark:text-slate-400">Caption + Hashtags (copy & paste)</label>
+                <textarea value={combinedCaption} onChange={(e) => setCombinedCaption(e.target.value)} rows={4} className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-slate-600 dark:bg-slate-700 dark:text-white" />
               </div>
-              <div>
-                <label className="mb-1 block text-xs font-medium text-slate-500 dark:text-slate-400">Hashtags</label>
-                <input type="text" value={hashtags} onChange={(e) => setHashtags(e.target.value)} className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-slate-600 dark:bg-slate-700 dark:text-white" />
+              <div className="flex gap-2">
+                <button onClick={handleCopy} className="inline-flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-xs font-medium text-white hover:bg-green-700">
+                  <Copy className="h-3 w-3" /> Copy Caption
+                </button>
+                <button onClick={handleDownload} className="inline-flex items-center gap-2 rounded-lg bg-slate-700 px-4 py-2 text-xs font-medium text-white hover:bg-slate-600">
+                  <Download className="h-3 w-3" /> Download PNG
+                </button>
               </div>
-              <button onClick={handlePostToIG} disabled={isPosting} className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#003366] px-6 py-3 text-sm font-medium text-white hover:bg-[#00284d] disabled:opacity-50">
-                {isPosting ? <FiLoader className="animate-spin" /> : <Send className="h-4 w-4" />}
-                {isPosting ? 'Posting...' : 'Post ke Instagram'}
-              </button>
-              {postResult && <p className="text-center text-xs font-medium text-green-600">{postResult}</p>}
             </>
           )}
 
@@ -206,13 +197,13 @@ export default function ReelsPostPage() {
         <div className="rounded-xl border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-800">
           <div className="mb-3 flex items-center justify-between">
             <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-200">Preview</h2>
-            <span className="text-xs text-slate-400">1080 x 1350 (4:5)</span>
+            <span className="text-xs text-slate-400">1080 x 1920 (9:16)</span>
           </div>
-          <div className="overflow-hidden rounded-lg border border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-900">
+          <div className="overflow-y-auto rounded-lg border border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-900 max-h-[80vh]">
             {previewUrl ? (
               <img src={previewUrl} alt="Preview" className="h-auto w-full" />
             ) : (
-              <div className="flex min-h-[500px] items-center justify-center text-center"><p className="text-sm text-slate-400">Klik AI Generate untuk mulai</p></div>
+              <div className="flex min-h-[800px] items-center justify-center text-center"><p className="text-sm text-slate-400">Klik AI Generate untuk mulai</p></div>
             )}
           </div>
         </div>
