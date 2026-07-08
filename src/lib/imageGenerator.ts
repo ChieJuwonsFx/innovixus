@@ -31,31 +31,42 @@ export async function generatePostImages(postData: PostData): Promise<GeneratedP
   
   const words = postData.title.trim().split(/\s+/);
   const mid = Math.ceil(words.length / 2);
-  const line1 = words.slice(0, mid).join(' ');
-  const line2 = words.slice(mid).join(' ') || ' ';
-  
-  [line1, line2].forEach(text => {
-    if (!text.trim()) {
-      currentY += lineHeight;
-      return;
-    }
-    const parts = text.split(' ');
-    let line = '';
-    for (let i = 0; i < parts.length; i++) {
-      const testLine = line ? `${line} ${parts[i]}` : parts[i];
-      if (mainCtx.measureText(testLine).width > maxWidth && line) {
-        mainCtx.fillText(line, titleX, currentY);
-        currentY += lineHeight;
-        line = parts[i];
-      } else {
-        line = testLine;
+  let line1 = words.slice(0, mid).join(' ');
+  let line2 = words.slice(mid).join(' ');
+  if (!line2) line2 = '\u00A0'; 
+
+  let currentFontSize = fontSize;
+  while (currentFontSize > 36) {
+    mainCtx.font = `600 ${currentFontSize}px Arial, sans-serif`;
+    const w1 = mainCtx.measureText(line1).width;
+    const w2 = mainCtx.measureText(line2).width;
+    if (w1 <= maxWidth && w2 <= maxWidth) break;
+    if (w1 > maxWidth) {
+      const parts = line1.split(' ');
+      if (parts.length > 1) {
+        line2 = parts.pop() + (line2 === '\u00A0' ? '' : ' ' + line2);
+        line1 = parts.join(' ');
       }
     }
-    if (line) {
-      mainCtx.fillText(line, titleX, currentY);
-      currentY += lineHeight;
+    if (w2 > maxWidth) {
+      const parts = line2.split(' ');
+      if (parts.length > 1) {
+        line1 = line1 + ' ' + parts.shift();
+        line2 = parts.join(' ');
+      }
     }
-  });
+    const newW1 = mainCtx.measureText(line1).width;
+    const newW2 = mainCtx.measureText(line2).width;
+    if ((newW1 > maxWidth || newW2 > maxWidth) && currentFontSize > 36) {
+      currentFontSize -= 2;
+    }
+  }
+  mainCtx.font = `600 ${currentFontSize}px Arial, sans-serif`;
+
+  mainCtx.fillText(line1, titleX, currentY);
+  currentY += lineHeight;
+  mainCtx.fillText(line2 === '\u00A0' ? '' : line2, titleX, currentY);
+  currentY += lineHeight;
   
   mainCtx.fillStyle = template.categoryBg;
   mainCtx.font = POST_DIMENSIONS.main.category.font;

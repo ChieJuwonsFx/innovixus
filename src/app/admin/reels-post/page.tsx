@@ -162,8 +162,11 @@ export default function ReelsPostPage() {
           </div>
 
           <div>
-            <label className="mb-1 block text-xs font-medium text-slate-500 dark:text-slate-400">Teks Post</label>
-            <textarea value={text} onChange={(e) => setText(e.target.value)} rows={3} className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-slate-600 dark:bg-slate-700 dark:text-white" placeholder="Love quote text..." />
+            <label className="mb-1 flex items-center justify-between text-xs font-medium text-slate-500 dark:text-slate-400">
+              <span>Teks Post</span>
+              <span className="text-slate-400">{text.length}/50</span>
+            </label>
+            <textarea value={text} onChange={(e) => setText(e.target.value)} maxLength={50} rows={3} className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-slate-600 dark:bg-slate-700 dark:text-white" placeholder="Love quote text..." />
           </div>
 
           <div className="flex gap-2">
