@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useId, useEffect, useRef, useCallback } from 'react';
+import { useState, useId, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import { UploadCloud, X, Image as ImageIcon, GripVertical, Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -274,7 +274,9 @@ const [isAiLoading, setIsAiLoading] = useState(false);
       previewUrl: URL.createObjectURL(file),
     }));
 
-    setNewFiles(prev => [...prev, ...newPreviews]);
+    const updatedPreviews = newPreviews;
+    setNewFiles(prev => [...prev, ...updatedPreviews]);
+    Promise.resolve().then(() => onFilesChange([...newFilesRef.current.map(f => f.file), ...updatedPreviews.map(f => f.file)]));
   };
 
   const handleRemove = (keyToRemove: string) => {
@@ -287,7 +289,9 @@ const [isAiLoading, setIsAiLoading] = useState(false);
     } else {
       const fileToRemove = newFiles.find(f => f.key === keyToRemove);
       if (fileToRemove) URL.revokeObjectURL(fileToRemove.previewUrl);
-      setNewFiles(prev => prev.filter(f => f.key !== keyToRemove));
+      const remaining = newFiles.filter(f => f.key !== keyToRemove);
+      setNewFiles(remaining);
+      Promise.resolve().then(() => onFilesChange(remaining.map(f => f.file)));
     }
     
     if (selectedImageKey === keyToRemove) {
@@ -296,19 +300,6 @@ const [isAiLoading, setIsAiLoading] = useState(false);
   };
 
   const closePreview = () => setSelectedImageKey(null);
-
-  const notifyParent = useCallback(() => {
-    onFilesChange(newFiles.map(f => f.file));
-  }, [newFiles, onFilesChange]);
-
-  useEffect(() => {
-    notifyParent();
-  }, [notifyParent]);
-
-  useEffect(() => {
-    if (onExistingImagesChange)
-      onExistingImagesChange(existingPreviews.map(({ url }) => ({ url })));
-  }, [existingPreviews, onExistingImagesChange]);
 
   useEffect(() => {
     return () => newFilesRef.current.forEach(f => URL.revokeObjectURL(f.previewUrl));
@@ -397,19 +388,22 @@ const [isAiLoading, setIsAiLoading] = useState(false);
               if (!json.success) throw new Error(json.error);
 
               const newFiles: File[] = [];
-              for (const imgUrl of json.urls) {
+              for (const img of json.images) {
                 try {
-                  const proxyRes = await fetch(`/api/proxy-image?url=${encodeURIComponent(imgUrl)}`);
-                  const blob = await proxyRes.blob();
+                  const resp = await fetch(img.dataUrl);
+                  const blob = await resp.blob();
                   newFiles.push(new File([blob], `ig-${Date.now()}-${newFiles.length}.jpg`, { type: 'image/jpeg' }));
                 } catch {}
               }
               if (newFiles.length === 0) throw new Error('Gagal mendownload gambar');
-              setNewFiles(prev => [...prev, ...newFiles.map(f => ({
+              const igPreviews = newFiles.map(f => ({
                 key: `ig-${Date.now()}-${Math.random()}`,
                 file: f,
                 previewUrl: URL.createObjectURL(f),
-              }))]);
+              }));
+              const allFiles = igPreviews.map(x => x.file);
+              setNewFiles(prev => [...prev, ...igPreviews]);
+              Promise.resolve().then(() => onFilesChange([...newFilesRef.current.map(x => x.file), ...allFiles]));
               toast.success(`${newFiles.length} gambar ditambahkan!`);
             } catch (e) {
               toast.error('Gagal: ' + (e instanceof Error ? e.message : ''));

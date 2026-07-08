@@ -17,7 +17,7 @@ import { deleteEvent } from '../../events/actions';
 type EventRow = Database['public']['Tables']['events']['Row'];
 
 type EventWithOrganizer = EventRow & {
-  organizers: { name: string } | null;
+  organizers: { name: string; instagram?: string | null } | null;
 };
 
 type Poster = {
@@ -81,12 +81,29 @@ export default function AdminEventCard({ event }: { event: EventWithOrganizer })
   const handlePostToInstagram = async () => {
     const posterArray = event.poster as Poster[] | null;
     const images = posterArray?.map(p => p.url) || [];
-    const caption = `${event.title}\n\n${event.caption || ''}\n\n#${(event.kategori || '').replace(/\s+/g, '')} #kraloka`;
+    const orgIg = event.organizers?.instagram;
+    const mention = orgIg ? `\n\n@${orgIg} untuk info lebih lanjut` : '';
+
+    let caption = `${event.title}\n\n${event.caption || ''}`;
+    try {
+      const aiRes = await fetch('/api/ai/autofill', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ caption: `Judul: ${event.title}\nKategori: ${event.kategori}\nDeskripsi: ${event.caption}\n\nBuat caption IG dengan hashtag wajib: #kralokainfo #melangkahbarengkraloka #${(event.kategori || '').replace(/\s+/g, '')} dan hashtag relevan dari teks.` }),
+      });
+      const aiJson = await aiRes.json();
+      if (aiJson.success && aiJson.data?.caption) {
+        caption = aiJson.data.caption;
+      }
+    } catch {}
+    caption += mention;
+    if (!caption.includes('#')) caption += `\n\n#kralokainfo #melangkahbarengkraloka #${(event.kategori || '').replace(/\s+/g, '')} #kraloka`;
+
+    const userTags = orgIg ? [{ username: orgIg, x: 0.5, y: 0.9 }] : [];
 
     setIsPosting(true);
     setIsMenuOpen(false);
     try {
-      // Generate post image with blue template
       const { generatePostImages } = await import('@/lib/imageGenerator');
       const urlsToFiles = async (urls: string[]) =>
         Promise.all(urls.map(async (url, i) => {
@@ -106,11 +123,10 @@ export default function AdminEventCard({ event }: { event: EventWithOrganizer })
 
       if (!generated.length) throw new Error('Gagal generate gambar');
 
-      // Post to Instagram via API (carousel jika >1 gambar)
       const res = await fetch('/api/instagram/post', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ imageDataUrls: generated.map(g => g.url), caption }),
+        body: JSON.stringify({ imageDataUrls: generated.map(g => g.url), caption, userTags }),
       });
       const data = await res.json();
       if (!data.success) throw new Error(data.error);

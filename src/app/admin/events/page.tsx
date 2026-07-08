@@ -8,7 +8,7 @@ export default async function EventsPage() {
   
   const { data: events, error } = await supabase
     .from('events')
-    .select('*, organizers(name)')
+    .select('*, organizers(name, instagram)')
     .order('created_at', { ascending: false });
 
   if (error) {

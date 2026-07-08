@@ -21,13 +21,12 @@ function getUserId(account = 'main'): string {
 
 export async function POST(req: Request) {
   try {
-    const { imageDataUrls, caption, mediaType, videoDataUrl, videoUrl: incomingVideoUrl, audioId, audioVolume, videoVolume, account = 'main' } = await req.json();
+    const { imageDataUrls, caption, mediaType, videoDataUrl, videoUrl: incomingVideoUrl, audioId, audioVolume, videoVolume, account = 'main', userTags } = await req.json();
     const token = await getToken(account);
     const userId = getUserId(account);
     if (!token || !userId) return NextResponse.json({ error: 'IG account not configured' }, { status: 400 });
     const api = 'https://graph.instagram.com/v25.0';
 
-    // Reels / Image fallback
     if (mediaType === 'REELS' || mediaType === 'IMAGE' || (!mediaType && videoDataUrl)) {
       const isReels = mediaType === 'REELS';
       const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
@@ -61,7 +60,6 @@ export async function POST(req: Request) {
       }
       if (!finalUrl) return NextResponse.json({ error: 'No image/video URL' }, { status: 400 });
 
-      // For REELS: create proper video from image via Cloudinary video upload
       if (isReels) {
         try {
           const { timestamp, signature } = await generateUploadSignature('instagram-reels');
@@ -75,42 +73,45 @@ export async function POST(req: Request) {
           const vidRes = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/video/upload`, { method: 'POST', body: vidForm });
           const vidData = await vidRes.json();
           if (vidRes.ok) {
-            // Use eager transformation URL (the actual 5-sec mp4 video)
             if (vidData.eager?.[0]?.secure_url) {
               finalUrl = vidData.eager[0].secure_url;
             } else if (vidData.eager?.[0]?.url) {
               finalUrl = vidData.eager[0].url;
             } else if (vidData.secure_url) {
-              // Fallback: try constructing mp4 URL manually
               finalUrl = vidData.secure_url.replace(/\.\w+$/, '.mp4');
             }
-            // Wait a moment for eager processing
             await new Promise(r => setTimeout(r, 3000));
           }
         } catch {}
       }
 
-      // Try REELS first, fallback to IMAGE
       for (const mt of isReels ? ['REELS', 'IMAGE'] : ['IMAGE']) {
         const body: Record<string, unknown> = mt === 'REELS'
           ? { media_type: 'REELS', video_url: finalUrl, caption }
-          : { media_type: 'IMAGE', image_url: finalUrl, caption };
+          : { media_type: 'IMAGE', image_url: finalUrl, caption, ...(userTags?.length ? { user_tags: userTags } : {}) };
 
         if (mt === 'REELS' && audioId) {
           body.audio_configuration = { audio_id: audioId, audio_volume: 100, video_volume: 0 };
         }
 
-        const createRes = await fetch(`${api}/${userId}/media?access_token=${token}`, {
+        let createRes = await fetch(`${api}/${userId}/media?access_token=${token}`, {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(body),
         });
-        const createData = await createRes.json();
+        let createData = await createRes.json();
+        if (!createRes.ok && body.user_tags) {
+          delete body.user_tags;
+          createRes = await fetch(`${api}/${userId}/media?access_token=${token}`, {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body),
+          });
+          createData = await createRes.json();
+        }
         if (!createRes.ok) {
           if (mt === 'REELS' && ['REELS', 'IMAGE'].includes(mediaType || '')) continue;
           throw new Error(createData.error?.message || `${mt} creation failed`);
         }
 
-        // Retry publish for REELS (video needs processing time)
         let pubData: Record<string, unknown> | null = null;
         for (let attempt = 0; attempt < 5; attempt++) {
           await new Promise(r => setTimeout(r, attempt === 0 ? 3000 : 5000));
@@ -132,7 +133,6 @@ export async function POST(req: Request) {
       throw new Error('Failed to create media');
     }
 
-    // Image/carousel flow (existing)
     if (!imageDataUrls?.length || !caption)
       return NextResponse.json({ error: 'imageDataUrls[] and caption required' }, { status: 400 });
 
