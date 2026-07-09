@@ -1,4 +1,37 @@
 import { NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
+
+function formatDateID(dateStr: string | null): string {
+  if (!dateStr) return '';
+  try {
+    const d = new Date(dateStr + 'T00:00:00');
+    return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+  } catch { return dateStr; }
+}
+
+function normalizeName(name: string): string {
+  const prefixes = ['pt ', 'cv ', 'tbk ', 'ltd ', 'inc ', 'corp ', 'co ', 'perusahaan '];
+  let n = name.toLowerCase().trim();
+  for (const p of prefixes) {
+    if (n.startsWith(p)) n = n.slice(p.length).trim();
+  }
+  return n;
+}
+
+function findBestMatch(name: string, list: { id: string; name: string }[]): string | null {
+  const normalized = normalizeName(name);
+  for (const item of list) {
+    if (normalizeName(item.name).includes(normalized) || normalized.includes(normalizeName(item.name))) {
+      return item.id;
+    }
+  }
+  return null;
+}
 
 export async function POST(req: Request) {
   try {
@@ -7,88 +40,220 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Caption required' }, { status: 400 });
     }
 
-    const prompt = `
-Kamu adalah asisten profesional untuk platform lowongan kerja bernama Kraloka.
-Tugasmu adalah mengekstrak teks loker mentah menjadi format JSON yang siap dimasukkan ke database website.
+    const [{ data: existingOrganizers }, { data: existingFields }, { data: existingLevels }] = await Promise.all([
+      supabase.from('organizers').select('id, name, instagram'),
+      supabase.from('fields').select('id, name'),
+      supabase.from('levels').select('id, name'),
+    ]);
 
-Teks Loker Mentah:
+    const orgs = existingOrganizers || [];
+    const fields = existingFields || [];
+    const levels = existingLevels || [];
+
+    const extractPrompt = `
+Kamu adalah asisten ekstraktor data lowongan untuk Kraloka.
+
+Teks lowongan:
 """
 ${caption}
 """
 
-Kembalikan data HANYA dalam format JSON dengan struktur persis seperti ini (jangan beri teks pembuka/penutup lain):
+Database saat ini — pilih ID dari daftar yang paling cocok. Jika tidak ada yang cocok, isi "new" dengan nama yang sesuai.
+
+Organizer tersedia (pilih id yang cocok dengan penyelenggara dari teks):
+${JSON.stringify(orgs.map(o => ({ id: o.id, name: o.name, instagram: o.instagram })))}
+
+Bidang tersedia (pilih id yang cocok dari teks, bisa lebih dari satu):
+${JSON.stringify(fields.map(f => ({ id: f.id, name: f.name })))}
+
+Level tersedia (pilih id yang cocok dari teks, bisa lebih dari satu):
+${JSON.stringify(levels.map(l => ({ id: l.id, name: l.name })))}
+
+Ekstrak data berikut ke JSON.
 {
-  "title": "Judul event yang rapi dan jelas",
+  "title": "Judul rapi dan jelas",
   "kategori": "Info Lomba atau Info Magang atau Info Loker",
-  "caption": "Buat caption Instagram gaya Kraloka dengan struktur WAJIB setiap bagian PISAH BARIS (line break). JANGAN gabung dalam satu paragraf. Semua konten harus dari teks asli (JANGAN placeholder/buatan). Sertakan field_names, level_names, location yang relevan dari teks.
-
-Hashtag wajib sesuai kategori:
-- Info Loker: #kralokainfo #melangkahbarengkraloka #infoloker #loker #lowongankerja #carikerja #[hashtag_dari_teks]
-- Info Magang: #kralokainfo #melangkahbarengkraloka #infomagang #magang #internship #carikerja #[hashtag_dari_teks]
-- Info Lomba: #kralokainfo #melangkahbarengkraloka #infolomba #lomba #kompetisi #[hashtag_dari_teks]
-
-Format:
-
-🔥 [judul dari teks asli] 🔥
-
-Halo Rekan Kraloka! 👋
-
-[Paragraf dari teks asli]
-
-💼 [POIN-POIN DARI TEKS ASLI]:
-• [isi dari teks asli]
-• [isi dari teks asli]
-
-📌 [KUALIFIKASI DARI TEKS ASLI]:
-• [isi dari teks asli]
-
-🗓️ Pendaftaran: [tanggal dari teks asli]
-
-👉 [link dari teks asli]
-
-⚠️ PANDUAN KEAMANAN KRALOKA:
-Rekan Kraloka, mohon selalu waspada saat mencari info. Ingat, rekrutmen resmi TIDAK PERNAH memungut biaya apa pun (GRATIS).
-
-#kralokainfo #melangkahbarengkraloka #infoloker #loker #lowongankerja #carikerja #[hashtag_dari_teks_asli]",
-  "guidelink": "Link panduan jika ada di teks, jika tidak ada null",
-  "registerlink": "Link pendaftaran jika ada, jika berbentuk email ubah ke mailto:email@domain.com?subject=JudulEvent",
-  "open_date": "Tanggal buka format YYYY-MM-DD jika disebutkan, jika tidak null",
-  "close_date": "Tanggal tutup format YYYY-MM-DD jika disebutkan, jika tidak null",
-  "is_online": "Online atau Offline atau Online & Offline",
-  "location": "Deteksi lokasi dari teks (kota/daerah). Jika tidak disebutkan sama sekali, isi null",
+  "guidelink": "Link panduan, null jika tidak",
+  "registerlink": "Link pendaftaran, null jika tidak. Email: mailto:email?subject=Judul",
+  "open_date": "YYYY-MM-DD. Konversi dari teks ke ISO. Contoh: \"19 JULY 2026\" jadi \"2026-07-19\". null jika tidak disebutkan",
+  "close_date": "YYYY-MM-DD. Sama. null jika tidak disebutkan",
+  "is_online": "Online / Offline / Online & Offline",
+  "location": "Kota/daerah, null jika tidak",
   "is_free": true atau false,
-  "organizer_name": "Nama perusahaan/penyelenggara",
-  "organizer_instagram": "Instagram handle perusahaan tanpa @ jika ada, jika tidak null",
-  "field_names": ["Array nama bidang yang DIDETEKSI dari teks. Contoh: Hukum, Keuangan, Pemasaran, Teknik, Manajemen, Desain, Multimedia, IT, dan lainnya. Jangan dikosongkan"],
-  "level_names": ["Array nama level yang DIDETEKSI dari teks. Contoh: Fresh Graduate, Profesional (Maks. 2 tahun), Mahasiswa, Semua Jurusan, Siswa SMA/SMK, dan lainnya. Jangan dikosongkan"]
+  "organizer_id": "ID dari daftar yang cocok, atau {\"new\": \"Nama Organizer\"} jika tidak ada yang cocok",
+  "organizer_instagram": "Instagram handle tanpa @, null jika tidak",
+  "field_ids": ["ID dari daftar yang cocok", ...] atau [{"new": "Nama Bidang Baru"}, ...],
+  "level_ids": ["ID dari daftar yang cocok", ...] atau [{"new": "Nama Level Baru"}, ...],
+  "user_hashtags": ["#hashtag1", "#hashtag2", ... hashtag yang ditemukan di teks (dengan #). [] jika tidak ada"]
 }
 `;
 
-    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    const extractRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: 'llama-3.1-8b-instant',
-        messages: [{ role: 'user', content: prompt }],
+        model: 'llama-3.3-70b-versatile',
+        messages: [{ role: 'user', content: extractPrompt }],
         response_format: { type: 'json_object' },
-        temperature: 0.2
+        temperature: 0.1
       })
     });
 
-    if (!res.ok) {
-      const err = await res.text();
-      console.error('Groq API error:', err);
-      return NextResponse.json({ error: 'Gagal memproses caption' }, { status: 500 });
+    if (!extractRes.ok) {
+      const err = await extractRes.text();
+      console.error('Extract API error:', err);
+      return NextResponse.json({ error: 'Gagal mengekstrak data' }, { status: 500 });
     }
 
-    const data = await res.json();
-    const content = data?.choices?.[0]?.message?.content || '{}';
-    const parsed = JSON.parse(content);
+    const extractData = await extractRes.json();
+    const extracted = JSON.parse(extractData?.choices?.[0]?.message?.content || '{}');
 
-    return NextResponse.json({ success: true, data: parsed });
+    let organizer_id = extracted.organizer_id;
+    if (typeof organizer_id === 'object' && organizer_id?.new) {
+      const match = findBestMatch(organizer_id.new, orgs);
+      if (match) {
+        organizer_id = match;
+      } else {
+        const { quickCreateOrganizer } = await import('@/app/admin/organizers/actions');
+        organizer_id = (await quickCreateOrganizer(organizer_id.new, extracted.organizer_instagram || null)).id;
+      }
+    }
+
+    const field_ids: string[] = [];
+    for (const fId of extracted.field_ids || []) {
+      if (typeof fId === 'string') {
+        field_ids.push(fId);
+      } else if (fId?.new) {
+        const match = findBestMatch(fId.new, fields);
+        if (match) {
+          field_ids.push(match);
+        } else {
+          const { createField } = await import('@/app/admin/fields/actions');
+          const fd = new FormData();
+          fd.append('name', fId.new);
+          fd.append('only_lomba', String(extracted.kategori === 'Info Lomba'));
+          await createField(fd);
+          await new Promise(r => setTimeout(r, 200));
+          const { getFields } = await import('@/app/admin/fields/actions');
+          const updated = await getFields();
+          const created = updated.find((x: { name: string }) => normalizeName(x.name) === normalizeName(fId.new));
+          if (created) field_ids.push(created.id);
+        }
+      }
+    }
+
+    const level_ids: string[] = [];
+    for (const lId of extracted.level_ids || []) {
+      if (typeof lId === 'string') {
+        level_ids.push(lId);
+      } else if (lId?.new) {
+        const match = findBestMatch(lId.new, levels);
+        if (match) {
+          level_ids.push(match);
+        } else {
+          const { createLevel } = await import('@/app/admin/levels/actions');
+          const ld = new FormData();
+          ld.append('name', lId.new);
+          await createLevel(ld);
+          await new Promise(r => setTimeout(r, 200));
+          const { getLevels } = await import('@/app/admin/levels/actions');
+          const updated = await getLevels();
+          const created = updated.find((x: { name: string }) => normalizeName(x.name) === normalizeName(lId.new));
+          if (created) level_ids.push(created.id);
+        }
+      }
+    }
+
+    const organizerName = (orgs.find(o => o.id === organizer_id)?.name || extracted.organizer_id?.new || '').toLowerCase().replace(/\s+/g, '');
+    const formattedOpen = formatDateID(extracted.open_date);
+    const formattedClose = formatDateID(extracted.close_date);
+    const dateLine = extracted.close_date
+      ? `🗓️ ${extracted.open_date ? `Pendaftaran: ${formattedOpen} - ${formattedClose}` : `Batas Pendaftaran: ${formattedClose}`}`
+      : '';
+
+    const kralokaHashtags = extracted.kategori === 'Info Loker'
+      ? '#kralokainfo #melangkahbarengkraloka #infoloker #loker #lowongankerja #carikerja'
+      : extracted.kategori === 'Info Magang'
+        ? '#kralokainfo #melangkahbarengkraloka #infomagang #magang #internship #carikerja'
+        : '#kralokainfo #melangkahbarengkraloka #infolomba #lomba #kompetisi';
+    const orgHashtag = organizerName ? ` #${organizerName}` : '';
+    const userHashtags = (extracted.user_hashtags || []).join(' ');
+    const allHashtags = `${kralokaHashtags}${orgHashtag}${userHashtags ? '\n' + userHashtags : ''}`;
+
+    const captionPrompt = `
+Buat caption Instagram Kraloka yang menarik dari data berikut. Jangan copy mentah teks asli. Tulis ulang dengan gaya engaging, per poin, setiap bagian PISAH BARIS.
+
+Data:
+- Judul: ${extracted.title || '(tidak ada)'}
+- Kategori: ${extracted.kategori || '(tidak ada)'}
+- Tanggal: ${formattedClose || 'Tidak disebutkan'}
+- Lokasi: ${extracted.location || 'Tidak disebutkan'}
+- Link: ${extracted.registerlink || 'Tidak ada'}
+- Penyelenggara: ${(orgs.find(o => o.id === organizer_id)?.name) || extracted.organizer_id?.new || 'Tidak disebutkan'}
+
+Format caption:
+
+🔥 [judul] 🔥
+
+Halo Rekan Kraloka! 👋
+
+[Tulis paragraf pembuka yang menarik]
+
+💼 Poin Penting:
+•
+•
+
+📌 Kualifikasi:
+•
+
+${extracted.close_date ? `🗓️ ${extracted.open_date ? `Pendaftaran: ${formattedOpen} - ${formattedClose}` : `Batas Pendaftaran: ${formattedClose}`}` : ''}
+
+👉 ${extracted.registerlink || 'Link tidak tersedia'}
+
+⚠️ PANDUAN KEAMANAN KRALOKA:
+Rekan Kraloka, mohon selalu waspada saat mencari info. Rekrutmen resmi TIDAK PERNAH memungut biaya apapun (GRATIS).
+
+${allHashtags}
+
+JANGAN membuat hashtag baru apapun. Hanya gunakan hashtag yang sudah disediakan di atas. Kembalikan HANYA teks caption. Tanpa JSON, tanpa pembuka/penutup.
+`;
+
+    const captionRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: 'llama-3.3-70b-versatile',
+        messages: [{ role: 'user', content: captionPrompt }],
+        temperature: 0.5
+      })
+    });
+
+    if (!captionRes.ok) {
+      const err = await captionRes.text();
+      console.error('Caption API error:', err);
+      return NextResponse.json({ error: 'Gagal generate caption' }, { status: 500 });
+    }
+
+    const captionData = await captionRes.json();
+    const generatedCaption = captionData?.choices?.[0]?.message?.content || '';
+
+    return NextResponse.json({
+      success: true,
+      data: {
+        ...extracted,
+        caption: generatedCaption,
+        organizer_id,
+        field_ids,
+        level_ids,
+        user_hashtags: extracted.user_hashtags || [],
+      }
+    });
   } catch (e) {
     console.error('Autofill error:', e);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

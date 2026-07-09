@@ -102,7 +102,13 @@ export default function EventForm({ event, organizers, levels, fields, asChild =
       d.location && set('location', d.location);
       if (d.is_free != null) set('is_free', String(d.is_free));
 
-      if (d.organizer_name) {
+      if (d.organizer_id) {
+        if (typeof d.organizer_id === 'string') {
+          el['organizer_id'].value = d.organizer_id;
+          el['organizer_id'].dispatchEvent(new Event('change', { bubbles: true }));
+          setAutofillOrganizerId(d.organizer_id);
+        }
+      } else if (d.organizer_name) {
         const match = organizers.find(o => o.name?.toLowerCase() === d.organizer_name.toLowerCase() || o.instagram?.toLowerCase() === d.organizer_name.toLowerCase());
         const orgId = match ? match.id : (await (await import('@/app/admin/organizers/actions')).quickCreateOrganizer(d.organizer_name, d.organizer_instagram || null)).id;
         el['organizer_id'].value = orgId;
@@ -110,7 +116,9 @@ export default function EventForm({ event, organizers, levels, fields, asChild =
         setAutofillOrganizerId(orgId);
       }
 
-      if (d.field_names?.length) {
+      if (d.field_ids?.length) {
+        setAutofillFieldIds(d.field_ids.filter((id: string) => fields.some(f => f.id === id)));
+      } else if (d.field_names?.length) {
         const newIds: string[] = [];
         for (const name of d.field_names) {
           const existing = fields.find(f => f.name.toLowerCase() === name.toLowerCase());
@@ -134,7 +142,9 @@ export default function EventForm({ event, organizers, levels, fields, asChild =
         if (newIds.length) setAutofillFieldIds(newIds);
       }
 
-      if (d.level_names?.length) {
+      if (d.level_ids?.length) {
+        setAutofillLevelIds(d.level_ids.filter((id: string) => levels.some(l => l.id === id)));
+      } else if (d.level_names?.length) {
         const newIds: string[] = [];
         for (const name of d.level_names) {
           const existing = levels.find(l => l.name.toLowerCase() === name.toLowerCase());
