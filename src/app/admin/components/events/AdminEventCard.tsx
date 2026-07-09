@@ -125,10 +125,23 @@ export default function AdminEventCard({ event }: { event: EventWithOrganizer })
 
       if (!generated.length) throw new Error('Gagal generate gambar');
 
+      const uploadToCloudinary = async (dataUrl: string): Promise<string> => {
+        const blob = await (await fetch(dataUrl)).blob();
+        const fd = new FormData();
+        fd.append('file', blob, `post-${Date.now()}.png`);
+        fd.append('folder', 'instagram-posts');
+        const res = await fetch('/api/upload-image', { method: 'POST', body: fd });
+        if (!res.ok) throw new Error(await res.text());
+        const json = await res.json();
+        return json.url;
+      };
+
+      const cloudinaryUrls = await Promise.all(generated.map(g => uploadToCloudinary(g.url)));
+
       const res = await fetch('/api/instagram/post', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ imageDataUrls: generated.map(g => g.url), caption, userTags }),
+        body: JSON.stringify({ imageDataUrls: cloudinaryUrls, caption, userTags }),
       });
       if (!res.ok) throw new Error(await res.text());
       const data = await res.json();

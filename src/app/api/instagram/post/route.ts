@@ -58,6 +58,9 @@ export async function POST(req: Request) {
       const rawData = videoDataUrl || (mediaType === 'IMAGE' ? imageDataUrls?.[0] : null);
 
       const uploadToCloudinary = async (fileData: string, resourceType: 'image' | 'video'): Promise<{ url: string; publicId: string }> => {
+        if (fileData.startsWith('http')) {
+          return { url: fileData, publicId: '' };
+        }
         const isBase64 = fileData.startsWith('data:');
         const buffer = Buffer.from(
           isBase64 ? fileData.replace(/^data:image\/\w+;base64,/, '').replace(/^data:video\/\w+;base64,/, '') : fileData,
@@ -168,6 +171,10 @@ export async function POST(req: Request) {
     const publicUrls: string[] = [];
     step = 'cloudinary_upload';
     for (let i = 0; i < urls.length; i++) {
+      if (urls[i].startsWith('http')) {
+        publicUrls.push(urls[i]);
+        continue;
+      }
       const isBase64 = urls[i].startsWith('data:');
       const buffer = Buffer.from(isBase64 ? urls[i].replace(/^data:image\/\w+;base64,/, '') : urls[i], isBase64 ? 'base64' : 'utf-8');
       const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
