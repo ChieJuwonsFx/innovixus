@@ -78,11 +78,15 @@ export default async function KategoriPage({ params, searchParams }: PageProps) 
   }
 
   if (resolvedSearchParams.level) {
-    query = query.eq('event_levels.level_id', resolvedSearchParams.level);
+    const { data: levelIds } = await supabase
+      .from('event_levels').select('event_id').eq('level_id', resolvedSearchParams.level);
+    query = query.in('id', levelIds?.map(e => e.event_id) || ['__none__']);
   }
 
   if (resolvedSearchParams.bidang) {
-    query = query.eq('event_fields.field_id', resolvedSearchParams.bidang);
+    const { data: fieldIds } = await supabase
+      .from('event_fields').select('event_id').eq('field_id', resolvedSearchParams.bidang);
+    query = query.in('id', fieldIds?.map(e => e.event_id) || ['__none__']);
   }
   if (resolvedSearchParams.tipe) {
     switch (resolvedSearchParams.tipe) {

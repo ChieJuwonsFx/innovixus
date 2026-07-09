@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
+import { Combobox } from '@headlessui/react';
 import { Search, Filter, X, ChevronDown, Loader2 } from 'lucide-react';
 import { Database } from '@/types/database';
 
@@ -27,6 +28,8 @@ export default function EventFilters({ levels, fields, kategori }: FilterProps) 
   const [selectedGratis, setSelectedGratis] = useState('');
   const [isFilterExpanded, setIsFilterExpanded] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [levelQuery, setLevelQuery] = useState('');
+  const [bidangQuery, setBidangQuery] = useState('');
 
   useEffect(() => {
     setIsMounted(true);
@@ -47,41 +50,32 @@ export default function EventFilters({ levels, fields, kategori }: FilterProps) 
         await new Promise(resolve => setTimeout(resolve, 300));
       }
       
-      const params = new URLSearchParams(searchParams.toString());
+      const params = new URLSearchParams();
       
       if (searchTerm.trim()) {
         params.set('q', searchTerm.trim());
-      } else {
-        params.delete('q');
       }
 
       if (selectedLevel) {
         params.set('level', selectedLevel);
-      } else {
-        params.delete('level');
       }
 
       if (selectedBidang) {
         params.set('bidang', selectedBidang);
-      } else {
-        params.delete('bidang');
       }
 
       if (selectedTipe) {
         params.set('tipe', selectedTipe);
-      } else {
-        params.delete('tipe');
       }
 
       if (selectedGratis) {
         params.set('gratis', selectedGratis);
-      } else {
-        params.delete('gratis');
       }
       
       params.set('page', '1');
       
-      const url = `${pathname}?${params.toString()}`;
+      const qs = params.toString();
+      const url = qs ? `${pathname}?${qs}` : pathname;
       
       router.replace(url, { scroll: false });
       
@@ -90,7 +84,7 @@ export default function EventFilters({ levels, fields, kategori }: FilterProps) 
     } finally {
       setIsLoading(false);
     }
-  }, [searchTerm, selectedLevel, selectedBidang, selectedTipe, selectedGratis, pathname, router, isLoading, searchParams]);
+  }, [searchTerm, selectedLevel, selectedBidang, selectedTipe, selectedGratis, pathname, router, isLoading]);
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !isLoading) {
@@ -101,21 +95,15 @@ export default function EventFilters({ levels, fields, kategori }: FilterProps) 
 
   const handleFilterChange = useCallback((filterType: string, value: string) => {
     switch (filterType) {
-      case 'level':
-        setSelectedLevel(value);
-        break;
-      case 'bidang':
-        setSelectedBidang(value);
-        break;
-      case 'tipe':
-        setSelectedTipe(value);
-        break;
-      case 'gratis':
-        setSelectedGratis(value);
-        break;
+      case 'level': setSelectedLevel(value); break;
+      case 'bidang': setSelectedBidang(value); break;
+      case 'tipe': setSelectedTipe(value); break;
+      case 'gratis': setSelectedGratis(value); break;
     }
-    
-    setTimeout(() => handleSearch(true), 100);
+  }, []);
+
+  const applyFilters = useCallback(() => {
+    handleSearch(true);
   }, [handleSearch]);
 
   const clearAllFilters = useCallback(() => {
@@ -173,11 +161,19 @@ export default function EventFilters({ levels, fields, kategori }: FilterProps) 
 
   const displayFields = kategori !== 'info-lomba' ? fields.filter(f => f.only_lomba === false) : fields;
 
+  const filteredLevels = useMemo(() =>
+    levelQuery ? levels.filter(l => l.name.toLowerCase().includes(levelQuery.toLowerCase())) : levels
+  , [levels, levelQuery]);
+
+  const filteredBidang = useMemo(() =>
+    bidangQuery ? displayFields.filter(f => f.name.toLowerCase().includes(bidangQuery.toLowerCase())) : displayFields
+  , [displayFields, bidangQuery]);
+
   const selectClasses = `w-full p-3 pr-10 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-sm appearance-none bg-no-repeat bg-[url('data:image/svg+xml,%3csvg%20xmlns%3d%22http%3a//www.w3.org/2000/svg%22%20viewBox%3d%220%200%2020%2020%22%20fill%3d%22currentColor%22%3e%3cpath%20fill-rule%3d%22evenodd%22%20d%3d%22M5.293%207.293a1%201%200%20011.414%200L10%2010.586l3.293-3.293a1%201%200%20111.414%201.414l-4%204a1%201%200%2001-1.414%200l-4-4a1%201%200%20010-1.414z%22%20clip-rule%3d%22evenodd%22%20/%3e%3c/svg%3e')] bg-[position:right_0.75rem_center] bg-[size:1.25em]`;
 
   if (!isMounted) {
     return (
-      <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden animate-pulse">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 animate-pulse">
         <div className="p-5">
           <div className="flex flex-col sm:flex-row gap-3">
             <div className="h-12 bg-gray-200 dark:bg-gray-700 rounded-xl flex-1"></div>
@@ -192,7 +188,7 @@ export default function EventFilters({ levels, fields, kategori }: FilterProps) 
   }
 
   return (
-    <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+    <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700">
       <div className="p-5 border-b border-gray-200 dark:border-gray-700">
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1">
@@ -209,15 +205,26 @@ export default function EventFilters({ levels, fields, kategori }: FilterProps) 
               data-form-type="other"
             />
           </div>
-          <div className="flex gap-3">
-            <button
-              onClick={() => handleSearch(true)}
-              disabled={isLoading}
-              className="px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors duration-200 font-medium text-sm shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 min-w-[80px] justify-center"
-              type="button"
-            >
-              {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Cari'}
-            </button>
+            <div className="flex gap-3">
+              {isFilterExpanded ? (
+                <button
+                  onClick={() => applyFilters()}
+                  disabled={isLoading}
+                  className="px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors duration-200 font-medium text-sm shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 min-w-[80px] justify-center"
+                  type="button"
+                >
+                  {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Terapkan'}
+                </button>
+              ) : (
+                <button
+                  onClick={() => handleSearch(true)}
+                  disabled={isLoading}
+                  className="px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors duration-200 font-medium text-sm shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 min-w-[80px] justify-center"
+                  type="button"
+                >
+                  {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Cari'}
+                </button>
+              )}
             <button
               onClick={() => setIsFilterExpanded(!isFilterExpanded)}
               className="px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200 flex items-center gap-2"
@@ -235,10 +242,9 @@ export default function EventFilters({ levels, fields, kategori }: FilterProps) 
         </div>
       </div>
 
-      <div className={`transition-all duration-300 ease-in-out ${
-        isFilterExpanded ? 'max-h-[500px] opacity-100 visible' : 'max-h-0 opacity-0 invisible'
-      } overflow-hidden`}>
-        <div className="p-6">
+      {isFilterExpanded && (
+        <div>
+          <div className="p-6">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
               {labels.title}
@@ -260,38 +266,82 @@ export default function EventFilters({ levels, fields, kategori }: FilterProps) 
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 {labels.level}
               </label>
-              <select 
-                value={selectedLevel} 
-                onChange={(e) => handleFilterChange('level', e.target.value)}
-                className={selectClasses} 
-                autoComplete="off"
+              <Combobox
+                value={selectedLevel}
+                onChange={(v: string | null) => { setLevelQuery(''); setSelectedLevel(v || ''); }}
+                nullable
               >
-                <option value="">Semua {labels.level}</option>
-                {levels.map(level => (
-                  <option key={level.id} value={level.id}>
-                    {level.name}
-                  </option>
-                ))}
-              </select>
+                <div className="relative z-20">
+                  <Combobox.Input
+                    onChange={(e) => { setLevelQuery(e.target.value); if (e.target.value) setSelectedLevel(''); }}
+                    displayValue={(id: string) => id ? (levels.find(l => l.id === id)?.name || '') : ''}
+                    placeholder={'Semua ' + labels.level}
+                    className="w-full p-3 pr-10 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-sm"
+                    autoComplete="off"
+                  />
+                  <Combobox.Button className="absolute inset-y-0 right-0 flex items-center pr-3">
+                    <ChevronDown className="h-4 w-4 text-gray-400" />
+                  </Combobox.Button>
+                  <Combobox.Options className="absolute z-30 mt-1 max-h-60 w-full overflow-auto rounded-lg bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 shadow-lg text-sm" data-options="level">
+                    <Combobox.Option
+                      value=""
+                      className={({ active }) => `cursor-pointer select-none px-3 py-2 ${active ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400' : 'text-gray-700 dark:text-gray-300'}`}
+                    >
+                      Semua {labels.level}
+                    </Combobox.Option>
+                    {filteredLevels.map(level => (
+                      <Combobox.Option
+                        key={level.id}
+                        value={level.id}
+                        className={({ active, selected }) => `cursor-pointer select-none px-3 py-2 ${selected ? 'bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300' : active ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400' : 'text-gray-700 dark:text-gray-300'}`}
+                      >
+                        {level.name}
+                      </Combobox.Option>
+                    ))}
+                  </Combobox.Options>
+                </div>
+              </Combobox>
             </div>
             
             <div className="space-y-2">
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 {labels.bidang}
               </label>
-              <select 
-                value={selectedBidang} 
-                onChange={(e) => handleFilterChange('bidang', e.target.value)}
-                className={selectClasses} 
-                autoComplete="off"
+              <Combobox
+                value={selectedBidang}
+                onChange={(v: string | null) => { setBidangQuery(''); setSelectedBidang(v || ''); }}
+                nullable
               >
-                <option value="">Semua {labels.bidang}</option>
-                {displayFields.map(field => (
-                  <option key={field.id} value={field.id}>
-                    {field.name}
-                  </option>
-                ))}
-              </select>
+                <div className="relative z-20">
+                  <Combobox.Input
+                    onChange={(e) => { setBidangQuery(e.target.value); if (e.target.value) setSelectedBidang(''); }}
+                    displayValue={(id: string) => id ? (displayFields.find(f => f.id === id)?.name || '') : ''}
+                    placeholder={'Semua ' + labels.bidang}
+                    className="w-full p-3 pr-10 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-sm"
+                    autoComplete="off"
+                  />
+                  <Combobox.Button className="absolute inset-y-0 right-0 flex items-center pr-3">
+                    <ChevronDown className="h-4 w-4 text-gray-400" />
+                  </Combobox.Button>
+                  <Combobox.Options className="absolute z-30 mt-1 max-h-60 w-full overflow-auto rounded-lg bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 shadow-lg text-sm" data-options="bidang">
+                    <Combobox.Option
+                      value=""
+                      className={({ active }) => `cursor-pointer select-none px-3 py-2 ${active ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400' : 'text-gray-700 dark:text-gray-300'}`}
+                    >
+                      Semua {labels.bidang}
+                    </Combobox.Option>
+                    {filteredBidang.map(field => (
+                      <Combobox.Option
+                        key={field.id}
+                        value={field.id}
+                        className={({ active, selected }) => `cursor-pointer select-none px-3 py-2 ${selected ? 'bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300' : active ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400' : 'text-gray-700 dark:text-gray-300'}`}
+                      >
+                        {field.name}
+                      </Combobox.Option>
+                    ))}
+                  </Combobox.Options>
+                </div>
+              </Combobox>
             </div>
             
             <div className="space-y-2">
@@ -354,9 +404,13 @@ export default function EventFilters({ levels, fields, kategori }: FilterProps) 
                 
                 {searchParams.get('level') && (
                   <span className="inline-flex items-center gap-1 px-3 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 rounded-full text-sm">
-                    {labels.level}: {levels.find(l => l.id.toString() === searchParams.get('level'))?.name}
+                    {labels.level}: {levels.find(l => l.id === searchParams.get('level'))?.name}
                     <button
-                      onClick={() => handleFilterChange('level', '')}
+                      onClick={() => {
+                        const p = new URLSearchParams(window.location.search);
+                        p.delete('level'); p.set('page', '1');
+                        router.replace(`${pathname}?${p.toString()}`, { scroll: false });
+                      }}
                       className="ml-1 hover:text-green-600 dark:hover:text-green-300"
                     >
                       <X className="h-3 w-3" />
@@ -366,9 +420,13 @@ export default function EventFilters({ levels, fields, kategori }: FilterProps) 
                 
                 {searchParams.get('bidang') && (
                   <span className="inline-flex items-center gap-1 px-3 py-1 bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 rounded-full text-sm">
-                    {labels.bidang}: {fields.find(f => f.id.toString() === searchParams.get('bidang'))?.name}
+                    {labels.bidang}: {fields.find(f => f.id === searchParams.get('bidang'))?.name}
                     <button
-                      onClick={() => handleFilterChange('bidang', '')}
+                      onClick={() => {
+                        const p = new URLSearchParams(window.location.search);
+                        p.delete('bidang'); p.set('page', '1');
+                        router.replace(`${pathname}?${p.toString()}`, { scroll: false });
+                      }}
                       className="ml-1 hover:text-purple-600 dark:hover:text-purple-300"
                     >
                       <X className="h-3 w-3" />
@@ -380,7 +438,11 @@ export default function EventFilters({ levels, fields, kategori }: FilterProps) 
                   <span className="inline-flex items-center gap-1 px-3 py-1 bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200 rounded-full text-sm">
                     Tipe: {searchParams.get('tipe')}
                     <button
-                      onClick={() => handleFilterChange('tipe', '')}
+                      onClick={() => {
+                        const p = new URLSearchParams(window.location.search);
+                        p.delete('tipe'); p.set('page', '1');
+                        router.replace(`${pathname}?${p.toString()}`, { scroll: false });
+                      }}
                       className="ml-1 hover:text-orange-600 dark:hover:text-orange-300"
                     >
                       <X className="h-3 w-3" />
@@ -392,7 +454,11 @@ export default function EventFilters({ levels, fields, kategori }: FilterProps) 
                   <span className="inline-flex items-center gap-1 px-3 py-1 bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 rounded-full text-sm">
                     {searchParams.get('gratis') === 'true' ? 'Gratis' : 'Berbayar'}
                     <button
-                      onClick={() => handleFilterChange('gratis', '')}
+                      onClick={() => {
+                        const p = new URLSearchParams(window.location.search);
+                        p.delete('gratis'); p.set('page', '1');
+                        router.replace(`${pathname}?${p.toString()}`, { scroll: false });
+                      }}
                       className="ml-1 hover:text-yellow-600 dark:hover:text-yellow-300"
                     >
                       <X className="h-3 w-3" />
@@ -404,6 +470,7 @@ export default function EventFilters({ levels, fields, kategori }: FilterProps) 
           )}
         </div>
       </div>
+      )}
     </div>
   );
 }
