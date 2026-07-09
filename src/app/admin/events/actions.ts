@@ -247,3 +247,8 @@ export async function publishEvent(id: string) {
   if (error) throw new Error(error.message);
   revalidatePath('/admin/events');
 }
+
+export async function cleanupCloudinaryImages(urls: string[]) {
+  const { deleteMultipleCloudinaryImages } = await import('@/lib/cloudinary.action');
+  await deleteMultipleCloudinaryImages(urls);
+}

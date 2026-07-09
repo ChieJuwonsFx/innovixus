@@ -12,7 +12,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
 import { Database } from '@/types/database';
 import DeleteButton from '../DeleteButton';
-import { deleteEvent, publishEvent } from '../../events/actions';
+import { deleteEvent, publishEvent, cleanupCloudinaryImages } from '../../events/actions';
 
 type EventRow = Database['public']['Tables']['events']['Row'];
 
@@ -105,6 +105,9 @@ export default function AdminEventCard({ event }: { event: EventWithOrganizer })
 
     setIsPosting(true);
     setIsMenuOpen(false);
+
+    let cloudinaryUrls: string[] | null = null;
+
     try {
       const { generatePostImages } = await import('@/lib/imageGenerator');
       const urlsToFiles = async (urls: string[]) =>
@@ -136,7 +139,7 @@ export default function AdminEventCard({ event }: { event: EventWithOrganizer })
         return json.url;
       };
 
-      const cloudinaryUrls = await Promise.all(generated.map(g => uploadToCloudinary(g.url)));
+      cloudinaryUrls = await Promise.all(generated.map(g => uploadToCloudinary(g.url)));
 
       const res = await fetch('/api/instagram/post', {
         method: 'POST',
@@ -151,6 +154,7 @@ export default function AdminEventCard({ event }: { event: EventWithOrganizer })
     } catch (e) {
       toast.error('Gagal post: ' + (e instanceof Error ? e.message : 'Unknown'));
     } finally {
+      if (cloudinaryUrls?.length) startTransition(() => cleanupCloudinaryImages(cloudinaryUrls!));
       setIsPosting(false);
     }
   };
