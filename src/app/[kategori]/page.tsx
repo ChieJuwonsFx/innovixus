@@ -66,7 +66,7 @@ export default async function KategoriPage({ params, searchParams }: PageProps) 
   
   let query = supabase
     .from('events')
-    .select('*, organizers(name, instagram), event_levels!inner(levels(id, name)), event_fields!inner(fields(id, name))', { count: 'exact' })
+    .select('*, organizers(name, instagram), event_levels(levels(id, name)), event_fields(fields(id, name))', { count: 'exact' })
     .eq('kategori', dbCategory)
     .eq('status', 'Success')
     .filter('open_date', 'lte', 'now()')
@@ -115,10 +115,10 @@ export default async function KategoriPage({ params, searchParams }: PageProps) 
   ] = await Promise.all([
     supabase.from('levels').select('*').order('name'),
     supabase.from('fields').select('*').order('name'),
-    supabase.from('events').select('*', { count: 'exact', head: true }).eq('kategori', dbCategory).eq('status', 'Success').lte('open_date', now).gte('close_date', now),
+    supabase.from('events').select('*', { count: 'exact', head: true }).eq('kategori', dbCategory).eq('status', 'Success').lte('open_date', now).or(`close_date.gte.${now},close_date.is.null`),
     isFiltered 
       ? Promise.resolve({ data: [] }) 
-      : supabase.from('events').select('*, organizers(name)').eq('kategori', dbCategory).eq('status', 'Success').lte('open_date', now).gte('close_date', now).order('created_at', { ascending: false }).limit(6)
+      : supabase.from('events').select('*, organizers(name)').eq('kategori', dbCategory).eq('status', 'Success').lte('open_date', now).or(`close_date.gte.${now},close_date.is.null`).order('created_at', { ascending: false }).limit(6)
   ]);
   
   if (error) {

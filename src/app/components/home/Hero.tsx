@@ -94,19 +94,29 @@ export default function Hero({}: HeroSectionProps) {
   useEffect(() => {
     const fetchStats = async () => {
       try {
+        const now = new Date().toISOString();
         const [lombaResult, magangResult, lokerResult] = await Promise.all([
           supabase
             .from("events")
             .select("*", { count: "exact", head: true })
-            .eq("kategori", "Info Lomba"),
+            .eq("kategori", "Info Lomba")
+            .eq("status", "Success")
+            .lte("open_date", now)
+            .or(`close_date.gte.${now},close_date.is.null`),
           supabase
             .from("events")
             .select("*", { count: "exact", head: true })
-            .eq("kategori", "Info Magang"),
+            .eq("kategori", "Info Magang")
+            .eq("status", "Success")
+            .lte("open_date", now)
+            .or(`close_date.gte.${now},close_date.is.null`),
           supabase
             .from("events")
             .select("*", { count: "exact", head: true })
-            .eq("kategori", "Info Loker"),
+            .eq("kategori", "Info Loker")
+            .eq("status", "Success")
+            .lte("open_date", now)
+            .or(`close_date.gte.${now},close_date.is.null`),
         ]);
 
         setStats({

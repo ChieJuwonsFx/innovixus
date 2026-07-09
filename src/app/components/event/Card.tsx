@@ -58,27 +58,6 @@ export default function Card({ event, kategori, variant = 'grid' }: CardProps) {
     return 'text-emerald-500';
   };
 
-  const formatTitle = (title: string) => {
-    const maxCharsPerLine = 24; 
-    const maxLines = 2;
-    
-    const totalChars = title.length;
-    if (totalChars > maxCharsPerLine * maxLines) {
-      const truncated = title.slice(0, maxCharsPerLine * maxLines - 3);
-      const lastSpace = truncated.lastIndexOf(' ');
-      return lastSpace > 0 ? truncated.slice(0, lastSpace) + '...' : truncated + '...';
-    }
-    
-    const words = title.split(' ');
-    if (words.length >= 2 && words.length <= 4) {
-      const firstLine = words.slice(0, -1).join(' ');
-      const lastWord = words[words.length - 1];
-      return `${firstLine}<br />${lastWord}`;
-    }
-    
-    return `${title}<br />&nbsp;`;
-  };
-
   const closeDateText = formatDateWithTime(event.close_date);
 
   const SliderCardContent = (
@@ -115,10 +94,9 @@ export default function Card({ event, kategori, variant = 'grid' }: CardProps) {
       
       <div className="p-4 space-y-3">
         <div className="space-y-2">
-          <h3
-            className="font-bold text-base text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors leading-tight min-h-[3rem] max-h-[3rem] overflow-hidden"
-            dangerouslySetInnerHTML={{ __html: formatTitle(event.title) }}
-          />
+          <h3 className="font-bold text-base text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors leading-tight min-h-[2.5rem] max-h-[2.5rem] overflow-hidden text-ellipsis" style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
+            {event.title}
+          </h3>
         </div>
         
         <div className="space-y-2">
@@ -142,8 +120,8 @@ export default function Card({ event, kategori, variant = 'grid' }: CardProps) {
         </div>
         
         <div className="pt-3 border-t border-slate-200/60 dark:border-slate-700/60 flex items-center justify-between">
-          <div className="inline-flex items-center gap-2">
-            <Users className="w-3 h-3 text-slate-500 dark:text-slate-400" />
+          <div className="inline-flex items-center gap-2 min-w-0 overflow-hidden">
+            <Users className="w-3 h-3 text-slate-500 dark:text-slate-400 flex-shrink-0" />
             <span className="text-xs text-slate-500 dark:text-slate-400 truncate">
               {event.organizers?.name || 'Penyelenggara'}
             </span>
@@ -194,10 +172,9 @@ export default function Card({ event, kategori, variant = 'grid' }: CardProps) {
       
       <div className="p-5 space-y-4">
         <div className="space-y-3">
-          <h3
-            className="font-bold text-lg text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors leading-tight min-h-[3.5rem] max-h-[3.5rem] overflow-hidden"
-            dangerouslySetInnerHTML={{ __html: formatTitle(event.title) }}
-          />
+          <h3 className="font-bold text-lg text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors leading-tight min-h-[45px] max-h-[45px] overflow-hidden text-ellipsis" style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
+            {event.title}
+          </h3>
         </div>
         
         <div className="space-y-2.5">
