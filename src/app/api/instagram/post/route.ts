@@ -15,17 +15,40 @@ async function getToken(account = 'main'): Promise<string> {
   return (process.env.IG_ACCESS_TOKEN || '').trim();
 }
 
+async function refreshAccessToken(account = 'main', currentToken: string): Promise<string> {
+  if (account === 'kinetics') return currentToken;
+  try {
+    const res = await fetch(
+      `https://graph.instagram.com/v25.0/refresh_access_token?grant_type=ig_refresh_token&access_token=${encodeURIComponent(currentToken)}`
+    );
+    if (!res.ok) return currentToken;
+    const data = await res.json();
+    if (data.access_token) {
+      await supabase.from('app_settings').upsert(
+        { key: 'ig_access_token', value: data.access_token, updated_at: new Date().toISOString() },
+        { onConflict: 'key' }
+      );
+      return data.access_token;
+    }
+  } catch {}
+  return currentToken;
+}
+
 function getUserId(account = 'main'): string {
   return account === 'kinetics' ? process.env.IG_ACCOUNT_KINETICS! : process.env.IG_ACCOUNT_ID!;
 }
 
 export async function POST(req: Request) {
+  let step = 'init';
   try {
     const { imageDataUrls, caption, mediaType, videoDataUrl, videoUrl: incomingVideoUrl, audioId, audioVolume, videoVolume, account = 'main', userTags } = await req.json();
-    const token = await getToken(account);
+    step = 'get_token';
+    let token = await getToken(account);
     const userId = getUserId(account);
     if (!token || !userId) return NextResponse.json({ error: 'IG account not configured' }, { status: 400 });
     const api = 'https://graph.instagram.com/v25.0';
+
+    token = await refreshAccessToken(account, token);
 
     if (mediaType === 'REELS' || mediaType === 'IMAGE' || (!mediaType && videoDataUrl)) {
       const isReels = mediaType === 'REELS';
@@ -60,6 +83,7 @@ export async function POST(req: Request) {
       }
       if (!finalUrl) return NextResponse.json({ error: 'No image/video URL' }, { status: 400 });
 
+      step = 'reels_video_upload';
       if (isReels) {
         try {
           const { timestamp, signature } = await generateUploadSignature('instagram-reels');
@@ -88,6 +112,7 @@ export async function POST(req: Request) {
       }
 
       for (const mt of isReels ? ['REELS', 'IMAGE'] : ['IMAGE']) {
+        step = `${mt.toLowerCase()}_media_create`;
         const body: Record<string, unknown> = mt === 'REELS'
           ? { media_type: 'REELS', video_url: finalUrl, caption }
           : { media_type: 'IMAGE', image_url: finalUrl, caption, ...(userTags?.length ? { user_tags: userTags } : {}) };
@@ -114,6 +139,7 @@ export async function POST(req: Request) {
           throw new Error(createData.error?.message || `${mt} creation failed`);
         }
 
+        step = `${mt.toLowerCase()}_media_publish`;
         let pubData: Record<string, unknown> | null = null;
         for (let attempt = 0; attempt < 5; attempt++) {
           await new Promise(r => setTimeout(r, attempt === 0 ? 3000 : 5000));
@@ -140,6 +166,7 @@ export async function POST(req: Request) {
 
     const urls = imageDataUrls.slice(0, 10);
     const publicUrls: string[] = [];
+    step = 'cloudinary_upload';
     for (let i = 0; i < urls.length; i++) {
       const isBase64 = urls[i].startsWith('data:');
       const buffer = Buffer.from(isBase64 ? urls[i].replace(/^data:image\/\w+;base64,/, '') : urls[i], isBase64 ? 'base64' : 'utf-8');
@@ -159,25 +186,28 @@ export async function POST(req: Request) {
     }
 
     if (publicUrls.length === 1) {
-      const createRes = await fetch(`${api}/${userId}/media?access_token=${token}`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ image_url: publicUrls[0], caption }),
-      });
-      const createData = await createRes.json();
-      if (!createRes.ok) throw new Error(createData.error?.message || 'Media creation failed');
+        step = 'single_media_create';
+        const createRes = await fetch(`${api}/${userId}/media?access_token=${token}`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ image_url: publicUrls[0], caption }),
+        });
+        const createData = await createRes.json();
+        if (!createRes.ok) throw new Error(createData.error?.message || 'Media creation failed');
 
-      const pubRes = await fetch(`${api}/${userId}/media_publish?access_token=${token}`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ creation_id: createData.id }),
-      });
-      const pubData = await pubRes.json();
-      if (!pubRes.ok) throw new Error(pubData.error?.message || 'Publish failed');
+        step = 'single_media_publish';
+        const pubRes = await fetch(`${api}/${userId}/media_publish?access_token=${token}`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ creation_id: createData.id }),
+        });
+        const pubData = await pubRes.json();
+        if (!pubRes.ok) throw new Error(pubData.error?.message || 'Publish failed');
 
       try { await deleteMultipleCloudinaryImages(publicUrls); } catch {}
       return NextResponse.json({ success: true, mediaId: pubData.id, urls: publicUrls, account });
     }
 
     const childIds: string[] = [];
+    step = 'carousel_child_items';
     for (const url of publicUrls) {
       const res = await fetch(`${api}/${userId}/media?access_token=${token}`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -189,24 +219,28 @@ export async function POST(req: Request) {
     }
 
     if (childIds.length < 2) {
-      const singleRes = await fetch(`${api}/${userId}/media?access_token=${token}`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ image_url: publicUrls[0], caption }),
-      });
-      const singleData = await singleRes.json();
-      if (!singleRes.ok) throw new Error(singleData.error?.message || 'Single media creation failed');
+      step = 'carousel_fallback';
+          step = 'carousel_fallback_create';
+          const singleRes = await fetch(`${api}/${userId}/media?access_token=${token}`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ image_url: publicUrls[0], caption }),
+        });
+        const singleData = await singleRes.json();
+        if (!singleRes.ok) throw new Error(singleData.error?.message || 'Single media creation failed');
 
-      const pubRes = await fetch(`${api}/${userId}/media_publish?access_token=${token}`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ creation_id: singleData.id }),
-      });
-      const pubData = await pubRes.json();
-      if (!pubRes.ok) throw new Error(pubData.error?.message || 'Publish failed');
+        step = 'carousel_fallback_publish';
+        const pubRes = await fetch(`${api}/${userId}/media_publish?access_token=${token}`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ creation_id: singleData.id }),
+        });
+        const pubData = await pubRes.json();
+        if (!pubRes.ok) throw new Error(pubData.error?.message || 'Publish failed');
       try { await deleteMultipleCloudinaryImages(publicUrls); } catch {}
       return NextResponse.json({ success: true, mediaId: pubData.id, urls: publicUrls.slice(0, 1) });
     }
 
     let carData;
+    step = 'carousel_create';
     for (let attempt = 0; attempt < 3; attempt++) {
       const carRes = await fetch(`${api}/${userId}/media?access_token=${token}`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -216,9 +250,26 @@ export async function POST(req: Request) {
       if (carRes.ok) break;
       await new Promise(r => setTimeout(r, 2000));
     }
-    if (!carData?.id) throw new Error(carData?.error?.message || 'Carousel creation failed');
+    if (!carData?.id) {
+      step = 'carousel_fallback_after_failed_create';
+      const singleRes = await fetch(`${api}/${userId}/media?access_token=${token}`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ image_url: publicUrls[0], caption }),
+      });
+      const singleData = await singleRes.json();
+      if (!singleRes.ok) throw new Error(singleData.error?.message || 'Fallback single media creation failed');
+      const singlePubRes = await fetch(`${api}/${userId}/media_publish?access_token=${token}`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ creation_id: singleData.id }),
+      });
+      const singlePubData = await singlePubRes.json();
+      if (!singlePubRes.ok) throw new Error(singlePubData.error?.message || 'Fallback publish failed');
+      try { await deleteMultipleCloudinaryImages(publicUrls); } catch {}
+      return NextResponse.json({ success: true, mediaId: singlePubData.id, urls: publicUrls.slice(0, 1), fallback: 'carousel_create_failed' });
+    }
 
     let pubData;
+    step = 'carousel_publish';
     for (let attempt = 0; attempt < 3; attempt++) {
       const pubRes = await fetch(`${api}/${userId}/media_publish?access_token=${token}`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -233,7 +284,8 @@ export async function POST(req: Request) {
     try { await deleteMultipleCloudinaryImages(publicUrls); } catch {}
     return NextResponse.json({ success: true, mediaId: pubData.id, urls: publicUrls, childCount: childIds.length });
   } catch (e) {
-    console.error('Instagram post error:', e);
-    return NextResponse.json({ error: e instanceof Error ? e.message : 'Failed to post' }, { status: 500 });
+    const msg = e instanceof Error ? e.message : 'Failed to post';
+    console.error(`Instagram post error [step: ${step}]:`, msg);
+    return NextResponse.json({ error: msg, step }, { status: 500 });
   }
 }
