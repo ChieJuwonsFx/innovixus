@@ -91,6 +91,7 @@ export default function AdminEventCard({ event }: { event: EventWithOrganizer })
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ caption: `Judul: ${event.title}\nKategori: ${event.kategori}\nDeskripsi: ${event.caption}\n\nBuat caption IG dengan hashtag wajib: #kralokainfo #melangkahbarengkraloka #${(event.kategori || '').replace(/\s+/g, '')} dan hashtag relevan dari teks.` }),
       });
+      if (!aiRes.ok) throw new Error(await aiRes.text());
       const aiJson = await aiRes.json();
       if (aiJson.success && aiJson.data?.caption) {
         caption = aiJson.data.caption;
@@ -128,6 +129,7 @@ export default function AdminEventCard({ event }: { event: EventWithOrganizer })
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ imageDataUrls: generated.map(g => g.url), caption, userTags }),
       });
+      if (!res.ok) throw new Error(await res.text());
       const data = await res.json();
       if (!data.success) throw new Error(data.error);
       toast.success('Berhasil dipost ke Instagram!');

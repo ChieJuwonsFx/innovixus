@@ -262,9 +262,9 @@ const [isAiLoading, setIsAiLoading] = useState(false);
   const handleFiles = (fileList: FileList) => {
     const validFiles = Array.from(fileList).filter(file => {
       const isValid = file.type.startsWith('image/');
-      const isValidSize = file.size <= 10 * 1024 * 1024;
+      const isValidSize = file.size <= 3 * 1024 * 1024;
       if (!isValid) alert(`File ${file.name} bukan gambar yang valid`);
-      else if (!isValidSize) alert(`File ${file.name} terlalu besar (maksimal 10MB)`);
+      else if (!isValidSize) alert(`File ${file.name} terlalu besar (maksimal 3MB)`);
       return isValid && isValidSize;
     });
 
@@ -384,6 +384,7 @@ const [isAiLoading, setIsAiLoading] = useState(false);
                 method: 'POST', headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ url: link }),
               });
+              if (!res.ok) throw new Error(await res.text());
               const json = await res.json();
               if (!json.success) throw new Error(json.error);
 
@@ -475,7 +476,7 @@ const [isAiLoading, setIsAiLoading] = useState(false);
               {!isDragOver && <span className="hidden sm:inline"> atau drag & drop file</span>}
             </div>
             <p className="text-xs md:text-sm text-slate-500 dark:text-slate-500">
-              PNG, JPG, WEBP • Max: 10MB • Multiple files
+              PNG, JPG, WEBP •               Max: 3MB • Multiple files
             </p>
           </div>
 

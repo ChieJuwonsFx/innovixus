@@ -49,6 +49,7 @@ export default function GeneratePostPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ imageDataUrls: generatedPosts, caption: postData.title }),
       });
+      if (!res.ok) throw new Error(await res.text());
       const data = await res.json();
       if (!data.success) throw new Error(data.error);
       setPostResult('Berhasil dipost ke Instagram!');

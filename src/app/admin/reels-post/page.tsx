@@ -109,6 +109,7 @@ export default function ReelsPostPage() {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ language, prompt: '' }),
       });
+      if (!res.ok) throw new Error(await res.text());
       const json = await res.json();
       if (!json.success) throw new Error(json.error);
       setText(json.data.text);
@@ -132,6 +133,7 @@ export default function ReelsPostPage() {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ mediaType: 'IMAGE', imageDataUrls: [previewUrl], caption: caption + '\n\n' + hashtags, account: 'kinetics' }),
       });
+      if (!res.ok) throw new Error(await res.text());
       const json = await res.json();
       if (!json.success) throw new Error(json.error);
       setPostResult('Berhasil dipost!');

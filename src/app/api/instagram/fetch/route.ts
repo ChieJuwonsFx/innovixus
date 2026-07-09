@@ -14,6 +14,7 @@ export async function POST(req: Request) {
       signal: controller.signal,
     });
     clearTimeout(timeout);
+    if (!res.ok) throw new Error(await res.text());
     const data = await res.json();
 
     if (!data.success || !data.urls?.length) {

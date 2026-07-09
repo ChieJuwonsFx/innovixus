@@ -20,8 +20,9 @@ export async function POST() {
       `?grant_type=ig_refresh_token` +
       `&access_token=${encodeURIComponent(currentToken)}`
     );
+    if (!res.ok) throw new Error(await res.text());
     const data = await res.json();
-    if (!res.ok || !data.access_token) {
+    if (!data.access_token) {
       throw new Error(data.error?.message || 'Refresh failed');
     }
 

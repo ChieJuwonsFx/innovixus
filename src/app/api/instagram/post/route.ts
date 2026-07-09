@@ -49,8 +49,8 @@ export async function POST(req: Request) {
         fd.append('folder', 'instagram-posts');
         const endpoint = `https://api.cloudinary.com/v1_1/${cloudName}/${resourceType}/upload`;
         const res = await fetch(endpoint, { method: 'POST', body: fd });
+        if (!res.ok) throw new Error(await res.text());
         const json = await res.json();
-        if (!res.ok) throw new Error(json.error?.message || `${resourceType} upload failed`);
         return { url: json.secure_url, publicId: json.public_id };
       };
 
@@ -71,8 +71,10 @@ export async function POST(req: Request) {
           vidForm.append('folder', 'instagram-reels');
           vidForm.append('eager', 'f_mp4,du_5,ac_aac,af_22050');
           const vidRes = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/video/upload`, { method: 'POST', body: vidForm });
-          const vidData = await vidRes.json();
-          if (vidRes.ok) {
+          if (!vidRes.ok) {
+            console.error('Video upload failed', await vidRes.text());
+          } else {
+            const vidData = await vidRes.json();
             if (vidData.eager?.[0]?.secure_url) {
               finalUrl = vidData.eager[0].secure_url;
             } else if (vidData.eager?.[0]?.url) {

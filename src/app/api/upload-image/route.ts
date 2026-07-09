@@ -21,9 +21,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (file.size > 10 * 1024 * 1024) { 
+    if (file.size > 3 * 1024 * 1024) { 
       return NextResponse.json(
-        { error: 'Ukuran file maksimal 10MB' },
+        { error: 'Ukuran file maksimal 3MB' },
         { status: 400 }
       );
     }
@@ -53,11 +53,11 @@ export async function POST(request: NextRequest) {
       body: uploadFormData,
     });
 
-    const data = await response.json();
-
     if (!response.ok) {
-      throw new Error(data.error?.message || 'Gagal mengupload ke Cloudinary');
+      throw new Error(await response.text());
     }
+
+    const data = await response.json();
 
     return NextResponse.json({
       url: data.secure_url,

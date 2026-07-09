@@ -59,9 +59,7 @@ export default function Step2_EventForm({ onNext, onBack, initialData, ...eventF
   const prefillEvent = initialData ? {
     ...initialData,
     organizer_id: eventFormProps.preselectedOrganizerId
-  } : {
-    organizer_id: eventFormProps.preselectedOrganizerId
-  };
+  } : undefined;
 
   return (
     <div>
@@ -73,7 +71,7 @@ export default function Step2_EventForm({ onNext, onBack, initialData, ...eventF
       <form onSubmit={handleSubmit}>
         <EventForm
           {...eventFormProps}
-          event={prefillEvent as EventWithRelations} 
+          event={prefillEvent as EventWithRelations | undefined}
           asChild 
         />
         

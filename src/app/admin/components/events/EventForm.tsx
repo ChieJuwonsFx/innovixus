@@ -73,6 +73,7 @@ export default function EventForm({ event, organizers, levels, fields, asChild =
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ caption })
       });
+      if (!res.ok) throw new Error(await res.text());
       const json = await res.json();
       if (!json.success) throw new Error(json.error);
       const d = json.data;
@@ -207,8 +208,7 @@ export default function EventForm({ event, organizers, levels, fields, asChild =
             });
             
             if (!response.ok) {
-              const errorData = await response.json();
-              throw new Error(errorData.error || `Gagal mengupload ${file.name}`);
+              throw new Error(await response.text());
             }
             
             const data = await response.json();
