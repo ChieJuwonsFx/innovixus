@@ -14,7 +14,6 @@ interface ExtendedUser {
 }
 
 interface ExtendedSession extends Session {
-  idToken?: string;
 }
 
 const supabase = createClient(
@@ -140,10 +139,6 @@ export const authOptions: NextAuthOptions = {
         token.role = extendedUser.role;
       }
 
-      if (account?.id_token) {
-        token.idToken = account.id_token;
-      }
-
       if (token.email && !token.role) {
         const { data: userData } = await supabase
           .from('users')
@@ -171,10 +166,6 @@ export const authOptions: NextAuthOptions = {
         if (token?.role) {
           (session.user as { role?: string }).role = token.role as string;
         }
-      }
-      
-      if (token?.idToken) {
-        (session as ExtendedSession).idToken = token.idToken as string;
       }
       
       return session;

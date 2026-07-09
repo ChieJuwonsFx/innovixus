@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useTransition } from 'react';
 import { createPortal } from 'react-dom';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -12,7 +12,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
 import { Database } from '@/types/database';
 import DeleteButton from '../DeleteButton';
-import { deleteEvent } from '../../events/actions';
+import { deleteEvent, publishEvent } from '../../events/actions';
 
 type EventRow = Database['public']['Tables']['events']['Row'];
 
@@ -30,6 +30,7 @@ export default function AdminEventCard({ event }: { event: EventWithOrganizer })
   const [imageError, setImageError] = useState(false);
   const [menuPos, setMenuPos] = useState({ top: 0, left: 0 });
   const [mounted, setMounted] = useState(false);
+  const [_, startTransition] = useTransition();
   const menuRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
 
@@ -133,6 +134,7 @@ export default function AdminEventCard({ event }: { event: EventWithOrganizer })
       const data = await res.json();
       if (!data.success) throw new Error(data.error);
       toast.success('Berhasil dipost ke Instagram!');
+      startTransition(() => publishEvent(event.id));
     } catch (e) {
       toast.error('Gagal post: ' + (e instanceof Error ? e.message : 'Unknown'));
     } finally {

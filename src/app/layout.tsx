@@ -7,8 +7,6 @@ import { Toaster } from 'react-hot-toast';
 import Script from 'next/script';
 import { Providers } from './providers'
 
-export const dynamic = 'force-dynamic';
-
 const montserrat = Montserrat({
   subsets: ['latin'],
   display: 'swap',

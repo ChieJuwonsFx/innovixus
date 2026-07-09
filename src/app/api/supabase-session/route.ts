@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
-// import { authOptions } from '@/app/api/auth/[...nextauth]/route'
+import { getToken } from 'next-auth/jwt'
 import { authOptions } from "@/app/api/auth/[...nextauth]/auth.config";
 import { createClient } from '@supabase/supabase-js'
 
@@ -18,10 +18,9 @@ const supabaseAdmin = createClient(
 export async function POST(req: Request) {
  try {
   const nextAuthSession = await getServerSession(authOptions)
-    
-    const { idToken } = await req.json(); 
 
-  console.log("🔵 /api/supabase-session POST called for:", nextAuthSession?.user?.email)
+  const token = await getToken({ req: req as any, secret: process.env.NEXTAUTH_SECRET })
+  const idToken = token?.idToken as string | undefined
 
   if (!nextAuthSession?.user?.email || !idToken) {
    return NextResponse.json({ error: 'Unauthorized or missing ID Token' }, { status: 401 })

@@ -14,18 +14,13 @@ export async function getEventWithRelations(id: string) {
   try {
     const { data: event, error: eventError } = await supabase
       .from("events")
-      .select(
-        `
+      .select(`
         *,
-        organizers (
-          id,
-          name,
-          instagram,
-          created_at,
-          updated_at
-        )
-      `
-      )
+        organizers (id, name, instagram, created_at, updated_at),
+        event_levels (levels (id, name, created_at, updated_at)),
+        event_fields (fields (id, name, only_lomba, created_at, updated_at)),
+        prices (*)
+      `)
       .eq("id", id)
       .single();
 
@@ -36,67 +31,22 @@ export async function getEventWithRelations(id: string) {
 
     if (!event) return null;
 
-    const [
-      { data: eventLevels },
-      { data: eventFields },
-      { data: prices },
-      { data: partnership },
-    ] = await Promise.all([
-      supabase
-        .from("event_levels")
-        .select(
-          `
-          levels (
-            id,
-            name,
-            created_at,
-            updated_at
-          )
-        `
-        )
-        .eq("event_id", id),
-
-      supabase
-        .from("event_fields")
-        .select(
-          `
-          fields (
-            id,
-            name,
-            only_lomba,
-            created_at,
-            updated_at
-          )
-        `
-        )
-        .eq("event_id", id),
-
-      supabase
-        .from("prices")
-        .select("*")
-        .eq("event_id", id)
-        .order("start_date", { ascending: true }),
-
-      event.partnership_id
-        ? supabase
-            .from("partnerships")
-            .select(
-              `
-              *,
-              packages (*)
-            `
-            )
-            .eq("id", event.partnership_id)
-            .single()
-        : Promise.resolve({ data: null }),
-    ]);
+    let partnership = null;
+    if (event.partnership_id) {
+      const { data: p } = await supabase
+        .from("partnerships")
+        .select("*, packages (*)")
+        .eq("id", event.partnership_id)
+        .single();
+      partnership = p;
+    }
 
     return {
       ...event,
-      levels: eventLevels?.map((el) => el.levels).filter(Boolean) || null,
-      fields: eventFields?.map((ef) => ef.fields).filter(Boolean) || null,
-      prices: prices || null,
-      partnerships: partnership || null,
+      levels: (event as any).event_levels?.map((el: any) => el.levels).filter(Boolean) || null,
+      fields: (event as any).event_fields?.map((ef: any) => ef.fields).filter(Boolean) || null,
+      prices: (event as any).prices || null,
+      partnerships: partnership,
     };
   } catch (error) {
     console.error("Error in getEventWithRelations:", error);

@@ -237,3 +237,13 @@ export async function deleteEvent(id: string) {
     revalidatePath(`/${event.kategori.replace(/\s+/g, '-').toLowerCase()}`);
   }
 }
+
+export async function publishEvent(id: string) {
+  const supabase = adminClient();
+  const { error } = await supabase
+    .from('events')
+    .update({ status: 'Success' })
+    .eq('id', id);
+  if (error) throw new Error(error.message);
+  revalidatePath('/admin/events');
+}

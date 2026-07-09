@@ -3,13 +3,21 @@ import AdminPageHeader from '../components/AdminPageHeader';
 import AdminEventCard from '../components/events/AdminEventCard';
 import { CirclePlus } from "lucide-react";
 
-export default async function EventsPage() {
+const PAGE_SIZE = 50;
+
+export default async function EventsPage(props: { searchParams?: Promise<{ page?: string }> }) {
+  const searchParams = await props.searchParams;
+  const page = Math.max(1, parseInt(searchParams?.page || '1', 10) || 1);
+  const from = (page - 1) * PAGE_SIZE;
+  const to = from + PAGE_SIZE - 1;
+
   const supabase = await createClient();
   
   const { data: events, error } = await supabase
     .from('events')
     .select('*, organizers(name, instagram)')
-    .order('created_at', { ascending: false });
+    .order('created_at', { ascending: false })
+    .range(from, to);
 
   if (error) {
     console.error('Error fetching events:', error);

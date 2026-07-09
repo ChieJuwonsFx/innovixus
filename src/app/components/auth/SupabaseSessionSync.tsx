@@ -2,79 +2,38 @@
 
 import { useSession } from 'next-auth/react'
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
-import { useEffect, useState } from 'react'
-
-interface ExtendedSession {
-  user?: {
-    email?: string | null
-  }
-  idToken?: string
-}
+import { useEffect, useRef } from 'react'
 
 export function SupabaseSessionSync() {
   const { data: session, status } = useSession()
   const supabase = createClientComponentClient()
-  const [isSyncing, setIsSyncing] = useState(false)
+  const synced = useRef(false)
 
   useEffect(() => {
-    async function syncSession() {
-      if (status === 'loading') {
-        return
-      }
+    if (status === 'loading') return
+    if (status === 'unauthenticated' || !session?.user?.email) return
+    if (synced.current) return
 
-      if (status === 'unauthenticated' || !session?.user?.email) {
-        return
-      }
-
-      const { data: { session: supabaseSession } } = await supabase.auth.getSession()
+    supabase.auth.getSession().then(({ data: { session: supabaseSession } }) => {
       if (supabaseSession) {
+        synced.current = true
         return
       }
 
-      if (isSyncing) {
-        return
-      }
-
-      const extendedSession = session as ExtendedSession
-      const idToken = extendedSession?.idToken
-
-      if (!idToken) {
-        return
-      }
-
-      setIsSyncing(true)
-
-      try {
-        const res = await fetch('/api/supabase-session', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ idToken }),
+      fetch('/api/supabase-session', { method: 'POST' })
+        .then(res => res.ok ? res.json() : null)
+        .then(data => {
+          if (data?.access_token && data?.refresh_token) {
+            return supabase.auth.setSession({
+              access_token: data.access_token,
+              refresh_token: data.refresh_token,
+            })
+          }
         })
-
-        if (!res.ok) {
-          console.error('Failed to sync Supabase session')
-          return
-        }
-
-        const { access_token, refresh_token } = await res.json()
-
-        if (access_token && refresh_token) {
-          await supabase.auth.setSession({
-            access_token,
-            refresh_token,
-          })
-        }
-      } catch (err) {
-        console.error('Error syncing Supabase session:', err)
-      } finally {
-        setIsSyncing(false)
-      }
-    }
-
-    syncSession()
-  }, [session, status, supabase.auth, isSyncing])
+        .then(() => { synced.current = true })
+        .catch(() => { synced.current = true })
+    })
+  }, [session, status, supabase.auth])
 
   return null
 }
