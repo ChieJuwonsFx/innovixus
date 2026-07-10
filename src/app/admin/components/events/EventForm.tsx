@@ -108,6 +108,11 @@ export default function EventForm({ event, organizers, levels, fields, asChild =
           el['organizer_id'].value = d.organizer_id;
           el['organizer_id'].dispatchEvent(new Event('change', { bubbles: true }));
           setAutofillOrganizerId(d.organizer_id);
+          if (!organizers.find(o => o.id === d.organizer_id)) {
+            const { getOrganizer } = await import('@/app/admin/organizers/actions');
+            const org = await getOrganizer(d.organizer_id);
+            if (org) setExtraOrganizers(prev => [...prev, { id: org.id, name: org.name, instagram: org.instagram }]);
+          }
         }
       } else if (d.organizer_name) {
         const match = organizers.find(o => o.name?.toLowerCase() === d.organizer_name.toLowerCase() || o.instagram?.toLowerCase() === d.organizer_name.toLowerCase());
