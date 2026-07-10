@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { Combobox } from '@headlessui/react';
 import { Search, Filter, X, ChevronDown, Loader2 } from 'lucide-react';
@@ -30,6 +30,18 @@ export default function EventFilters({ levels, fields, kategori }: FilterProps) 
   const [isLoading, setIsLoading] = useState(false);
   const [levelQuery, setLevelQuery] = useState('');
   const [bidangQuery, setBidangQuery] = useState('');
+  const levelInputRef = useRef<HTMLInputElement>(null);
+  const bidangInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const onScroll = () => {
+      if (document.activeElement === levelInputRef.current || document.activeElement === bidangInputRef.current) {
+        (document.activeElement as HTMLInputElement).blur();
+      }
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   useEffect(() => {
     setIsMounted(true);
@@ -273,6 +285,7 @@ export default function EventFilters({ levels, fields, kategori }: FilterProps) 
               >
                 <div className="relative z-20">
                   <Combobox.Input
+                    ref={levelInputRef}
                     onChange={(e) => { setLevelQuery(e.target.value); if (e.target.value) setSelectedLevel(''); }}
                     displayValue={(id: string) => id ? (levels.find(l => l.id === id)?.name || '') : ''}
                     placeholder={'Semua ' + labels.level}
@@ -314,6 +327,7 @@ export default function EventFilters({ levels, fields, kategori }: FilterProps) 
               >
                 <div className="relative z-20">
                   <Combobox.Input
+                    ref={bidangInputRef}
                     onChange={(e) => { setBidangQuery(e.target.value); if (e.target.value) setSelectedBidang(''); }}
                     displayValue={(id: string) => id ? (displayFields.find(f => f.id === id)?.name || '') : ''}
                     placeholder={'Semua ' + labels.bidang}

@@ -23,6 +23,7 @@ export default function FieldsPage() {
   const [isAdding, setIsAdding] = useState(false)
   const [showDeleteModal, setShowDeleteModal] = useState<string | null>(null)
   const [menuOpenId, setMenuOpenId] = useState<string | null>(null)
+  const [submitting, setSubmitting] = useState(false)
   const menuRef = useRef<HTMLDivElement | null>(null)
   const menuBtnRef = useRef<HTMLButtonElement | null>(null)
 
@@ -82,8 +83,10 @@ export default function FieldsPage() {
       toast.error('Field name is required')
       return
     }
+    if (submitting) return
 
     try {
+      setSubmitting(true)
       const formData = new FormData()
       formData.append('name', editingValue.trim())
       formData.append('only_lomba', String(editingOnlyLomba))
@@ -92,21 +95,31 @@ export default function FieldsPage() {
       setEditingValue('')
       setEditingOnlyLomba(false)
       await loadFields()
-      toast.success('Field updated successfully')
+      toast.success('Bidang berhasil diperbarui')
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Failed to update field')
+      toast.error(error instanceof Error ? error.message : 'Gagal memperbarui bidang')
+    } finally {
+      setSubmitting(false)
     }
   }
 
   const handleDelete = async (id: string) => {
+    if (submitting) return
     try {
-      await deleteField(id)
+      setSubmitting(true)
+      const result = await deleteField(id)
+      if (result && !result.success) {
+        toast.error(result.message || 'Gagal menghapus bidang')
+        setSubmitting(false)
+        return
+      }
       await loadFields()
       setShowDeleteModal(null)
-      toast.success('Field deleted successfully')
+      toast.success('Bidang berhasil dihapus')
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Failed to delete field')
-      setShowDeleteModal(null)
+      toast.error(error instanceof Error ? error.message : 'Gagal menghapus bidang')
+    } finally {
+      setSubmitting(false)
     }
   }
 
@@ -195,7 +208,8 @@ export default function FieldsPage() {
                               value={editingValue}
                               onChange={(e) => setEditingValue(e.target.value)}
                               className="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
-                              onKeyDown={(e) => e.key === 'Enter' && handleSave(field.id)}
+                              onKeyDown={(e) => e.key === 'Enter' && !submitting && handleSave(field.id)}
+                              disabled={submitting}
                               autoFocus
                             />
                             <label className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
@@ -204,8 +218,8 @@ export default function FieldsPage() {
                             </label>
                           </div>
                           <div className="flex gap-2 pt-0.5">
-                            <button onClick={() => handleSave(field.id)} className="rounded-lg bg-green-600 p-1.5 text-white hover:bg-green-700"><Save className="h-3.5 w-3.5" /></button>
-                            <button onClick={handleCancel} className="rounded-lg bg-slate-600 p-1.5 text-white hover:bg-slate-700"><X className="h-3.5 w-3.5" /></button>
+                            <button onClick={() => handleSave(field.id)} disabled={submitting} className="rounded-lg bg-green-600 p-1.5 text-white hover:bg-green-700 disabled:opacity-50"><Save className="h-3.5 w-3.5" /></button>
+                            <button onClick={handleCancel} disabled={submitting} className="rounded-lg bg-slate-600 p-1.5 text-white hover:bg-slate-700 disabled:opacity-50"><X className="h-3.5 w-3.5" /></button>
                           </div>
                         </div>
                       </td>
@@ -250,7 +264,7 @@ export default function FieldsPage() {
             <p className="mb-6 text-sm text-slate-600 dark:text-slate-400">Yakin ingin menghapus bidang ini?</p>
             <div className="flex justify-end gap-3">
               <button onClick={() => setShowDeleteModal(null)} className="rounded-lg px-4 py-2 text-sm text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-700">Batal</button>
-              <button onClick={() => handleDelete(showDeleteModal)} className="rounded-lg bg-red-600 px-4 py-2 text-sm text-white hover:bg-red-700">Hapus</button>
+              <button onClick={() => handleDelete(showDeleteModal)} disabled={submitting} className="rounded-lg bg-red-600 px-4 py-2 text-sm text-white hover:bg-red-700 disabled:opacity-50">{submitting ? 'Menghapus...' : 'Hapus'}</button>
             </div>
           </div>
         </div>

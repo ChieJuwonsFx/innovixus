@@ -9,7 +9,7 @@ import { deletePackage } from '../../packages/actions';
 
 type Package = Database['public']['Tables']['packages']['Row'];
 
-function PackageRow({ pkg, onDelete }: { pkg: Package; onDelete: () => Promise<void> }) {
+function PackageRow({ pkg, onDelete }: { pkg: Package; onDelete: () => Promise<void | { error: string } | null | undefined> }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const btnRef = useRef<HTMLButtonElement>(null);
@@ -72,7 +72,11 @@ export default function PackageTable({ packages }: { packages: Package[] }) {
   const handleDeleteAction = async (pkg: Package) => {
     const formData = new FormData();
     formData.append('id', pkg.id);
-    await deletePackage(formData);
+    try {
+      await deletePackage(formData);
+    } catch (e) {
+      return { error: e instanceof Error ? e.message : 'Gagal menghapus package' };
+    }
   };
 
   if (!packages || packages.length === 0) {

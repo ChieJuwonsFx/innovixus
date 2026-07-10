@@ -202,7 +202,7 @@ export async function updateEvent(id: string, prevState: FormState, formData: Fo
   return { success: true, message: 'Event berhasil diperbarui!' };
 }
 
-export async function deleteEvent(id: string) {
+export async function deleteEvent(id: string): Promise<FormState> {
   const supabase = adminClient();
   
   const { data: event, error: fetchError } = await supabase
@@ -213,7 +213,7 @@ export async function deleteEvent(id: string) {
 
   if (fetchError) {
     console.error('Error fetching event:', fetchError);
-    return;
+    return { success: false, message: 'Event tidak ditemukan.' };
   }
 
   if (event?.poster && Array.isArray(event.poster)) {
@@ -229,13 +229,15 @@ export async function deleteEvent(id: string) {
 
   if (error) {
     console.error('Error deleting event:', error);
-    return;
+    return { success: false, message: `Gagal menghapus: ${error.message}` };
   }
 
   revalidatePath('/admin/events');
   if (event?.kategori) {
     revalidatePath(`/${event.kategori.replace(/\s+/g, '-').toLowerCase()}`);
   }
+
+  return { success: true, message: 'Event berhasil dihapus!' };
 }
 
 export async function publishEvent(id: string) {

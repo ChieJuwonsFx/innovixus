@@ -99,38 +99,43 @@ export async function updateLevel(id: string, formData: FormData) {
 }
 
 export async function deleteLevel(id: string) {
-  try {
-    const supabase = adminClient()
-    
-    const { data: eventLevels, error: checkError } = await supabase
-      .from('event_levels')
-      .select('event_id')
-      .eq('level_id', id)
-      .limit(1)
+  const supabase = adminClient()
+  
+  const { data: eventLevels, error: checkError } = await supabase
+    .from('event_levels')
+    .select('event_id')
+    .eq('level_id', id)
 
-    if (checkError) {
-      console.error('Error checking level dependencies:', checkError)
-      throw new Error(`Failed to check level dependencies: ${checkError.message}`)
-    }
-
-    if (eventLevels && eventLevels.length > 0) {
-      throw new Error('Cannot delete level because it is used in one or more events')
-    }
-
-    const { error } = await supabase
-      .from('levels')
-      .delete()
-      .eq('id', id)
-
-    if (error) {
-      console.error('Error deleting level:', error)
-      throw new Error(`Failed to delete level: ${error.message}`)
-    }
-
-    revalidatePath('/admin/levels')
-    return { success: true }
-  } catch (error) {
-    console.error('Delete level error:', error)
-    throw error
+  if (checkError) {
+    console.error('Error checking level dependencies:', checkError)
+    return { success: false, message: 'Gagal memeriksa ketergantungan level' }
   }
+
+  if (eventLevels && eventLevels.length > 0) {
+    const eventIds = eventLevels.map(el => el.event_id)
+    const { data: events } = await supabase
+      .from('events')
+      .select('title, status')
+      .in('id', eventIds)
+
+    const eventList = (events || [])
+      .slice(0, 3)
+      .map(e => `${e.title} (${e.status})`)
+      .join(', ')
+    const suffix = (events || []).length > 3 ? `, dan ${(events || []).length - 3} lainnya` : ''
+    return { success: false, message: `Level masih digunakan di event: ${eventList}${suffix}` }
+  }
+
+  const { error } = await supabase
+    .from('levels')
+    .delete()
+    .eq('id', id)
+
+  if (error) {
+    console.error('Error deleting level:', error)
+    return { success: false, message: `Gagal menghapus level: ${error.message}` }
+  }
+
+  revalidatePath('/admin/levels')
+  return { success: true, message: 'Level berhasil dihapus' }
 }

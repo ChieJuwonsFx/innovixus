@@ -182,6 +182,8 @@ import { useAuth } from '@/lib/hooks/useAuth';
 
 interface AuthSectionProps {
   isMobile?: boolean;
+  onProfileOpen?: () => void;
+  menuOpen?: boolean;
 }
 
 const menuVariants = {
@@ -204,7 +206,7 @@ const MobileAuthSkeleton = () => (
   </div>
 );
 
-export function AuthSection({ isMobile = false }: AuthSectionProps) {
+export function AuthSection({ isMobile = false, onProfileOpen, menuOpen }: AuthSectionProps) {
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const { user, loading, isAdmin } = useAuth();
@@ -238,6 +240,10 @@ export function AuthSection({ isMobile = false }: AuthSectionProps) {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  useEffect(() => {
+    if (menuOpen) setIsProfileMenuOpen(false);
+  }, [menuOpen]);
   
   const isLoadingState = !mounted || loading;
 
@@ -279,7 +285,7 @@ export function AuthSection({ isMobile = false }: AuthSectionProps) {
     return (
       <div className="relative" ref={profileMenuRef}>
         <button 
-          onClick={() => setIsProfileMenuOpen(prev => !prev)}
+          onClick={() => { setIsProfileMenuOpen(prev => !prev); onProfileOpen?.(); }}
           className="flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-slate-900 focus:ring-blue-500 rounded-full"
           aria-label="User menu"
         >

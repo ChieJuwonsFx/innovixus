@@ -4,24 +4,45 @@ import { useState, Fragment } from 'react';
 import { Dialog, Transition } from '@headlessui/react'; 
 import { Loader2, Trash2, AlertTriangle } from 'lucide-react';
 
-type ActionResponse = void | { error: string } | undefined;
+type ActionResponse = void | { error: string } | { success: boolean; message: string } | null | undefined;
 
 export default function DeleteButton({ action, itemLabel }: { action: () => Promise<ActionResponse>, itemLabel: string }) {
   const [isLoading, setIsLoading] = useState(false);
-  const [isOpen, setIsOpen] = useState(false); 
+  const [isOpen, setIsOpen] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   function closeModal() {
     setIsOpen(false);
+    setError(null);
   }
 
   function openModal() {
     setIsOpen(true);
+    setError(null);
   }
 
   const handleDelete = async () => {
     setIsLoading(true);
-    closeModal();
-    await action();
+    setError(null);
+    try {
+      const result = await action();
+      if (result && typeof result === 'object') {
+        if ('error' in result && typeof result.error === 'string') {
+          setError(result.error);
+          setIsLoading(false);
+          return;
+        }
+        if ('success' in result && result.success === false && 'message' in result) {
+          setError(result.message as string);
+          setIsLoading(false);
+          return;
+        }
+      }
+      closeModal();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Terjadi kesalahan saat menghapus');
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -72,6 +93,11 @@ export default function DeleteButton({ action, itemLabel }: { action: () => Prom
                     <p className="text-sm text-slate-500 dark:text-slate-400">
                       Apakah Anda yakin ingin menghapus <strong>{itemLabel}</strong>? Tindakan ini tidak dapat diurungkan.
                     </p>
+                    {error && (
+                      <p className="mt-3 rounded-lg bg-red-50 p-3 text-sm text-red-600 dark:bg-red-900/20 dark:text-red-400">
+                        {error}
+                      </p>
+                    )}
                   </div>
 
                   <div className="mt-6 flex justify-end gap-3">

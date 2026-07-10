@@ -136,35 +136,41 @@ export async function updateField(id: string, formData: FormData) {
 }
 
 export async function deleteField(id: string) {
-  try {
-    const supabase = adminClient()
-    
-    const { data: eventFields, error: checkError } = await supabase
-      .from('event_fields')
-      .select('event_id')
-      .eq('field_id', id)
-      .limit(1)
+  const supabase = adminClient()
+  
+  const { data: eventFields, error: checkError } = await supabase
+    .from('event_fields')
+    .select('event_id')
+    .eq('field_id', id)
 
-    if (checkError) {
-      throw new Error(`Failed to check field dependencies: ${checkError.message}`)
-    }
-
-    if (eventFields && eventFields.length > 0) {
-      throw new Error('Cannot delete field because it is used in one or more events')
-    }
-
-    const { error } = await supabase
-      .from('fields')
-      .delete()
-      .eq('id', id)
-
-    if (error) {
-      throw new Error(`Failed to delete field: ${error.message}`)
-    }
-
-    revalidatePath('/admin/fields')
-    return { success: true }
-  } catch (error) {
-    throw error
+  if (checkError) {
+    return { success: false, message: 'Gagal memeriksa ketergantungan bidang' }
   }
+
+  if (eventFields && eventFields.length > 0) {
+    const eventIds = eventFields.map(ef => ef.event_id)
+    const { data: events } = await supabase
+      .from('events')
+      .select('title, status')
+      .in('id', eventIds)
+
+    const eventList = (events || [])
+      .slice(0, 3)
+      .map(e => `${e.title} (${e.status})`)
+      .join(', ')
+    const suffix = (events || []).length > 3 ? `, dan ${(events || []).length - 3} lainnya` : ''
+    return { success: false, message: `Bidang masih digunakan di event: ${eventList}${suffix}` }
+  }
+
+  const { error } = await supabase
+    .from('fields')
+    .delete()
+    .eq('id', id)
+
+  if (error) {
+    return { success: false, message: `Gagal menghapus bidang: ${error.message}` }
+  }
+
+  revalidatePath('/admin/fields')
+  return { success: true, message: 'Bidang berhasil dihapus' }
 }

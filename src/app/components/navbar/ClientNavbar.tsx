@@ -84,7 +84,7 @@ export default function ClientNavbar({ isMobile = false }: ClientNavbarProps) {
         <div className="flex items-center gap-4">
           <ThemeToggle />
           
-          <AuthSection isMobile={isMobile} />
+          <AuthSection isMobile={isMobile} onProfileOpen={() => setIsMenuOpen(false)} menuOpen={isMenuOpen} />
 
           <button
             onClick={() => setIsMenuOpen(prev => !prev)}

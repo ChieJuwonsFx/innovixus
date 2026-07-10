@@ -115,15 +115,17 @@ export default function LevelsPage() {
 
     try {
       setSubmitting(true)
-      await deleteLevel(id)
+      const result = await deleteLevel(id)
+      if (result && !result.success) {
+        toast.error(result.message || 'Gagal menghapus level')
+        setSubmitting(false)
+        return
+      }
       await loadLevels()
       setShowDeleteModal(null)
-      toast.success('Level deleted successfully')
+      toast.success('Level berhasil dihapus')
     } catch (error) {
-      console.error('Delete level error:', error)
-      const errorMessage = error instanceof Error ? error.message : 'Failed to delete level'
-      toast.error(errorMessage)
-      setShowDeleteModal(null)
+      toast.error(error instanceof Error ? error.message : 'Gagal menghapus level')
     } finally {
       setSubmitting(false)
     }
