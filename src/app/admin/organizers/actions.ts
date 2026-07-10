@@ -37,6 +37,7 @@ export async function createOrganizer(formData: FormData) {
     }
 
     revalidatePath('/admin/organizers')
+    revalidatePath('/admin/events')
   } catch (error) {
     console.error('Create organizer error:', error)
     throw error
@@ -68,6 +69,7 @@ export async function updateOrganizer(id: string, formData: FormData) {
     }
 
     revalidatePath('/admin/organizers')
+    revalidatePath('/admin/events')
   } catch (error) {
     console.error('Update organizer error:', error)
     throw error
@@ -104,6 +106,7 @@ export async function deleteOrganizer(id: string) {
     }
 
     revalidatePath('/admin/organizers')
+    revalidatePath('/admin/events')
   } catch (error) {
     console.error('Delete organizer error:', error)
     throw error
@@ -125,6 +128,7 @@ export async function quickCreateOrganizer(name: string, instagram: string | nul
   if (error) throw new Error(`Gagal membuat organizer: ${error.message}`)
 
   revalidatePath('/admin/organizers')
+  revalidatePath('/admin/events')
   return { id, name: name.trim(), instagram: instagram?.trim() || null }
 }
 

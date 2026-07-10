@@ -61,6 +61,7 @@ export default function EventForm({ event, organizers, levels, fields, asChild =
   const [autofillFieldIds, setAutofillFieldIds] = useState<string[]>([]);
   const [autofillLevelIds, setAutofillLevelIds] = useState<string[]>([]);
   const [autofillOrganizerId, setAutofillOrganizerId] = useState<string | null>(null);
+  const [extraOrganizers, setExtraOrganizers] = useState<Array<Pick<Organizer, 'id' | 'name' | 'instagram'>>>([]);
 
   const handleAutofill = useCallback(async (caption: string) => {
     if (!caption.trim()) return;
@@ -110,7 +111,14 @@ export default function EventForm({ event, organizers, levels, fields, asChild =
         }
       } else if (d.organizer_name) {
         const match = organizers.find(o => o.name?.toLowerCase() === d.organizer_name.toLowerCase() || o.instagram?.toLowerCase() === d.organizer_name.toLowerCase());
-        const orgId = match ? match.id : (await (await import('@/app/admin/organizers/actions')).quickCreateOrganizer(d.organizer_name, d.organizer_instagram || null)).id;
+        let orgId: string;
+        if (match) {
+          orgId = match.id;
+        } else {
+          const result = await (await import('@/app/admin/organizers/actions')).quickCreateOrganizer(d.organizer_name, d.organizer_instagram || null);
+          orgId = result.id;
+          setExtraOrganizers(prev => [...prev, { id: result.id, name: result.name, instagram: result.instagram }]);
+        }
         el['organizer_id'].value = orgId;
         el['organizer_id'].dispatchEvent(new Event('change', { bubbles: true }));
         setAutofillOrganizerId(orgId);
@@ -282,7 +290,7 @@ export default function EventForm({ event, organizers, levels, fields, asChild =
       />
       <EventDetailsSection 
         event={event} 
-        organizers={organizers} 
+        organizers={[...organizers, ...extraOrganizers]} 
         formInputStyle={formInputStyle}
         selectedKategori={selectedKategori}
         autofillOrganizerId={autofillOrganizerId}
