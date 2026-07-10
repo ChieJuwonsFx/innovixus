@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useTransition } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { PostData, PostTemplate, PostCategory } from '@/types/event';
+import { publishEvent } from '../events/actions';
 import { generatePostImages } from '@/lib/imageGenerator';
 import ImageUploader from '../components/generate-post/ImageUploader';
 import PostPreview from '../components/generate-post/PostPreview';
@@ -38,6 +39,8 @@ export default function GeneratePostPage() {
   const [isLoadingImages, setIsLoadingImages] = useState(false);
   const [isPosting, setIsPosting] = useState(false);
   const [postResult, setPostResult] = useState<string | null>(null);
+  const [eventId, setEventId] = useState<string | null>(null);
+  const [_, startTransition] = useTransition();
 
   const handlePostToInstagram = async () => {
     if (!generatedPosts.length || !postData.title) return;
@@ -53,6 +56,7 @@ export default function GeneratePostPage() {
       const data = await res.json();
       if (!data.success) throw new Error(data.error);
       setPostResult('Berhasil dipost ke Instagram!');
+      if (eventId) startTransition(() => publishEvent(eventId));
     } catch (e) {
       setPostResult('Gagal: ' + (e instanceof Error ? e.message : 'Unknown'));
     } finally {
@@ -78,6 +82,7 @@ export default function GeneratePostPage() {
             title: eventData.title || '',
             category: eventData.category || ''
           }));
+          setEventId(eventData.eventId || null);
 
           if (eventData.images && Array.isArray(eventData.images) && eventData.images.length > 0) {
             setIsLoadingImages(true);

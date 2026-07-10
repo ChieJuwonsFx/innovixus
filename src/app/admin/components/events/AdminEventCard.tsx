@@ -64,7 +64,7 @@ export default function AdminEventCard({ event }: { event: EventWithOrganizer })
   const posterArray = event.poster as Poster[] | null;
   const mainPosterUrl = posterArray?.[0]?.url;
   const publicUrl = `/${(event.kategori ?? 'info-lomba').replace(/\s+/g, '-').toLowerCase()}/${event.id}`;
-  const generatePostUrl = `/admin/generate-post?data=${encodeURIComponent(JSON.stringify({ title: event.title, category: event.kategori || 'Info Lomba', images: posterArray || [] }))}`;
+  const generatePostUrl = `/admin/generate-post?data=${encodeURIComponent(JSON.stringify({ eventId: event.id, title: event.title, category: event.kategori || 'Info Lomba', images: posterArray || [] }))}`;
   const handleDelete = async () => {
     await deleteEvent(event.id);
     setIsMenuOpen(false);
