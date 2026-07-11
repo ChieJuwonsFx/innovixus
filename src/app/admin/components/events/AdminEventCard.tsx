@@ -6,7 +6,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { 
   MoreVertical, Eye, Edit, FileImage, 
-  CalendarDays, Laptop, MapPin, Send
+  CalendarDays, Laptop, MapPin, Send, Trash2
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
@@ -30,6 +30,7 @@ export default function AdminEventCard({ event }: { event: EventWithOrganizer })
   const [imageError, setImageError] = useState(false);
   const [menuPos, setMenuPos] = useState({ top: 0, left: 0 });
   const [mounted, setMounted] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [_, startTransition] = useTransition();
   const menuRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -66,8 +67,8 @@ export default function AdminEventCard({ event }: { event: EventWithOrganizer })
   const publicUrl = `/${(event.kategori ?? 'info-lomba').replace(/\s+/g, '-').toLowerCase()}/${event.id}`;
   const generatePostUrl = `/admin/generate-post?data=${encodeURIComponent(JSON.stringify({ eventId: event.id, title: event.title, category: event.kategori || 'Info Lomba', images: posterArray || [] }))}`;
   const handleDelete = async () => {
-    await deleteEvent(event.id);
     setIsMenuOpen(false);
+    await deleteEvent(event.id);
   };
   
   const formattedDate = event.close_date 
@@ -105,7 +106,7 @@ export default function AdminEventCard({ event }: { event: EventWithOrganizer })
 
     setIsPosting(true);
     setIsMenuOpen(false);
-
+    const loadingToast = toast.loading('Memposting ke Instagram...');
     let cloudinaryUrls: string[] | null = null;
 
     try {
@@ -149,9 +150,11 @@ export default function AdminEventCard({ event }: { event: EventWithOrganizer })
       if (!res.ok) throw new Error(await res.text());
       const data = await res.json();
       if (!data.success) throw new Error(data.error);
+      toast.dismiss(loadingToast);
       toast.success('Berhasil dipost ke Instagram!');
       startTransition(() => publishEvent(event.id));
     } catch (e) {
+      toast.dismiss(loadingToast);
       toast.error('Gagal post: ' + (e instanceof Error ? e.message : 'Unknown'));
     } finally {
       if (cloudinaryUrls?.length) startTransition(() => cleanupCloudinaryImages(cloudinaryUrls!));
@@ -242,10 +245,15 @@ export default function AdminEventCard({ event }: { event: EventWithOrganizer })
             <Send className="h-3.5 w-3.5" /> {isPosting ? 'Posting...' : 'Post ke IG'}
           </button>
           <div className="my-1 border-t border-slate-100 dark:border-slate-700"></div>
-          <div className="px-1">
-            <DeleteButton action={handleDelete} itemLabel={event.title} />
-          </div>
+          <button onClick={() => { setIsMenuOpen(false); setShowDeleteConfirm(true); }} className="flex w-full items-center gap-2.5 px-3 py-2 text-xs text-red-600 transition-colors hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20">
+            <Trash2 className="h-3.5 w-3.5" /> Hapus
+          </button>
         </motion.div>,
+        document.body
+      )}
+
+      {showDeleteConfirm && createPortal(
+        <DeleteButton action={handleDelete} itemLabel={event.title} onClose={() => setShowDeleteConfirm(false)} defaultOpen />,
         document.body
       )}
     </>

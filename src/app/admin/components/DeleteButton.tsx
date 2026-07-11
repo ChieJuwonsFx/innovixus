@@ -6,14 +6,15 @@ import { Loader2, Trash2, AlertTriangle } from 'lucide-react';
 
 type ActionResponse = void | { error: string } | { success: boolean; message: string } | null | undefined;
 
-export default function DeleteButton({ action, itemLabel }: { action: () => Promise<ActionResponse>, itemLabel: string }) {
+export default function DeleteButton({ action, itemLabel, onClose, defaultOpen }: { action: () => Promise<ActionResponse>, itemLabel: string, onClose?: () => void, defaultOpen?: boolean }) {
   const [isLoading, setIsLoading] = useState(false);
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(!!defaultOpen);
   const [error, setError] = useState<string | null>(null);
 
   function closeModal() {
     setIsOpen(false);
     setError(null);
+    onClose?.();
   }
 
   function openModal() {
@@ -47,14 +48,16 @@ export default function DeleteButton({ action, itemLabel }: { action: () => Prom
 
   return (
     <>
-      <button
-        type="button"
-        onClick={openModal}
-        className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-slate-600 transition-colors hover:bg-red-50 hover:text-red-600 dark:text-slate-400 dark:hover:bg-red-900/20 dark:hover:text-red-400"
-      >
-        <Trash2 className="w-4 h-4" />
-        Hapus
-      </button>
+      {!defaultOpen && (
+        <button
+          type="button"
+          onClick={openModal}
+          className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-slate-600 transition-colors hover:bg-red-50 hover:text-red-600 dark:text-slate-400 dark:hover:bg-red-900/20 dark:hover:text-red-400"
+        >
+          <Trash2 className="w-4 h-4" />
+          Hapus
+        </button>
+      )}
 
       <Transition appear show={isOpen} as={Fragment}>
         <Dialog as="div" className="relative z-50" onClose={closeModal}>

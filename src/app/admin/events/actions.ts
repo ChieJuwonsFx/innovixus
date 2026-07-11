@@ -216,6 +216,29 @@ export async function deleteEvent(id: string): Promise<FormState> {
     return { success: false, message: 'Event tidak ditemukan.' };
   }
 
+  const { data: partnerships } = await supabase
+    .from('partnerships')
+    .select('id')
+    .eq('event_id', id)
+    .limit(1);
+
+  if (partnerships && partnerships.length > 0) {
+    return { success: false, message: 'Event tidak dapat dihapus karena masih memiliki partnership.' };
+  }
+
+  const { data: prices } = await supabase
+    .from('prices')
+    .select('id')
+    .eq('event_id', id)
+    .limit(1);
+
+  if (prices && prices.length > 0) {
+    return { success: false, message: 'Event tidak dapat dihapus karena masih memiliki data harga.' };
+  }
+
+  await supabase.from('event_fields').delete().eq('event_id', id);
+  await supabase.from('event_levels').delete().eq('event_id', id);
+
   if (event?.poster && Array.isArray(event.poster)) {
     const imageUrls = event.poster.map((p: { url: string }) => p.url).filter(Boolean);
     
