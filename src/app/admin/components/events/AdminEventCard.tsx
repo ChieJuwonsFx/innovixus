@@ -177,7 +177,7 @@ export default function AdminEventCard({ event }: { event: EventWithOrganizer })
       <td className="hidden whitespace-nowrap px-4 py-3 text-sm text-slate-500 lg:table-cell dark:text-slate-400">
         {event.organizers?.name || '-'}
       </td>
-      <td className="hidden whitespace-nowrap px-4 py-3 text-sm text-slate-500 sm:table-cell dark:text-slate-400">
+      <td className="whitespace-nowrap px-4 py-3 text-sm text-slate-500 dark:text-slate-400">
         {formattedDate || '-'}
       </td>
       <td className="hidden whitespace-nowrap px-4 py-3 text-sm sm:table-cell">
