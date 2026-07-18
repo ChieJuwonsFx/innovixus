@@ -86,21 +86,7 @@ export default function AdminEventCard({ event }: { event: EventWithOrganizer })
     const orgIg = event.organizers?.instagram;
     const mention = orgIg ? `\n\n@${orgIg} untuk info lebih lanjut` : '';
 
-    let caption = `${event.title}\n\n${event.caption || ''}`;
-    try {
-      const aiRes = await fetch('/api/ai/autofill', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ caption: `Judul: ${event.title}\nKategori: ${event.kategori}\nDeskripsi: ${event.caption}\n\nBuat caption IG dengan hashtag wajib: #kralokainfo #melangkahbarengkraloka #${(event.kategori || '').replace(/\s+/g, '')} dan hashtag relevan dari teks.` }),
-      });
-      if (!aiRes.ok) throw new Error(await aiRes.text());
-      const aiJson = await aiRes.json();
-      if (aiJson.success && aiJson.data?.caption) {
-        caption = aiJson.data.caption;
-      }
-    } catch {}
-    caption += mention;
-    if (!caption.includes('#')) caption += `\n\n#kralokainfo #melangkahbarengkraloka #${(event.kategori || '').replace(/\s+/g, '')} #kraloka`;
+    const caption = `${event.title}\n\n${event.caption || ''}${mention}`;
 
     const userTags = orgIg ? [{ username: orgIg, x: 0.5, y: 0.9 }] : [];
 
